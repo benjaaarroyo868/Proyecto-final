@@ -1,6 +1,8 @@
 package Clases;
 
-public class Conserje extends Persona {
+import Interfaces.IEmpleado;
+
+public class Conserje extends Persona implements IEmpleado {
 
     private String legajo;
     private double sueldoPorVenta;

@@ -1,6 +1,7 @@
 package Clases;
+import Interfaces.IEmpleado;
 
-public class Administrador  extends Persona{
+public class Administrador  extends Persona implements IEmpleado {
 
     private String legajo;
     private double sueldo;
