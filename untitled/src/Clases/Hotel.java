@@ -61,44 +61,6 @@ public class Hotel {
     public void setCantidadOcupadas(int cantidadOcupadas) {
         this.cantidadOcupadas = cantidadOcupadas;
     }
+    
 
-    public Map<String, ArrayList<Empleado>> getEmpleados() {
-        return empleados;
-    }
-
-    public void setEmpleados(Map<String, ArrayList<Empleado>> empleados) {
-        this.empleados = empleados;
-    }
-
-    public Map<TipoTecnico, ArrayLisT<Tecnico>> getTecnicos() {
-        return tecnicos;
-    }
-
-    public void setTecnicos(Map<TipoTecnico, ArrayLisT<Tecnico>> tecnicos) {
-        this.tecnicos = tecnicos;
-    }
-
-    public Map<TipoHabitacion, ArrayList<Habitacion>> getHabitaciones() {
-        return habitaciones;
-    }
-
-    public void setHabitaciones(Map<TipoHabitacion, ArrayList<Habitacion>> habitaciones) {
-        this.habitaciones = habitaciones;
-    }
-
-    public Map<Integer, ArrayList<Pasajero>> getPasajeros() {
-        return pasajeros;
-    }
-
-    public void setPasajeros(Map<Integer, ArrayList<Pasajero>> pasajeros) {
-        this.pasajeros = pasajeros;
-    }
-
-    public Map<String, Pasajero> getReserva() {
-        return reserva;
-    }
-
-    public void setReserva(Map<String, Pasajero> reserva) {
-        this.reserva = reserva;
-    }
 }
