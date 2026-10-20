@@ -4,11 +4,10 @@ public class Pasajero extends Persona{
     private String origen;
     private String destino_origen;
 
-    public Pasajero(String nombre, String apellido, String DNI, int telefono, String email, String origen, String destino_origen) {
-        super(nombre, apellido, DNI, telefono, email);
+    public Pasajero(String nombre, String apellido, String DNI, int telefono, String email, Usuario usuario, String origen, String destino_origen) {
+        super(nombre, apellido, DNI, telefono, email, usuario);
         this.origen = origen;
         this.destino_origen = destino_origen;
-
     }
 
     public String getOrigen() {

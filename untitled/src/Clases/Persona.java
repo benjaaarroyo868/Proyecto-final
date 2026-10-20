@@ -9,13 +9,15 @@ public abstract class Persona {
     private String DNI;
     private int telefono;
     private String email;
+    private Usuario usuario;
 
-    public Persona(String nombre, String apellido, String DNI, int telefono, String email) {
+    public Persona(String nombre, String apellido, String DNI, int telefono, String email, Usuario usuario) {
         this.nombre = nombre;
         this.apellido = apellido;
         this.DNI = DNI;
         this.telefono = telefono;
         this.email = email;
+        this.usuario = usuario;
     }
 
     public String getNombre() {
@@ -58,6 +60,14 @@ public abstract class Persona {
         this.email = email;
     }
 
+    public Usuario getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(Usuario usuario) {
+        this.usuario = usuario;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
@@ -78,6 +88,7 @@ public abstract class Persona {
                 ", DNI='" + DNI + '\'' +
                 ", telefono=" + telefono +
                 ", email='" + email + '\'' +
+                ", usuario=" + usuario +
                 '}';
     }
 }

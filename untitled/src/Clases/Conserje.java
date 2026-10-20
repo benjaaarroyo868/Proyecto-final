@@ -7,8 +7,8 @@ public class Conserje extends Persona implements IEmpleado {
     private String legajo;
     private double sueldoPorVenta;
 
-    public Conserje(String nombre, String apellido, String DNI, int telefono, String email, String legajo, double sueldoPorVenta) {
-        super(nombre, apellido, DNI, telefono, email);
+    public Conserje(String nombre, String apellido, String DNI, int telefono, String email, Usuario usuario, String legajo, double sueldoPorVenta) {
+        super(nombre, apellido, DNI, telefono, email, usuario);
         this.legajo = legajo;
         this.sueldoPorVenta = sueldoPorVenta;
     }

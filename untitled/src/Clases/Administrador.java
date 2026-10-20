@@ -6,8 +6,8 @@ public class Administrador  extends Persona implements IEmpleado {
     private String legajo;
     private double sueldo;
 
-    public Administrador(String nombre, String apellido, String DNI, int telefono, String email, String legajo, double sueldo) {
-        super(nombre, apellido, DNI, telefono, email);
+    public Administrador(String nombre, String apellido, String DNI, int telefono, String email, Usuario usuario, String legajo, double sueldo) {
+        super(nombre, apellido, DNI, telefono, email, usuario);
         this.legajo = legajo;
         this.sueldo = sueldo;
     }

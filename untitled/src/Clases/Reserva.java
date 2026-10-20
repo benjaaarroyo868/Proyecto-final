@@ -1,27 +1,42 @@
 package Clases;
 
 import java.util.Objects;
+import java.util.UUID;
 
 public class Reserva {
-    private int idReserva;
- private Pasajero pasajero;
- private static int contador=1;
+    private String idReserva;
+    private Pasajero pasajero;
+    private Habitacion habitacion;
+    private UUID cont;
 
-    public Reserva( Pasajero pasajero) {
-        this.idReserva = contador++;
+    public Reserva(Pasajero pasajero, Habitacion habitacion) {
+        this.idReserva = UUID.randomUUID().toString().substring(0,5);
         this.pasajero = pasajero;
+        this.habitacion = habitacion;
     }
 
-    public Reserva(int idReserva) {
-        this.idReserva = idReserva;
-    }
-
-    public int getIdReserva() {
+    public String getIdReserva() {
         return idReserva;
     }
 
-    public void setIdReserva(int idReserva) {
+    public void setIdReserva(String idReserva) {
         this.idReserva = idReserva;
+    }
+
+    public Pasajero getPasajero() {
+        return pasajero;
+    }
+
+    public void setPasajero(Pasajero pasajero) {
+        this.pasajero = pasajero;
+    }
+
+    public Habitacion getHabitacion() {
+        return habitacion;
+    }
+
+    public void setHabitacion(Habitacion habitacion) {
+        this.habitacion = habitacion;
     }
 
     @Override
