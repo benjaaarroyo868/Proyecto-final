@@ -1,23 +1,23 @@
 package Clases;
-import Enums.TipoTecnico;
+import Enums.ETipoTecnico;
 
 public class Tecnico extends Persona {
-    private TipoTecnico tipo_de_tecnico;
+    private ETipoTecnico tipo_de_tecnico;
     private String formacion;
     private boolean disponible;
 
-    public Tecnico(String nombre, String apellido, String DNI, int telefono, String email, Usuario usuario, TipoTecnico tipo_de_tecnico, String formacion, boolean disponible) {
+    public Tecnico(String nombre, String apellido, String DNI, int telefono, String email, Usuario usuario, ETipoTecnico tipo_de_tecnico, String formacion, boolean disponible) {
         super(nombre, apellido, DNI, telefono, email, usuario);
         this.tipo_de_tecnico = tipo_de_tecnico;
         this.formacion = formacion;
         this.disponible = disponible;
     }
 
-    public TipoTecnico getTipo_de_tecnico() {
+    public ETipoTecnico getTipo_de_tecnico() {
         return tipo_de_tecnico;
     }
 
-    public void setTipo_de_tecnico(TipoTecnico tipo_de_tecnico) {
+    public void setTipo_de_tecnico(ETipoTecnico tipo_de_tecnico) {
         this.tipo_de_tecnico = tipo_de_tecnico;
     }
 

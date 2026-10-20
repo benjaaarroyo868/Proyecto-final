@@ -1,7 +1,8 @@
 package Clases;
 
-import Enums.TipoHabitacion;
-import Enums.TipoTecnico;
+import Enums.ETipoHabitacion;
+import Enums.ETipoTecnico;
+import Interfaces.IEmpleado;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,9 +13,9 @@ public class Hotel {
     private String direccion;
     private int cantidadHabitaciones;
     private int cantidadOcupadas;
-    Map<String, ArrayList<Empleado>> empleados;
-    Map<TipoTecnico, ArrayLisT<Tecnico>> tecnicos;
-    Map<TipoHabitacion, ArrayList<Habitacion>> habitaciones;
+    Map<String, ArrayList<IEmpleado>> empleados;
+    Map<ETipoTecnico, ArrayList <Tecnico>> tecnicos;
+    Map<ETipoHabitacion, ArrayList<Habitacion>> habitaciones;
     Map<Integer, ArrayList<Pasajero>> pasajeros;
     Map<String, Pasajero> reserva;
 
