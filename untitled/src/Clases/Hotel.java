@@ -2,6 +2,7 @@ package Clases;
 
 import Enums.ETipoHabitacion;
 import Enums.ETipoTecnico;
+import Exepciones.DatoInvalidoException;
 import Interfaces.IEmpleado;
 
 import java.util.ArrayList;
@@ -16,7 +17,7 @@ public class Hotel {
     Map<String, ArrayList<IEmpleado>> empleados;
     Map<ETipoTecnico, ArrayList <Tecnico>> tecnicos;
     Map<ETipoHabitacion, ArrayList<Habitacion>> habitaciones;
-    Map<Integer, ArrayList<Pasajero>> pasajeros;
+    Map<String, ArrayList<Pasajero>> pasajeros;
     Map<String, Pasajero> reserva;
 
     public Hotel(String nombre, String direccion, int cantidadHabitaciones, int cantidadOcupadas) {
@@ -61,6 +62,11 @@ public class Hotel {
 
     public void setCantidadOcupadas(int cantidadOcupadas) {
         this.cantidadOcupadas = cantidadOcupadas;
+    }
+
+    public void agregarPasajero(Pasajero pasajero)throws DatoInvalidoException {
+
+
     }
     
 
