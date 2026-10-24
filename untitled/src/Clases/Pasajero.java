@@ -1,5 +1,7 @@
 package Clases;
 
+import Exepciones.DatoInvalidoException;
+
 public class Pasajero extends Persona{
     private String origen;
     private String destino_origen;
@@ -24,6 +26,20 @@ public class Pasajero extends Persona{
 
     public void setDestino_origen(String destino_origen) {
         this.destino_origen = destino_origen;
+    }
+
+    public void validarDatos() throws DatoInvalidoException {
+        if (getNombre() == null || getNombre().isBlank() ||
+                getApellido() == null || getApellido().isBlank() ||
+                getDNI() == null || getDNI().isBlank() ||
+                getEmail() == null || getEmail().isBlank()) {
+
+            throw new DatoInvalidoException("Los datos personales son inválidos");
+        }
+
+        if (origen == null || origen.isBlank()) {
+            throw new DatoInvalidoException("El origen no puede estar vacío");
+        }
     }
 
     @Override

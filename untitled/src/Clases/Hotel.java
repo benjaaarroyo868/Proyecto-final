@@ -2,7 +2,9 @@ package Clases;
 
 import Enums.ETipoHabitacion;
 import Enums.ETipoTecnico;
+import Exepciones.AgenciaHotelException;
 import Exepciones.DatoInvalidoException;
+import Exepciones.ElementoDuplicadoException;
 import Interfaces.IEmpleado;
 
 import java.util.ArrayList;
@@ -17,7 +19,7 @@ public class Hotel {
     Map<String, ArrayList<IEmpleado>> empleados;
     Map<ETipoTecnico, ArrayList <Tecnico>> tecnicos;
     Map<ETipoHabitacion, ArrayList<Habitacion>> habitaciones;
-    Map<String, ArrayList<Pasajero>> pasajeros;
+    Map<String, Pasajero> pasajeros;
     Map<String, Pasajero> reserva;
 
     public Hotel(String nombre, String direccion, int cantidadHabitaciones, int cantidadOcupadas) {
@@ -64,7 +66,16 @@ public class Hotel {
         this.cantidadOcupadas = cantidadOcupadas;
     }
 
-    public void agregarPasajero(Pasajero pasajero)throws DatoInvalidoException {
+    public void agregarPasajero(Pasajero pasajero)throws AgenciaHotelException {
+        if(pasajero==null){
+            throw new DatoInvalidoException("El pasajero no puede ser nulo");
+        }
+        pasajero.validarDatos();
+
+        if (pasajeros.containsKey(pasajero.getDNI())) {
+            throw new ElementoDuplicadoException("Ya existe un pasajero con ese DNI");
+        }
+        pasajeros.put(pasajero.getDNI(), pasajero);
 
 
     }
