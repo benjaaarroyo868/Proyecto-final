@@ -1,5 +1,9 @@
 package Clases;
 
+import Exepciones.AgenciaHotelException;
+import Exepciones.DatoInvalidoException;
+import Exepciones.ReservaNoDisponibleException;
+
 import java.util.Objects;
 import java.util.UUID;
 
@@ -7,13 +11,16 @@ public class Reserva {
     private String idReserva;
     private Pasajero pasajero;
     private Habitacion habitacion;
+    private int cantidadPasajeros;
     private UUID cont;
 
-    public Reserva(Pasajero pasajero, Habitacion habitacion) {
+    public Reserva(Pasajero pasajero, Habitacion habitacion, int cantidadPasajeros) {
         this.idReserva = UUID.randomUUID().toString().substring(0,5);
         this.pasajero = pasajero;
         this.habitacion = habitacion;
+        this.cantidadPasajeros = cantidadPasajeros;
     }
+
 
     public String getIdReserva() {
         return idReserva;
@@ -37,6 +44,33 @@ public class Reserva {
 
     public void setHabitacion(Habitacion habitacion) {
         this.habitacion = habitacion;
+    }
+
+    public int getCantidadPasajeros() {
+        return cantidadPasajeros;
+    }
+
+    public void setCantidadPasajeros(int cantidadPasajeros) {
+        this.cantidadPasajeros = cantidadPasajeros;
+    }
+
+    public void validarDatosReserva()throws AgenciaHotelException{
+        if(idReserva == null){
+            throw new DatoInvalidoException("El id de la reserva no puede ser nulo");
+        }
+        if(pasajero==null){
+            throw new DatoInvalidoException("La reserva debe tener un pasajero registrado");
+        }
+        if(habitacion==null){
+            throw new DatoInvalidoException("La reserva debe tener una habitacion");
+        }
+        if(cantidadPasajeros<0){
+            throw new DatoInvalidoException("La cantidad de pasajeros debe ser mayor a cero");
+        }
+        if(cantidadPasajeros>habitacion.getCantidadMaximaPersonas()){
+            throw new ReservaNoDisponibleException("La cantidad de pasajeros supera la capacidad de la habitacion");
+        }
+
     }
 
     @Override

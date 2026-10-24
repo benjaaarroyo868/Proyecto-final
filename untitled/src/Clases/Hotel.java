@@ -5,6 +5,7 @@ import Enums.ETipoTecnico;
 import Exepciones.AgenciaHotelException;
 import Exepciones.DatoInvalidoException;
 import Exepciones.ElementoDuplicadoException;
+import Exepciones.ReservaNoDisponibleException;
 import Interfaces.IEmpleado;
 
 import java.util.ArrayList;
@@ -20,7 +21,7 @@ public class Hotel {
     Map<ETipoTecnico, ArrayList <Tecnico>> tecnicos;
     Map<ETipoHabitacion, ArrayList<Habitacion>> habitaciones;
     Map<String, Pasajero> pasajeros;
-    Map<String, Pasajero> reserva;
+    Map<String, Pasajero> reservas;
 
     public Hotel(String nombre, String direccion, int cantidadHabitaciones, int cantidadOcupadas) {
         this.nombre = nombre;
@@ -31,7 +32,7 @@ public class Hotel {
         this.tecnicos = new HashMap<>();
         this.habitaciones = new HashMap<>();
         this.pasajeros = new HashMap<>();
-        this.reserva = new HashMap<>();
+        this.reservas = new HashMap<>();
     }
 
     public String getNombre() {
@@ -70,7 +71,7 @@ public class Hotel {
         if(pasajero==null){
             throw new DatoInvalidoException("El pasajero no puede ser nulo");
         }
-        pasajero.validarDatos();
+        pasajero.validarDatosPasajero();
 
         if (pasajeros.containsKey(pasajero.getDNI())) {
             throw new ElementoDuplicadoException("Ya existe un pasajero con ese DNI");
@@ -78,6 +79,19 @@ public class Hotel {
         pasajeros.put(pasajero.getDNI(), pasajero);
 
 
+    }
+    public void agregarReserva(Reserva reserva)throws AgenciaHotelException{
+        if(reserva==null){
+            throw new DatoInvalidoException("La reserva no puede ser nula");
+        }
+
+        reserva.validarDatosReserva();
+
+        if(reservas.containsKey(reserva.getIdReserva())){
+            throw new ElementoDuplicadoException("La reserva ya existe");
+
+        }
+        reservas.put(reserva.getIdReserva(), reserva.getPasajero());
     }
     
 

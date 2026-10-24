@@ -28,7 +28,7 @@ public class Pasajero extends Persona{
         this.destino_origen = destino_origen;
     }
 
-    public void validarDatos() throws DatoInvalidoException {
+    public void validarDatosPasajero() throws DatoInvalidoException {
         if (getNombre() == null || getNombre().isBlank() ||
                 getApellido() == null || getApellido().isBlank() ||
                 getDNI() == null || getDNI().isBlank() ||
