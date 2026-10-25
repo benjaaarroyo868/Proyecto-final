@@ -3,11 +3,12 @@ package Clases;
 import Exepciones.AgenciaHotelException;
 import Exepciones.DatoInvalidoException;
 import Exepciones.ReservaNoDisponibleException;
+import Interfaces.IValidarDatos;
 
 import java.util.Objects;
 import java.util.UUID;
 
-public class Reserva {
+public class Reserva implements IValidarDatos {
     private String idReserva;
     private Pasajero pasajero;
     private Habitacion habitacion;
@@ -54,25 +55,6 @@ public class Reserva {
         this.cantidadPasajeros = cantidadPasajeros;
     }
 
-    public void validarDatosReserva()throws AgenciaHotelException{
-        if(idReserva == null){
-            throw new DatoInvalidoException("El id de la reserva no puede ser nulo");
-        }
-        if(pasajero==null){
-            throw new DatoInvalidoException("La reserva debe tener un pasajero registrado");
-        }
-        if(habitacion==null){
-            throw new DatoInvalidoException("La reserva debe tener una habitacion");
-        }
-        if(cantidadPasajeros<0){
-            throw new DatoInvalidoException("La cantidad de pasajeros debe ser mayor a cero");
-        }
-        if(cantidadPasajeros>habitacion.getCantidadMaximaPersonas()){
-            throw new ReservaNoDisponibleException("La cantidad de pasajeros supera la capacidad de la habitacion");
-        }
-
-    }
-
     @Override
     public boolean equals(Object object) {
         if (object == null || getClass() != object.getClass()) return false;
@@ -91,5 +73,26 @@ public class Reserva {
                 "idReserva=" + idReserva +
                 ", pasajero=" + pasajero.toString() +
                 '}';
+    }
+
+    @Override
+    public void validarDatos() throws AgenciaHotelException {
+
+        if(idReserva == null){
+            throw new DatoInvalidoException("El id de la reserva no puede ser nulo");
+        }
+        if(pasajero==null){
+            throw new DatoInvalidoException("La reserva debe tener un pasajero registrado");
+        }
+        if(habitacion==null){
+            throw new DatoInvalidoException("La reserva debe tener una habitacion");
+        }
+        if(cantidadPasajeros<0){
+            throw new DatoInvalidoException("La cantidad de pasajeros debe ser mayor a cero");
+        }
+        if(cantidadPasajeros>habitacion.getCantidadMaximaPersonas()){
+            throw new ReservaNoDisponibleException("La cantidad de pasajeros supera la capacidad de la habitacion");
+        }
+
     }
 }

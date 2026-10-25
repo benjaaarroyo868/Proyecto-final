@@ -1,8 +1,9 @@
 package Clases;
 
 import Exepciones.DatoInvalidoException;
+import Interfaces.IValidarDatos;
 
-public class Pasajero extends Persona{
+public class Pasajero extends Persona implements IValidarDatos {
     private String origen;
     private String destino_origen;
 
@@ -28,7 +29,7 @@ public class Pasajero extends Persona{
         this.destino_origen = destino_origen;
     }
 
-    public void validarDatosPasajero() throws DatoInvalidoException {
+    public void validarDatos() throws DatoInvalidoException {
         if (getNombre() == null || getNombre().isBlank() ||
                 getApellido() == null || getApellido().isBlank() ||
                 getDNI() == null || getDNI().isBlank() ||
