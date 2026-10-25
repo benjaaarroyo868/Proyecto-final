@@ -24,7 +24,7 @@ public class Hotel {
     Map<String, Pasajero> reservas;
     Map<String, Usuario> usuario;
 
-    public Hotel(String nombre, String direccion, int cantidadHabitaciones, int cantidadOcupadas) {
+    public Hotel(String nombre, String direccion, int cantidadHabitaciones) {
         this.nombre = nombre;
         this.direccion = direccion;
         this.cantidadHabitaciones = cantidadHabitaciones;
@@ -126,6 +126,40 @@ public class Hotel {
         }
         empleados.get(s).add(a);
         return "Empleado guardado correctamente";
+    }
+
+
+    public String agregarUsuario(Usuario u) throws AgenciaHotelException {
+
+        if (usuario == null) {
+            throw new DatoInvalidoException(
+                    "El usuario no puede ser nulo");
+        }
+
+        u.validarDatos();
+
+        // Comprobamos si ya existe
+        if (usuario.containsKey(u.getNombreUsuario())) {
+            throw new DatoInvalidoException(
+                    "El nombre de usuario ya existe");
+        }
+
+        usuario.put(u.getNombreUsuario(), u);
+
+        return "Usuario agregado correctamente";
+    }
+
+
+    public Usuario iniciarSesion(String nombre, String contrasenia) {
+
+        Usuario u = usuario.get(nombre);
+
+        if (u != null &&
+                u.getContrasenia().equals(contrasenia)) {
+            return u;
+        }
+
+        return null;
     }
 
 }
