@@ -67,14 +67,14 @@ public class Usuario implements IValidarDatos {
 
     @Override
     public void validarDatos() throws AgenciaHotelException {
-        if(nombreUsuario == null || nombreUsuario.isBlank()){
-            throw new DatoInvalidoException("El nombre de usuario no puede estar vacio");
+        if (nombreUsuario == null || nombreUsuario.isBlank() ||
+                contrasenia == null || contrasenia.isBlank()) {
+
+            throw new DatoInvalidoException("El nombre de usuario y la contraseña no pueden estar vacíos");
         }
-        if(contrasenia == null || contrasenia.isBlank()){
-            throw new DatoInvalidoException("El la contraseña no puede estar vacio");
-        }
-        if(tipo_de_usuario == null){
-            throw new DatoInvalidoException("El tipo de usuario no puede estar vacio");
+
+        if (tipo_de_usuario == null) {
+            throw new DatoInvalidoException("El tipo de usuario no puede ser nulo");
         }
     }
 }
