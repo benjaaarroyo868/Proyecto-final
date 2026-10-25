@@ -1,15 +1,15 @@
-package Clases;
+package Generico;
 
 import Exepciones.DatoInvalidoException;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class RegistroGenericoMapas<K,V>{
+public class RegistroGenerico <K,V>{
 
     Map<K,V> mapa;
 
-    public RegistroGenericoMapas() {
+    public RegistroGenerico() {
         mapa=new HashMap<>();
     }
 
