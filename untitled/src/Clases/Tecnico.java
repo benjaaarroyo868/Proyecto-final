@@ -6,7 +6,7 @@ public class Tecnico extends Persona {
     private String formacion;
     private boolean disponible;
 
-    public Tecnico(String nombre, String apellido, String DNI, int telefono, String email, Usuario usuario, ETipoTecnico tipo_de_tecnico, String formacion, boolean disponible) {
+    public Tecnico(String nombre, String apellido, String DNI, String telefono, String email, Usuario usuario, ETipoTecnico tipo_de_tecnico, String formacion, boolean disponible) {
         super(nombre, apellido, DNI, telefono, email, usuario);
         this.tipo_de_tecnico = tipo_de_tecnico;
         this.formacion = formacion;

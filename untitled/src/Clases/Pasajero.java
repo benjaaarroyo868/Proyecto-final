@@ -7,7 +7,7 @@ public class Pasajero extends Persona implements IValidarDatos {
     private String origen;
     private String destino_origen;
 
-    public Pasajero(String nombre, String apellido, String DNI, int telefono, String email, Usuario usuario, String origen, String destino_origen) {
+    public Pasajero(String nombre, String apellido, String DNI, String telefono, String email, Usuario usuario, String origen, String destino_origen) {
         super(nombre, apellido, DNI, telefono, email, usuario);
         this.origen = origen;
         this.destino_origen = destino_origen;
