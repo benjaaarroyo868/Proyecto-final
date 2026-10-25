@@ -5,11 +5,11 @@ import Exepciones.DatoInvalidoException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class RegistroGenerico <K,V>{
+public class RegistroGenericoMapas<K,V>{
 
     Map<K,V> mapa;
 
-    public RegistroGenerico() {
+    public RegistroGenericoMapas() {
         mapa=new HashMap<>();
     }
 
