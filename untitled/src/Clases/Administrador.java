@@ -1,12 +1,15 @@
 package Clases;
+import Exepciones.AgenciaHotelException;
+import Exepciones.DatoInvalidoException;
 import Interfaces.IEmpleado;
+import Interfaces.IValidarDatos;
 
-public class Administrador  extends Persona implements IEmpleado {
+public class Administrador  extends Persona implements IEmpleado, IValidarDatos {
 
     private String legajo;
     private double sueldo;
 
-    public Administrador(String nombre, String apellido, String DNI, int telefono, String email, Usuario usuario, String legajo, double sueldo) {
+    public Administrador(String nombre, String apellido, String DNI, String telefono, String email, Usuario usuario, String legajo, double sueldo) {
         super(nombre, apellido, DNI, telefono, email, usuario);
         this.legajo = legajo;
         this.sueldo = sueldo;
@@ -35,5 +38,27 @@ public class Administrador  extends Persona implements IEmpleado {
                 "legajo='" + legajo + '\'' +
                 ", sueldo=" + sueldo +
                 '}';
+    }
+
+    @Override
+    public void validarDatos() throws AgenciaHotelException {
+        if(getNombre() == null || getNombre().isBlank()){
+            throw new DatoInvalidoException("El nombre no puede ser vacio");
+        }
+        if(getApellido() == null || getApellido().isBlank()){
+            throw new DatoInvalidoException("El apellido no puede ser vacio");
+        }
+        if(getDNI() == null || getDNI().isBlank()){
+            throw new DatoInvalidoException("El dni no puede ser vacio");
+        }
+        if(!getDNI().matches("[0-9]{8}")){
+            throw new DatoInvalidoException("El dni no valido tiene que tener solo numeros y 8 numeros");
+        }
+        if(getTelefono() == null || getTelefono().isBlank()){
+            throw new DatoInvalidoException("El numero de telefono no puede ser vacio");
+        }
+        if(getTelefono().matches("[0-9]{10}")){
+            throw new DatoInvalidoException("El numero de telefono no valido tiene que tener solo numeros y 8 numeros");
+        }
     }
 }

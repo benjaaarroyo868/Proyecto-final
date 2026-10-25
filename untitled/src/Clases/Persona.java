@@ -1,5 +1,8 @@
 package Clases;
 
+
+
+
 import java.util.Objects;
 
 public abstract class Persona {
@@ -7,11 +10,11 @@ public abstract class Persona {
     private String nombre;
     private String apellido;
     private String DNI;
-    private int telefono;
+    private String telefono;
     private String email;
     private Usuario usuario;
 
-    public Persona(String nombre, String apellido, String DNI, int telefono, String email, Usuario usuario) {
+    public Persona(String nombre, String apellido, String DNI, String telefono, String email, Usuario usuario) {
         this.nombre = nombre;
         this.apellido = apellido;
         this.DNI = DNI;
@@ -44,11 +47,11 @@ public abstract class Persona {
         this.DNI = DNI;
     }
 
-    public int getTelefono() {
+    public String getTelefono() {
         return telefono;
     }
 
-    public void setTelefono(int telefono) {
+    public void setTelefono(String telefono) {
         this.telefono = telefono;
     }
 

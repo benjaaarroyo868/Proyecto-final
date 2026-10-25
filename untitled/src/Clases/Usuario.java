@@ -1,10 +1,14 @@
 package Clases;
 
 import Enums.ETipoUsuario;
+import Exepciones.AgenciaHotelException;
+import Exepciones.DatoInvalidoException;
+import Interfaces.IValidarDatos;
 
+import java.io.Serializable;
 import java.util.Objects;
 
-public class Usuario {
+public class Usuario implements IValidarDatos {
     private String nombreUsuario;
     private String contrasenia;
     private ETipoUsuario tipo_de_usuario;
@@ -59,5 +63,18 @@ public class Usuario {
                 ", contrasenia='" + contrasenia + '\'' +
                 ", tipo_de_usuario=" + tipo_de_usuario +
                 '}';
+    }
+
+    @Override
+    public void validarDatos() throws AgenciaHotelException {
+        if(nombreUsuario == null || nombreUsuario.isBlank()){
+            throw new DatoInvalidoException("El nombre de usuario no puede estar vacio");
+        }
+        if(contrasenia == null || contrasenia.isBlank()){
+            throw new DatoInvalidoException("El la contraseña no puede estar vacio");
+        }
+        if(tipo_de_usuario == null){
+            throw new DatoInvalidoException("El tipo de usuario no puede estar vacio");
+        }
     }
 }

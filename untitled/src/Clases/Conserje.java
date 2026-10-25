@@ -1,13 +1,14 @@
 package Clases;
 
 import Interfaces.IEmpleado;
+import Interfaces.IValidarDatos;
 
-public class Conserje extends Persona implements IEmpleado {
+public class Conserje extends Persona implements IEmpleado, IValidarDatos {
 
     private String legajo;
     private double sueldoPorVenta;
 
-    public Conserje(String nombre, String apellido, String DNI, int telefono, String email, Usuario usuario, String legajo, double sueldoPorVenta) {
+    public Conserje(String nombre, String apellido, String DNI, String telefono, String email, Usuario usuario, String legajo, double sueldoPorVenta) {
         super(nombre, apellido, DNI, telefono, email, usuario);
         this.legajo = legajo;
         this.sueldoPorVenta = sueldoPorVenta;

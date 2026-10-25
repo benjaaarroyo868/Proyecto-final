@@ -71,11 +71,11 @@ public class Hotel {
         if(pasajero==null){
             throw new DatoInvalidoException("El pasajero no puede ser nulo");
         }
-        pasajero.validarDatosPasajero();
 
         if (pasajeros.containsKey(pasajero.getDNI())) {
             throw new ElementoDuplicadoException("Ya existe un pasajero con ese DNI");
         }
+        pasajero.validarDatos();
         pasajeros.put(pasajero.getDNI(), pasajero);
 
 
@@ -85,12 +85,11 @@ public class Hotel {
             throw new DatoInvalidoException("La reserva no puede ser nula");
         }
 
-        reserva.validarDatosReserva();
-
         if(reservas.containsKey(reserva.getIdReserva())){
             throw new ElementoDuplicadoException("La reserva ya existe");
 
         }
+        reserva.validarDatos();
         reservas.put(reserva.getIdReserva(), reserva.getPasajero());
     }
     
