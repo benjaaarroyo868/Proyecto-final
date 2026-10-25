@@ -22,6 +22,7 @@ public class Hotel {
     Map<ETipoHabitacion, ArrayList<Habitacion>> habitaciones;
     Map<String, Pasajero> pasajeros;
     Map<String, Pasajero> reservas;
+    Map<String, Usuario> usuario;
 
     public Hotel(String nombre, String direccion, int cantidadHabitaciones, int cantidadOcupadas) {
         this.nombre = nombre;
@@ -33,6 +34,7 @@ public class Hotel {
         this.habitaciones = new HashMap<>();
         this.pasajeros = new HashMap<>();
         this.reservas = new HashMap<>();
+        this.usuario = new HashMap<>();
     }
 
     public String getNombre() {
