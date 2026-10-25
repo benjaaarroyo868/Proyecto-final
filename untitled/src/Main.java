@@ -1,4 +1,4 @@
-import Clases.Menu;
+import Menu.*;
 
 void main() {
 
