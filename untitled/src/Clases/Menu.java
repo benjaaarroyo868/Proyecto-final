@@ -63,14 +63,14 @@ public class Menu {
 
                     if (!entrada.matches("[0-9]+")) {
                         System.out.println(ROJO +
-                                "✘ ERROR: Solo se permiten números enteros." + RESET);
+                                "ERROR: Solo se permiten números enteros." + RESET);
                     } else {
                         try {
                             opcion = Integer.parseInt(entrada);
 
                             if (opcion < 0 || opcion > 20) {
                                 System.out.println(ROJO +
-                                        "✘ ERROR: Elegí una opción entre 0 y 20." + RESET);
+                                        "ERROR: Elegí una opción entre 0 y 20." + RESET);
                             } else {
                                 break;
                             }
