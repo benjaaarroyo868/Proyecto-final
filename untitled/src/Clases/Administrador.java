@@ -60,5 +60,20 @@ public class Administrador  extends Persona implements IEmpleado, IValidarDatos 
         if(getTelefono().matches("[0-9]{10}")){
             throw new DatoInvalidoException("El numero de telefono no valido tiene que tener solo numeros y 8 numeros");
         }
+        if(getEmail() == null || getEmail().isBlank()){
+            throw new DatoInvalidoException("El email no puede ser vacio");
+        }
+        if(!getEmail().matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")){
+            throw new DatoInvalidoException("El email es invalido");
+        }
+        if(getUsuario() == null){
+            throw new DatoInvalidoException("El usuario no puede ser vacio");
+        }
+        if(legajo == null || legajo.isBlank()){
+            throw new DatoInvalidoException("El legajo no puede ser vacio ");
+        }
+        if(sueldo <= 0){
+            throw new DatoInvalidoException("Sueldo no puede ser menor o igual  que 0");
+        }
     }
 }
