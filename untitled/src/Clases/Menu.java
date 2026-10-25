@@ -1,6 +1,8 @@
 package Clases;
 
+import java.time.LocalDateTime;
 import java.util.Scanner;
+import java.time.format.DateTimeFormatter;
 
 public class Menu {
 
@@ -12,7 +14,9 @@ public class Menu {
         public static final String CYAN = "\u001B[36m";
         public static final String AMARILLO = "\u001B[33m";
 
-        static Scanner sc = new Scanner(System.in);
+
+
+    static Scanner sc = new Scanner(System.in);
 
         public static void IniciarMenu() {
 
@@ -51,14 +55,58 @@ public class Menu {
                 System.out.println(ROJO + "║    0. Salir                               ║" + RESET);
                 System.out.println(CYAN + "╚═══════════════════════════════════════════╝" + RESET);
 
-                System.out.print(VERDE + "\n➜ Elegí una opción: " + RESET);
-                opcion = sc.nextInt();
+                String entrada;
+
+                do {
+                    System.out.print(VERDE + "\n➜ Elegí una opción: " + RESET);
+                    entrada = sc.nextLine().trim();
+
+                    if (!entrada.matches("[0-9]+")) {
+                        System.out.println(ROJO +
+                                "✘ ERROR: Solo se permiten números enteros." + RESET);
+                    } else {
+                        try {
+                            opcion = Integer.parseInt(entrada);
+
+                            if (opcion < 0 || opcion > 20) {
+                                System.out.println(ROJO +
+                                        "✘ ERROR: Elegí una opción entre 0 y 20." + RESET);
+                            } else {
+                                break;
+                            }
+
+                        } catch (NumberFormatException e) {
+                            System.out.println(ROJO +
+                                    "ERROR: Número demasiado grande." + RESET);
+                        }
+                    }
+
+                } while (true);
 
                 switch (opcion){
+
                     case 0:
-                        IO.println(ROJO + "Se salio del menu del hotel");
-                        IO.println(AMARILLO+ "Que tenga buen dia");
+                        LocalDateTime fechaFinal = LocalDateTime.now();
+
+                        DateTimeFormatter formato =
+                                DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+
+                        System.out.println(CYAN + "╔═══════════════════════════════════════════╗");
+                        System.out.println("║            GESTIÓN HOTEL - FIN            ║");
+                        System.out.println("╠═══════════════════════════════════════════╣" + RESET);
+
+                        System.out.printf(VERDE + "║ %-41s ║%n" + RESET,
+                                "      Programa cerrado correctamente");
+
+                        System.out.printf(AMARILLO + "║ %-41s ║%n" + RESET,
+                                "          ¡Que tenga buen día!");
+
+                        System.out.printf(CYAN + "║ %-41s ║%n" + RESET,
+                                "      Fecha: " + fechaFinal.format(formato));
+
+                        System.out.println(CYAN + "╚═══════════════════════════════════════════╝" + RESET);
                         break;
+
                     case 1:
                     case 2:
                     case 3:

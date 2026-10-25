@@ -4,5 +4,5 @@ void main() {
 
      Menu m = new Menu();
 
-     m.IniciarMenu();0
+     m.IniciarMenu();
 }
