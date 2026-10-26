@@ -139,6 +139,30 @@ public class Conexion {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, e);
         }
     }
+    public void crearTablaPasajeros() throws SQLException {
+
+        String sql = """
+            CREATE TABLE IF NOT EXISTS Pasajeros (
+                DNI VARCHAR(15) NOT NULL PRIMARY KEY,
+                nombre VARCHAR(50) NOT NULL,
+                apellido VARCHAR(50) NOT NULL,
+                telefono VARCHAR(20) NOT NULL,
+                email VARCHAR(100) NOT NULL,
+                nombreUsuario VARCHAR(30) NOT NULL,
+                origen VARCHAR(100) NOT NULL,
+                destino_origen VARCHAR(100) NOT NULL,
+                FOREIGN KEY (nombreUsuario) REFERENCES Usuarios(nombreUsuario)
+            )
+            """;
+
+        try {
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.executeUpdate();
+            ps.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
 
     
 
