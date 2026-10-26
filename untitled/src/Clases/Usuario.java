@@ -12,10 +12,10 @@ public class Usuario implements IValidarDatos {
     private String contrasenia;
     private ETipoUsuario tipoDeUsuario;
 
-    public Usuario(String nombreUsuario, String contrasenia, ETipoUsuario tipo_de_usuario) {
+    public Usuario(String nombreUsuario, String contrasenia, ETipoUsuario tipoDeUsuario) {
         this.nombreUsuario = nombreUsuario;
         this.contrasenia = contrasenia;
-        this.tipoDeUsuario = tipo_de_usuario;
+        this.tipoDeUsuario = tipoDeUsuario;
     }
 
     public String getNombreUsuario() {
