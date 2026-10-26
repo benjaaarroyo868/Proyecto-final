@@ -77,4 +77,8 @@ public class Administrador  extends Persona implements IEmpleado, IValidarDatos 
         }
     }
 
+    @Override
+    public String getDni() {
+        return getDNI();
+    }
 }

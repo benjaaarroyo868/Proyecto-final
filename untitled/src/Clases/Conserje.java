@@ -77,4 +77,9 @@ public class Conserje extends Persona implements IEmpleado, IValidarDatos {
             throw new DatoInvalidoException("Sueldo no puede ser menor o igual  que 0");
         }
     }
+
+    @Override
+    public String getDni() {
+        return getDNI();
+    }
 }

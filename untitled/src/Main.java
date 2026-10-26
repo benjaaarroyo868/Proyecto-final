@@ -3,6 +3,7 @@ import Enums.*;
 import Exepciones.AgenciaHotelException;
 import Generico.RegistroGenericoMapas;
 import Menu.*;
+import Interfaces.*;
 
 void main() {
 
@@ -59,6 +60,7 @@ void main() {
 
     RegistroGenericoMapas<String, Pasajero> pasa = new RegistroGenericoMapas<>();
     RegistroGenericoMapas<String, Usuario> usu = new RegistroGenericoMapas<>();
+    RegistroGenericoMapas<String, ArrayList<IEmpleado>> empleado = new RegistroGenericoMapas<>();
 
 
 
@@ -71,5 +73,5 @@ void main() {
      }
 
 
-    m.menuPrincipal(h1, usu, pasa);
+    m.menuPrincipal(h1, usu, pasa, empleado);
 }

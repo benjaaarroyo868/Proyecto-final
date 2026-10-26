@@ -5,8 +5,10 @@ import Exepciones.AgenciaHotelException;
 import Exepciones.AgregadoCorrectamenteExepcion;
 import Exepciones.DatoInvalidoException;
 import Generico.*;
+import Interfaces.IEmpleado;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Scanner;
 import java.time.format.DateTimeFormatter;
 
@@ -26,8 +28,10 @@ public class Menu {
     static Scanner sc = new Scanner(System.in);
 
 
-    public static void menuPrincipal(Hotel hotel, RegistroGenericoMapas<String, Usuario> usu,
-                                     RegistroGenericoMapas<String, Pasajero> pasa) {
+    public static void menuPrincipal(Hotel hotel,
+                                     RegistroGenericoMapas<String, Usuario> usu,
+                                     RegistroGenericoMapas<String, Pasajero> pasa,
+                                     RegistroGenericoMapas<String, ArrayList<IEmpleado>> empleado) {
 
         int opcion;
 
@@ -70,7 +74,7 @@ public class Menu {
             switch (opcion) {
 
                 case 1:
-                    iniciarSesion(hotel, usu, pasa);
+                    iniciarSesion(hotel, usu, pasa, empleado);
                     break;
 
                 case 2:
@@ -199,7 +203,8 @@ public class Menu {
 
 
     public static void iniciarSesion(Hotel hotel, RegistroGenericoMapas<String, Usuario> usu,
-                                     RegistroGenericoMapas<String, Pasajero> pasa) {
+                                     RegistroGenericoMapas<String, Pasajero> pasa,
+                                     RegistroGenericoMapas<String, ArrayList<IEmpleado>> empleado) {
 
         Usuario usuario;
 
@@ -258,7 +263,7 @@ public class Menu {
         switch (usuario.getTipoDeUsuario()) {
 
             case ADMINISTRADOR:
-                IniciarMenu(usu, pasa);
+                IniciarMenu(usu, pasa, empleado);
                 break;
 
             case PASAJERO:
@@ -703,22 +708,78 @@ public class Menu {
         }
     }
 
-    public static void eliminarPasajero (RegistroGenericoMapas<String, Pasajero> pasa){
+
+    public static void eliminarPasajero(
+            RegistroGenericoMapas<String, Pasajero> pasa) {
+
         System.out.println();
         System.out.println(CYAN + "╔═══════════════════════════════════════════╗");
-        System.out.println("║              ELIMINAR USUARIO              ║");
-        System.out.println("╠═══════════════════════════════════════════╣");
+        System.out.println("║             ELIMINAR PASAJERO             ║");
+        System.out.println("╠═══════════════════════════════════════════╣" + RESET);
 
-        System.out.println(AZUL + "║                                           ║");
-        System.out.println("║  ◈ Dni Pasajero                           ║" + RESET);
+        System.out.println(AZUL + "║  ◈ DNI del pasajero                       ║" + RESET);
         System.out.print(VERDE + "║  ➜ " + RESET);
-        String nombre1 = sc.nextLine().trim();
+
+        String dni = sc.nextLine().trim();
 
         try {
-            pasa.eliminar(nombre1);
+
+            // BUSCAR EL PASAJERO ANTES DE ELIMINARLO
+            Pasajero encontrado = pasa.buscar(dni);
+
+            System.out.println(CYAN +
+                    "╠═══════════════════════════════════════════╣" + RESET);
+
+            System.out.printf(AZUL + "║ %-41s ║%n" + RESET,
+                    "  Nombre: " + encontrado.getNombre());
+
+            System.out.printf(AZUL + "║ %-41s ║%n" + RESET,
+                    "  Apellido: " + encontrado.getApellido());
+
+            System.out.printf(AZUL + "║ %-41s ║%n" + RESET,
+                    "  DNI: " + encontrado.getDNI());
+
+            // CONFIRMAR ELIMINACIÓN
+            String confirmar;
+
+            while (true) {
+
+                System.out.println(AMARILLO +
+                        "║  ¿Desea eliminarlo? (S/N)                 ║" + RESET);
+                System.out.print(VERDE + "║  ➜ " + RESET);
+
+                confirmar = sc.nextLine().trim();
+
+                if (confirmar.equalsIgnoreCase("S") ||
+                        confirmar.equalsIgnoreCase("N")) {
+                    break;
+                }
+
+                System.out.println(ROJO +
+                        "║  ERROR: Ingrese S o N                     ║" + RESET);
+            }
+
+            if (confirmar.equalsIgnoreCase("S")) {
+
+                pasa.eliminar(dni);
+
+                System.out.printf(VERDE + "║ %-41s ║%n" + RESET,
+                        "  Pasajero eliminado correctamente");
+
+            } else {
+
+                System.out.printf(AMARILLO + "║ %-41s ║%n" + RESET,
+                        "  Eliminación cancelada");
+            }
+
         } catch (DatoInvalidoException e) {
-            throw new RuntimeException(e);
+
+            System.out.printf(ROJO + "║ %-41s ║%n" + RESET,
+                    "  ERROR: Pasajero no encontrado");
         }
+
+        System.out.println(CYAN +
+                "╚═══════════════════════════════════════════╝" + RESET);
     }
 
     public static void mostrarPasajeros(
@@ -786,10 +847,546 @@ public class Menu {
     }
 
 
+    public static void agregarEmpleado(
+            RegistroGenericoMapas<String, ArrayList<IEmpleado>> empleados,
+            RegistroGenericoMapas<String, Usuario> usu) {
+
+        System.out.println();
+        System.out.println(CYAN + "╔═══════════════════════════════════════════╗");
+        System.out.println("║              AGREGAR EMPLEADO             ║");
+        System.out.println("╠═══════════════════════════════════════════╣" + RESET);
+        System.out.println(AZUL + "║    1. Administrador                       ║");
+        System.out.println("║    2. Conserje                            ║");
+        System.out.println("║    0. Volver                              ║" + RESET);
+        System.out.println(CYAN + "╚═══════════════════════════════════════════╝" + RESET);
+
+        int opcion;
+
+        while (true) {
+            System.out.print(VERDE + "➜ Elegí una opción: " + RESET);
+            String entrada = sc.nextLine().trim();
+
+            if (entrada.matches("[0-2]")) {
+                opcion = Integer.parseInt(entrada);
+                break;
+            }
+
+            System.out.println(ROJO +
+                    "ERROR: Elegí 0, 1 o 2." + RESET);
+        }
+
+        if (opcion == 0) {
+            return;
+        }
+
+        String tipo = opcion == 1 ? "ADMINISTRADOR" : "CONSERJE";
+
+        System.out.println();
+        System.out.println(CYAN + "╔═══════════════════════════════════════════╗");
+        System.out.println("║           DATOS DEL EMPLEADO              ║");
+        System.out.println("╠═══════════════════════════════════════════╣" + RESET);
+
+        // DATOS PERSONALES
+        String nombre = pedirSoloLetras("Nombre", sc);
+        String apellido = pedirSoloLetras("Apellido", sc);
+
+        String dni;
+        while (true) {
+            System.out.println(AZUL + "║  ◈ DNI                                    ║" + RESET);
+            System.out.print(VERDE + "║  ➜ " + RESET);
+            dni = sc.nextLine().trim();
+
+            if (dni.matches("[0-9]{7,8}")) {
+                break;
+            }
+
+            System.out.println(ROJO +
+                    "║  ERROR: DNI de 7 u 8 números              ║" + RESET);
+        }
+
+        // VERIFICAR DNI DUPLICADO
+        for (ArrayList<IEmpleado> lista : empleados.obtenerTodos()) {
+            for (IEmpleado e : lista) {
+                if (e.getDni().equals(dni)) {
+                    System.out.println(ROJO +
+                            "ERROR: Ya existe un empleado con ese DNI." + RESET);
+                    return;
+                }
+            }
+        }
+
+        String telefono;
+        while (true) {
+            System.out.println(AZUL + "║  ◈ Teléfono                               ║" + RESET);
+            System.out.print(VERDE + "║  ➜ " + RESET);
+            telefono = sc.nextLine().trim();
+
+            if (telefono.matches("[0-9]{8,15}")) {
+                break;
+            }
+
+            System.out.println(ROJO +
+                    "║  ERROR: Teléfono de 8 a 15 números        ║" + RESET);
+        }
+
+        String email;
+        while (true) {
+            System.out.println(AZUL + "║  ◈ Email                                  ║" + RESET);
+            System.out.print(VERDE + "║  ➜ " + RESET);
+            email = sc.nextLine().trim();
+
+            if (email.matches(
+                    "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
+                break;
+            }
+
+            System.out.println(ROJO +
+                    "║  ERROR: Email inválido                    ║" + RESET);
+        }
+
+        // CREAR CUENTA
+        System.out.println(CYAN + "╠═══════════════════════════════════════════╣");
+        System.out.println("║             CREAR USUARIO                 ║");
+        System.out.println("╠═══════════════════════════════════════════╣" + RESET);
+
+        String nombreUsuario;
+        while (true) {
+            System.out.println(AZUL +
+                    "║  ◈ Nombre de usuario                      ║" + RESET);
+            System.out.print(VERDE + "║  ➜ " + RESET);
+            nombreUsuario = sc.nextLine().trim();
+
+            if (!nombreUsuario.matches(
+                    "^(?=.*[A-Z])(?=.*[0-9])[a-zA-Z0-9]{8,}$")) {
+                System.out.println(ROJO +
+                        "║  Mínimo 8 caracteres, mayúscula y número  ║" + RESET);
+                continue;
+            }
+
+            if (usu.containsKey(nombreUsuario)) {
+                System.out.println(ROJO +
+                        "║  ERROR: Ese usuario ya existe             ║" + RESET);
+                continue;
+            }
+
+            break;
+        }
+
+        String contrasenia;
+        while (true) {
+            System.out.println(AZUL +
+                    "║  ◈ Contraseña                             ║" + RESET);
+            System.out.print(VERDE + "║  ➜ " + RESET);
+            contrasenia = sc.nextLine();
+
+            if (contrasenia.matches(
+                    "^(?=.*[A-Z])(?=.*[0-9])(?=.*[^a-zA-Z0-9\\s])\\S{8,}$")) {
+                break;
+            }
+
+            System.out.println(ROJO +
+                    "║  Mínimo 8 caracteres, mayúscula,          ║");
+            System.out.println(
+                    "║  número y carácter especial               ║" + RESET);
+        }
+
+        ETipoUsuario tipoUsuario = opcion == 1
+                ? ETipoUsuario.ADMINISTRADOR
+                : ETipoUsuario.CONSERJE;
+
+        Usuario nuevoUsuario = new Usuario(
+                nombreUsuario,
+                contrasenia,
+                tipoUsuario
+        );
+
+        // DATOS ESPECÍFICOS DEL EMPLEADO
+        System.out.println(CYAN + "╠═══════════════════════════════════════════╣");
+        System.out.println("║          DATOS DEL PUESTO                 ║");
+        System.out.println("╠═══════════════════════════════════════════╣" + RESET);
+
+        System.out.println(AZUL +
+                "║  ◈ Legajo                                 ║" + RESET);
+        System.out.print(VERDE + "║  ➜ " + RESET);
+        String legajo = sc.nextLine().trim();
+
+        double sueldo;
+
+        while (true) {
+            System.out.println(AZUL +
+                    "║  ◈ Sueldo                                 ║" + RESET);
+            System.out.print(VERDE + "║  ➜ " + RESET);
+
+            try {
+                sueldo = Double.parseDouble(
+                        sc.nextLine().trim().replace(",", "."));
+
+                if (Double.isFinite(sueldo) && sueldo > 0) {
+                    break;
+                }
+            } catch (NumberFormatException e) {
+                // Se muestra el error debajo
+            }
+
+            System.out.println(ROJO +
+                    "║  ERROR: Ingresá un sueldo válido          ║" + RESET);
+        }
+
+        // CREACIÓN DEL EMPLEADO
+        IEmpleado nuevoEmpleado;
+
+        if (opcion == 1) {
+
+            nuevoEmpleado = new Administrador(
+                    nombre,
+                    apellido,
+                    dni,
+                    telefono,
+                    email,
+                    nuevoUsuario,
+                    legajo,
+                    sueldo
+            );
+
+        } else {
+
+            // Falta adaptar esta parte al constructor
+            // real de tu clase Conserje.
+            System.out.println(AMARILLO +
+                    "Falta configurar el constructor de Conserje."
+                    + RESET);
+            return;
+        }
+
+        try {
+            nuevoUsuario.validarDatos();
+
+            ArrayList<IEmpleado> lista = empleados.get(tipo);
+
+            if (lista == null) {
+                lista = new ArrayList<>();
+            }
+
+            // GUARDAR EL USUARIO Y EL EMPLEADO
+            usu.cargar(nombreUsuario, nuevoUsuario);
+
+            lista.add(nuevoEmpleado);
+
+            if (!empleados.containsKey(tipo)) {
+                empleados.cargar(tipo, lista);
+            }
+
+            System.out.println(VERDE +
+                    "╠═══════════════════════════════════════════╣");
+            System.out.println("║        EMPLEADO AGREGADO CON ÉXITO        ║");
+            System.out.println("╠═══════════════════════════════════════════╣" + RESET);
+
+            System.out.printf(AZUL + "║ %-41s ║%n" + RESET,
+                    "  Nombre: " + nombre + " " + apellido);
+
+            System.out.printf(AZUL + "║ %-41s ║%n" + RESET,
+                    "  DNI: " + dni);
+
+            System.out.printf(AZUL + "║ %-41s ║%n" + RESET,
+                    "  Tipo: " + tipo);
+
+            System.out.printf(AZUL + "║ %-41s ║%n" + RESET,
+                    "  Usuario: " + nombreUsuario);
+
+        } catch (AgenciaHotelException e) {
+            System.out.println(ROJO +
+                    "ERROR: " + e.getMessage() + RESET);
+        }
+
+        System.out.println(CYAN +
+                "╚═══════════════════════════════════════════╝" + RESET);
+    }
+
+
+    public static void buscarEmpleado(
+            RegistroGenericoMapas<String, ArrayList<IEmpleado>> empleados) {
+
+        System.out.println();
+        System.out.println(CYAN + "╔═══════════════════════════════════════════╗");
+        System.out.println("║              BUSCAR EMPLEADO              ║");
+        System.out.println("╠═══════════════════════════════════════════╣" + RESET);
+
+        System.out.println(AZUL +
+                "║  ◈ Ingrese DNI del empleado               ║" + RESET);
+        System.out.print(VERDE + "║  ➜ " + RESET);
+
+        String dni = sc.nextLine().trim();
+
+        for (ArrayList<IEmpleado> lista : empleados.obtenerTodos()) {
+
+            for (IEmpleado empleado : lista) {
+
+                if (empleado.getDni().equals(dni)) {
+
+                    String tipo = empleado instanceof Administrador
+                            ? "ADMINISTRADOR" : "CONSERJE";
+
+                    System.out.println(CYAN +
+                            "╠═══════════════════════════════════════════╣" + RESET);
+
+                    System.out.printf(VERDE + "║ %-41s ║%n" + RESET,
+                            "  EMPLEADO ENCONTRADO");
+
+                    System.out.printf(AZUL + "║ %-41s ║%n" + RESET,
+                            "  Tipo: " + tipo);
+
+                    System.out.printf(AZUL + "║ %-41s ║%n" + RESET,
+                            "  DNI: " + empleado.getDni());
+
+                    System.out.printf(AZUL + "║ %-41s ║%n" + RESET,
+                            "  Información: " + empleado);
+
+                    System.out.println(CYAN +
+                            "╚═══════════════════════════════════════════╝" + RESET);
+                    return;
+                }
+            }
+        }
+
+        System.out.printf(ROJO + "║ %-41s ║%n" + RESET,
+                "  No se encontró el empleado");
+
+        System.out.println(CYAN +
+                "╚═══════════════════════════════════════════╝" + RESET);
+    }
+
+
+    public static void mostrarEmpleados(
+            RegistroGenericoMapas<String, ArrayList<IEmpleado>> empleados) {
+
+        System.out.println();
+        System.out.println(CYAN + "╔═══════════════════════════════════════════╗");
+        System.out.println("║             MOSTRAR EMPLEADOS             ║");
+        System.out.println("╠═══════════════════════════════════════════╣" + RESET);
+
+        int contador = 0;
+
+        for (String tipo : new String[]{"ADMINISTRADOR", "CONSERJE"}) {
+
+            ArrayList<IEmpleado> lista = empleados.get(tipo);
+
+            if (lista == null || lista.isEmpty()) {
+                continue;
+            }
+
+            for (IEmpleado empleado : lista) {
+
+                if (contador > 0) {
+                    System.out.println(CYAN +
+                            "╠═══════════════════════════════════════════╣" + RESET);
+                }
+
+                System.out.printf(VERDE + "║ %-41s ║%n" + RESET,
+                        "  " + tipo);
+
+                System.out.printf(AZUL + "║ %-41s ║%n" + RESET,
+                        "  DNI: " + empleado.getDni());
+
+                System.out.printf(AZUL + "║ %-41s ║%n" + RESET,
+                        "  Información: " + empleado);
+
+                contador++;
+            }
+        }
+
+        if (contador == 0) {
+            System.out.printf(ROJO + "║ %-41s ║%n" + RESET,
+                    "  No hay empleados registrados");
+        }
+
+        System.out.println(CYAN +
+                "╚═══════════════════════════════════════════╝" + RESET);
+    }
+
+
+    public static void eliminarEmpleado(
+            RegistroGenericoMapas<String, ArrayList<IEmpleado>> empleados,
+            RegistroGenericoMapas<String, Usuario> usu,
+            Scanner sc) {
+
+        System.out.println();
+        System.out.println(CYAN + "╔═══════════════════════════════════════════╗");
+        System.out.println("║             ELIMINAR EMPLEADO             ║");
+        System.out.println("╠═══════════════════════════════════════════╣" + RESET);
+
+        System.out.println(AZUL +
+                "║  ◈ Ingrese DNI del empleado               ║" + RESET);
+        System.out.print(VERDE + "║  ➜ " + RESET);
+
+        String dni = sc.nextLine().trim();
+
+        if (!dni.matches("[0-9]{7,8}")) {
+            System.out.println(ROJO +
+                    "║  ERROR: DNI inválido                      ║" + RESET);
+            System.out.println(CYAN +
+                    "╚═══════════════════════════════════════════╝" + RESET);
+            return;
+        }
+
+        // RECORRER LOS DOS TIPOS DE EMPLEADOS
+        for (String tipo : new String[]{"ADMINISTRADOR", "CONSERJE"}) {
+
+            ArrayList<IEmpleado> lista = empleados.get(tipo);
+
+            if (lista == null) {
+                continue;
+            }
+
+            for (int i = 0; i < lista.size(); i++) {
+
+                IEmpleado empleado = lista.get(i);
+
+                if (empleado.getDni().equals(dni)) {
+
+                    System.out.println(CYAN +
+                            "╠═══════════════════════════════════════════╣" + RESET);
+
+                    System.out.printf(VERDE + "║ %-41s ║%n" + RESET,
+                            "  EMPLEADO ENCONTRADO");
+
+                    System.out.printf(AZUL + "║ %-41s ║%n" + RESET,
+                            "  Tipo: " + tipo);
+
+                    System.out.printf(AZUL + "║ %-41s ║%n" + RESET,
+                            "  DNI: " + empleado.getDni());
+
+                    // CONFIRMAR ELIMINACIÓN
+                    String confirmar;
+
+                    while (true) {
+
+                        System.out.println(AMARILLO +
+                                "║  ¿Desea eliminarlo? (Si/No)                 ║" + RESET);
+                        System.out.print(VERDE + "║  ➜ " + RESET);
+
+                        confirmar = sc.nextLine().trim();
+
+                        if (confirmar.equalsIgnoreCase("Si") ||
+                                confirmar.equalsIgnoreCase("No")) {
+                            break;
+                        }
+
+                        System.out.println(ROJO +
+                                "║  ERROR: Ingrese Si o No                     ║" + RESET);
+                    }
+
+                    if (confirmar.equalsIgnoreCase("No")) {
+
+                        System.out.printf(AMARILLO + "║ %-41s ║%n" + RESET,
+                                "  Eliminación cancelada");
+
+                    } else {
+
+                        // ELIMINAR DE LA LISTA
+                        lista.remove(i);
+
+                        System.out.printf(VERDE + "║ %-41s ║%n" + RESET,
+                                "  Empleado eliminado correctamente");
+                    }
+
+                    System.out.println(CYAN +
+                            "╚═══════════════════════════════════════════╝" + RESET);
+
+                    return;
+                }
+            }
+        }
+
+        System.out.printf(ROJO + "║ %-41s ║%n" + RESET,
+                "  ERROR: Empleado no encontrado");
+
+        System.out.println(CYAN +
+                "╚═══════════════════════════════════════════╝" + RESET);
+    }
+
+
+    public static void eliminarUsuario(
+            RegistroGenericoMapas<String, Usuario> usu) {
+
+        System.out.println();
+        System.out.println(CYAN + "╔═══════════════════════════════════════════╗");
+        System.out.println("║              ELIMINAR USUARIO             ║");
+        System.out.println("╠═══════════════════════════════════════════╣" + RESET);
+
+        System.out.println(AZUL +
+                "║  ◈ Nombre de usuario                      ║" + RESET);
+        System.out.print(VERDE + "║  ➜ " + RESET);
+
+        String nombre = sc.nextLine().trim();
+
+        try {
+
+            // BUSCAR USUARIO ANTES DE ELIMINARLO
+            Usuario encontrado = usu.buscar(nombre);
+
+            System.out.println(CYAN +
+                    "╠═══════════════════════════════════════════╣" + RESET);
+
+            System.out.printf(AZUL + "║ %-41s ║%n" + RESET,
+                    "  Nombre: " + encontrado.getNombreUsuario());
+
+            System.out.printf(AZUL + "║ %-41s ║%n" + RESET,
+                    "  Tipo: " + encontrado.getTipoDeUsuario());
+
+            // CONFIRMAR ELIMINACIÓN
+            String confirmar;
+
+            while (true) {
+
+                System.out.println(AMARILLO +
+                        "║  ¿Desea eliminarlo? (S/N)                 ║" + RESET);
+
+                System.out.print(VERDE + "║  ➜ " + RESET);
+
+                confirmar = sc.nextLine().trim();
+
+                if (confirmar.equalsIgnoreCase("S") ||
+                        confirmar.equalsIgnoreCase("N")) {
+                    break;
+                }
+
+                System.out.println(ROJO +
+                        "║  ERROR: Ingrese S o N                     ║" + RESET);
+            }
+
+            if (confirmar.equalsIgnoreCase("S")) {
+
+                usu.eliminar(nombre);
+
+                System.out.printf(VERDE + "║ %-41s ║%n" + RESET,
+                        "  Usuario eliminado correctamente");
+
+            } else {
+
+                System.out.printf(AMARILLO + "║ %-41s ║%n" + RESET,
+                        "  Eliminación cancelada");
+            }
+
+        } catch (DatoInvalidoException e) {
+
+            System.out.printf(ROJO + "║ %-41s ║%n" + RESET,
+                    "  ERROR: " + e.getMessage());
+        }
+
+        System.out.println(CYAN +
+                "╚═══════════════════════════════════════════╝" + RESET);
+    }
+
+
+
+
+
+
 
 
     public static void IniciarMenu(RegistroGenericoMapas<String, Usuario> usu,
-                                   RegistroGenericoMapas<String, Pasajero> pasa) {
+                                   RegistroGenericoMapas<String, Pasajero> pasa,
+                                   RegistroGenericoMapas<String, ArrayList<IEmpleado>> empleado) {
 
         int opcion;
 
@@ -941,22 +1538,7 @@ public class Menu {
                     break;
 
                 case 3:
-                    System.out.println();
-                    System.out.println(CYAN + "╔═══════════════════════════════════════════╗");
-                    System.out.println("║              ELIMINAR USUARIO              ║");
-                    System.out.println("╠═══════════════════════════════════════════╣");
-
-                    System.out.println(AZUL + "║                                           ║");
-                    System.out.println("║  ◈ Nombre de usuario                      ║" + RESET);
-                    System.out.print(VERDE + "║  ➜ " + RESET);
-                    String nombre1 = sc.nextLine().trim();
-
-                    try {
-                        usu.eliminar(nombre1);
-                    } catch (DatoInvalidoException e) {
-                        throw new RuntimeException(e);
-                    }
-
+                    eliminarUsuario(usu);
                     break;
 
                 case 4:
@@ -984,10 +1566,23 @@ public class Menu {
                 case 12:
                     mostrarPasajeros(pasa);
                     break;
+
                 case 13:
+                    agregarEmpleado(empleado, usu);
+                    break;
+
                 case 14:
+                    buscarEmpleado(empleado);
+                    break;
+
                 case 15:
+                    eliminarEmpleado(empleado, usu, sc);
+
                 case 16:
+                    mostrarEmpleados(empleado);
+                    break;
+
+
                 case 17:
                 case 18:
                 case 19:
@@ -996,6 +1591,8 @@ public class Menu {
 
         }while (opcion != 0);
     }
+
+
 
     public static void menuConserje (RegistroGenericoMapas<String, Usuario> usu) {
 
