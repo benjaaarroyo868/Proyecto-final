@@ -137,7 +137,7 @@ public class Menu {
         try {
             nuevo.validarDatos();
 
-            hotel.agregarUsuario(nuevo);
+
 
             System.out.println(VERDE +
                     "\n Usuario registrado correctamente" + RESET);
@@ -185,7 +185,7 @@ public class Menu {
             System.out.println("║          VALIDANDO CREDENCIALES           ║");
             System.out.println("╠═══════════════════════════════════════════╣" + RESET);
 
-            usuario = usu.iniciarSesion(nombre);
+            usuario = usu.iniciarSesion(nombre, contrasenia);
 
             if (usuario == null) {
 
@@ -210,7 +210,7 @@ public class Menu {
         System.out.println(CYAN +
                 "╚═══════════════════════════════════════════╝" + RESET);
 
-        switch (usuario.getTipo_de_usuario()) {
+        switch (usuario.getTipoDeUsuario()) {
 
             case ADMINISTRADOR:
                 IniciarMenu();
@@ -511,7 +511,7 @@ public class Menu {
                                     "  Nombre: " + buscar.getNombreUsuario());
 
                             System.out.printf(AZUL + "║ %-41s ║%n" + RESET,
-                                    "  Tipo: " + buscar.getTipo_de_usuario());
+                                    "  Tipo: " + buscar.getTipoDeUsuario());
 
                         } else {
 
