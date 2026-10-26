@@ -78,6 +78,68 @@ public class Conexion {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+    public void crearTablaConserje() {
+        String sql = "CREATE TABLE IF NOT EXISTS Conserjes(" +
+                "id INT AUTO_INCREMENT PRIMARY KEY, " +
+                "nombre VARCHAR(100), " +
+                "apellido VARCHAR(100), " +
+                "dni VARCHAR(20), " +
+                "telefono VARCHAR(20), " +
+                "email VARCHAR(100), " +
+                "nombreUsuario INT, " +
+                "sueldoPorVenta DOUBLE, " +
+                "FOREIGN KEY (nombreUsuario) REFERENCES usuarios(id))";
+
+        try {
+            PreparedStatement ps = conn.prepareStatement(sql);
+
+            ps.executeUpdate();
+            ps.close();
+
+        } catch (SQLException e) {
+            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, e);
+        }
+    }
+    public void crearTablaHabitacion() {
+        String sql = "CREATE TABLE IF NOT EXISTS Habitaciones(" +
+                "numero_habitacion INT PRIMARY KEY, " +
+                "cantidad_camas INT, " +
+                "cantidad_maxima_personas INT, " +
+                "estado BOOLEAN)";
+
+        try {
+            PreparedStatement ps = conn.prepareStatement(sql);
+
+            ps.executeUpdate();
+            ps.close();
+
+        } catch (SQLException e) {
+            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, e);
+        }
+    }
+    public void crearTablaAdministrador() {
+        String sql = "CREATE TABLE IF NOT EXISTS Administradores(" +
+                "id INT AUTO_INCREMENT PRIMARY KEY, " +
+                "nombre VARCHAR(100), " +
+                "apellido VARCHAR(100), " +
+                "dni VARCHAR(20), " +
+                "telefono VARCHAR(20), " +
+                "email VARCHAR(100), " +
+                "nombreUsuario INT, " +
+                "legajo VARCHAR(50), " +
+                "sueldo DOUBLE, " +
+                "FOREIGN KEY (nombreUsuario) REFERENCES usuarios(id))";
+
+        try {
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.executeUpdate();
+            ps.close();
+
+        } catch (SQLException e) {
+            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, e);
+        }
+    }
+
     
 
 }
