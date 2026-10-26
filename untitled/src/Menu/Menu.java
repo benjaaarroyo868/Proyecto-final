@@ -266,6 +266,7 @@ public class Menu {
                 break;
 
             case CONSERJE:
+                menuConserje(usu);
 
             default:
                 System.out.println(ROJO +
@@ -291,8 +292,10 @@ public class Menu {
 
             System.out.println(AZUL + "║                                           ║");
             System.out.println("║    1. Realizar Reserva                    ║");
-            System.out.println("║    2. Eliminar Reserva                    ║");
-            System.out.println("║    3. Ver Habitaciones Disponibles        ║");
+            System.out.println("║    2. Ver Reserva                         ║");
+            System.out.println("║    3. Moficar Reserva                     ║");
+            System.out.println("║    4. Eliminar Reserva                    ║");
+            System.out.println("║    5. Ver Habitaciones Disponibles        ║");
             System.out.println("║                                           ║" + RESET);
 
             System.out.println(ROJO + "║    0. Cerrar Sesión                       ║" + RESET);
@@ -334,7 +337,7 @@ public class Menu {
                 case 2:
                     System.out.println();
                     System.out.println(AMARILLO + "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-                    System.out.println("              ELIMINAR RESERVA");
+                    System.out.println("              VER RESERVA");
                     System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" + RESET);
 
                     // Acá llamás a tu función para eliminar reservas.
@@ -345,13 +348,27 @@ public class Menu {
                 case 3:
                     System.out.println();
                     System.out.println(CYAN + "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-                    System.out.println("         HABITACIONES DISPONIBLES");
+                    System.out.println("         MODIFICAR RESERVA");
                     System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" + RESET);
 
                     // Acá llamás a la función de Hotel
                     // para consultar las habitaciones disponibles.
 
                     break;
+
+                case 4:
+                    System.out.println();
+                    System.out.println(CYAN + "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+                    System.out.println("         ELIMINAR RESERVA");
+                    System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" + RESET);
+
+                    break;
+
+                case 5:
+                    System.out.println();
+                    System.out.println(CYAN + "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+                    System.out.println("         HABITACIONES DISPONIBLES");
+                    System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" + RESET);
 
                 case 0:
                     LocalDateTime fechaCierre = LocalDateTime.now();
@@ -384,16 +401,60 @@ public class Menu {
     }
 
 
+    public static void mostrarUsuarios(
+            RegistroGenericoMapas<String, Usuario> usu) {
+
+        System.out.println();
+        System.out.println(CYAN + "╔═══════════════════════════════════════════╗");
+        System.out.println("║              MOSTRAR USUARIOS             ║");
+        System.out.println("╠═══════════════════════════════════════════╣" + RESET);
+
+        if (usu.obtenerTodos().isEmpty()) {
+
+            System.out.printf(ROJO + "║ %-41s ║%n" + RESET,
+                    "  No hay usuarios registrados");
+
+        } else {
+
+            int contador = 0;
+            int total = usu.obtenerTodos().size();
+
+            for (Usuario usuario : usu.obtenerTodos()) {
+
+                System.out.printf(AZUL + "║ %-41s ║%n" + RESET,
+                        "  Nombre: " + usuario.getNombreUsuario());
+
+                System.out.printf(AZUL + "║ %-41s ║%n" + RESET,
+                        "  Contraseña: " + usuario.getContrasenia());
+
+                System.out.printf(AZUL + "║ %-41s ║%n" + RESET,
+                        "  Tipo: " + usuario.getTipoDeUsuario());
+
+                contador++;
+
+                if (contador < total) {
+                    System.out.println(CYAN +
+                            "╠═══════════════════════════════════════════╣" + RESET);
+                }
+            }
+        }
+
+        System.out.println(CYAN +
+                "╚═══════════════════════════════════════════╝" + RESET);
+    }
+
 
     public static void IniciarMenu(RegistroGenericoMapas<String, Usuario> usu) {
 
         int opcion;
 
-
-
         do {
             System.out.println(CYAN + "╔═══════════════════════════════════════════╗");
             System.out.println("║              GESTIÓN HOTEL                ║");
+            System.out.println("╠═══════════════════════════════════════════╣" + RESET);
+            System.out.println("║                                           ║");
+            System.out.println("║                MENÚ ADMIN                 ║");
+            System.out.println("║                                           ║");
             System.out.println("╠═══════════════════════════════════════════╣" + RESET);
             System.out.println(AZUL + "║    1. Agregar usuario                     ║ " + RESET);
             System.out.println(AZUL + "║    2. Buscar usuario                      ║ " + RESET);
@@ -539,12 +600,26 @@ public class Menu {
                     System.out.println();
                     System.out.println(CYAN + "╔═══════════════════════════════════════════╗");
                     System.out.println("║              ELIMINAR USUARIO              ║");
-                    System.out.println("╠═══════════════════════════════════════════╣" + RESET);
+                    System.out.println("╠═══════════════════════════════════════════╣");
 
+                    System.out.println(AZUL + "║                                           ║");
+                    System.out.println("║  ◈ Nombre de usuario                      ║" + RESET);
+                    System.out.print(VERDE + "║  ➜ " + RESET);
+                    String nombre1 = sc.nextLine().trim();
 
+                    try {
+                        usu.eliminar(nombre1);
+                    } catch (DatoInvalidoException e) {
+                        throw new RuntimeException(e);
+                    }
 
+                    break;
 
                 case 4:
+
+                    mostrarUsuarios(usu);
+
+                    break;
                 case 5:
                 case 6:
                 case 7:
@@ -565,6 +640,109 @@ public class Menu {
 
         }while (opcion != 0);
     }
+
+    public static void menuConserje (RegistroGenericoMapas<String, Usuario> usu) {
+
+        int opcion;
+
+        do {
+            System.out.println(CYAN + "╔═══════════════════════════════════════════╗");
+            System.out.println("║              GESTIÓN HOTEL                ║");
+            System.out.println("╠═══════════════════════════════════════════╣" + RESET);
+            System.out.println("║                                           ║");
+            System.out.println("║               MENÚ CONSERJE               ║");
+            System.out.println("║                                           ║");
+            System.out.println("╠═══════════════════════════════════════════╣" + RESET);
+            System.out.println(AZUL + "║                                           ║ " + RESET);
+            System.out.println(AZUL + "║    1. Realizar Reserva                    ║ " + RESET);
+            System.out.println(AZUL + "║    2. Buscar Reserva                      ║ " + RESET);
+            System.out.println(AZUL + "║    3. Eliminar Reserva                    ║ " + RESET);
+            System.out.println(AZUL + "║    4. Mostrar Reservas                    ║ " + RESET);
+            System.out.println(AZUL + "║                                           ║ " + RESET);
+            System.out.println(AZUL + "║    5. Agregar Pasajero                    ║" + RESET);
+            System.out.println(AZUL + "║    6. Buscar Pasajero                     ║" + RESET);
+            System.out.println(AZUL + "║    7. Eliminar Pasajero                   ║" + RESET);
+            System.out.println(AZUL + "║    8. Mostrar Pasajeros                   ║" + RESET);
+            System.out.println(AZUL + "║                                           ║" + RESET);
+            System.out.println(AZUL + "║    9. Llamar Tecnico                      ║" + RESET);
+            System.out.println(AZUL + "║                                           ║" + RESET);
+            System.out.println(AZUL + "║   10. Mostrar Habitaciones                ║" + RESET);
+            System.out.println(AZUL + "║   11. Mostrar Habitaciones Ocupadas       ║" + RESET);
+            System.out.println(AZUL + "║   12. Mostrar Informacion Hotel           ║" + RESET);
+            System.out.println(AZUL + "║                                           ║" + RESET);
+            System.out.println(ROJO + "║    0. Salir                               ║" + RESET);
+            System.out.println(CYAN + "╚═══════════════════════════════════════════╝" + RESET);
+
+            String entrada;
+
+            do {
+                System.out.print(VERDE + "\n➜ Elegí una opción: " + RESET);
+                entrada = sc.nextLine().trim();
+
+                if (!entrada.matches("[0-12]+")) {
+                    System.out.println(ROJO +
+                            "ERROR: Solo se permiten números enteros." + RESET);
+                } else {
+                    try {
+                        opcion = Integer.parseInt(entrada);
+
+                        if (opcion < 0 || opcion > 12) {
+                            System.out.println(ROJO +
+                                    "ERROR: Elegí una opción entre 0 y 12." + RESET);
+                        } else {
+                            break;
+                        }
+
+                    } catch (NumberFormatException e) {
+                        System.out.println(ROJO +
+                                "ERROR: Número demasiado grande." + RESET);
+                    }
+                }
+
+            } while (true);
+
+            switch (opcion) {
+
+                case 0:
+                    LocalDateTime fechaFinal = LocalDateTime.now();
+
+                    DateTimeFormatter formato =
+                            DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+
+                    System.out.println(CYAN + "╔═══════════════════════════════════════════╗");
+                    System.out.println("║            GESTIÓN HOTEL - FIN            ║");
+                    System.out.println("╠═══════════════════════════════════════════╣" + RESET);
+
+                    System.out.printf(VERDE + "║ %-41s ║%n" + RESET,
+                            "      Programa cerrado correctamente");
+
+                    System.out.printf(AMARILLO + "║ %-41s ║%n" + RESET,
+                            "          ¡Que tenga buen día!");
+
+                    System.out.printf(CYAN + "║ %-41s ║%n" + RESET,
+                            "      Fecha: " + fechaFinal.format(formato));
+
+                    System.out.println(CYAN + "╚═══════════════════════════════════════════╝" + RESET);
+                    break;
+
+                case 1:
+                case 2:
+                case 3:
+                case 4:
+                case 5:
+                case 6:
+                case 7:
+                case 8:
+                case 9:
+                case 10:
+                case 11:
+                case 12:
+
+            }
+
+        }while (opcion != 0);
+    }
+
 
 
 }

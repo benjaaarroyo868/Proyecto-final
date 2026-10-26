@@ -5,6 +5,7 @@ import Exepciones.AgenciaHotelException;
 import Exepciones.AgregadoCorrectamenteExepcion;
 import Exepciones.DatoInvalidoException;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -107,6 +108,10 @@ public class RegistroGenericoMapas<K,V>{
         }
 
         return null;
+    }
+
+    public Collection<V> obtenerTodos() {
+        return mapa.values();
     }
 
 }
