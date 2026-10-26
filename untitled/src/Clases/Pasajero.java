@@ -30,12 +30,29 @@ public class Pasajero extends Persona implements IValidarDatos {
     }
 
     public void validarDatos() throws DatoInvalidoException {
-        if (getNombre() == null || getNombre().isBlank() ||
-                getApellido() == null || getApellido().isBlank() ||
-                getDNI() == null || getDNI().isBlank() ||
-                getEmail() == null || getEmail().isBlank()) {
-
-            throw new DatoInvalidoException("Los datos personales son inválidos");
+        if(getNombre() == null || getNombre().isBlank()){
+            throw new DatoInvalidoException("El nombre no puede ser vacio");
+        }
+        if(getApellido() == null || getApellido().isBlank()){
+            throw new DatoInvalidoException("El apellido no puede ser vacio");
+        }
+        if(getDNI() == null || getDNI().isBlank()){
+            throw new DatoInvalidoException("El dni no puede ser vacio");
+        }
+        if(!getDNI().matches("[0-9]{8}")){
+            throw new DatoInvalidoException("El dni no valido tiene que tener solo numeros y 8 numeros");
+        }
+        if(getTelefono() == null || getTelefono().isBlank()){
+            throw new DatoInvalidoException("El numero de telefono no puede ser vacio");
+        }
+        if(!getTelefono().matches("[0-9]{10}")){
+            throw new DatoInvalidoException("El numero de telefono no valido tiene que tener solo numeros y 8 numeros");
+        }
+        if(getEmail() == null || getEmail().isBlank()){
+            throw new DatoInvalidoException("El email no puede ser vacio");
+        }
+        if(!getEmail().matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")){
+            throw new DatoInvalidoException("El email es invalido");
         }
 
         if (origen == null || origen.isBlank()) {
