@@ -5,6 +5,7 @@ import Exepciones.DatoInvalidoException;
 import Exepciones.ReservaNoDisponibleException;
 import Interfaces.IValidarDatos;
 
+import java.time.LocalDate;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -13,6 +14,8 @@ public class Reserva implements IValidarDatos {
     private Pasajero pasajero;
     private Habitacion habitacion;
     private int cantidadPasajeros;
+    private LocalDate fechaIngreso;
+    private LocalDate fechaSalida;
     private UUID cont;
 
     public Reserva(Pasajero pasajero, Habitacion habitacion, int cantidadPasajeros) {
