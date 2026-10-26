@@ -7,34 +7,35 @@ import Exepciones.DatoInvalidoException;
 import Exepciones.ElementoDuplicadoException;
 import Exepciones.ReservaNoDisponibleException;
 import Interfaces.IEmpleado;
+import Interfaces.IValidarDatos;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Hotel {
+public class Hotel implements IValidarDatos {
     private String nombre;
     private String direccion;
     private int cantidadHabitaciones;
     private int cantidadOcupadas;
-    Map<String, ArrayList<IEmpleado>> empleados;
-    Map<ETipoTecnico, ArrayList <Tecnico>> tecnicos;
-    Map<ETipoHabitacion, ArrayList<Habitacion>> habitaciones;
-    Map<String, Pasajero> pasajeros;
-    Map<String, Pasajero> reservas;
-    Map<String, Usuario> usuario;
+    RegistroGenericoMapas <String, ArrayList<IEmpleado>> empleados;
+    RegistroGenericoMapas<ETipoTecnico, ArrayList <Tecnico>> tecnicos;
+    RegistroGenericoMapas<ETipoHabitacion, ArrayList<Habitacion>> habitaciones;
+    RegistroGenericoMapas<String, Pasajero> pasajeros;
+    RegistroGenericoMapas<String, Pasajero> reservas;
+    RegistroGenericoMapas<String, Usuario> usuario;
 
     public Hotel(String nombre, String direccion, int cantidadHabitaciones) {
         this.nombre = nombre;
         this.direccion = direccion;
         this.cantidadHabitaciones = cantidadHabitaciones;
         this.cantidadOcupadas = 0;
-        this.empleados = new HashMap<>();
-        this.tecnicos = new HashMap<>();
-        this.habitaciones = new HashMap<>();
-        this.pasajeros = new HashMap<>();
-        this.reservas = new HashMap<>();
-        this.usuario = new HashMap<>();
+        this.empleados = new RegistroGenericoMapas<>();
+        this.tecnicos = new RegistroGenericoMapas<>();
+        this.habitaciones = new RegistroGenericoMapas<>();
+        this.pasajeros = new RegistroGenericoMapas<>();
+        this.reservas = new RegistroGenericoMapas<>();
+        this.usuario = new RegistroGenericoMapas<>();
     }
 
     public String getNombre() {
@@ -160,6 +161,27 @@ public class Hotel {
         }
 
         return null;
+    }
+    @Override
+    public void validarDatos() throws DatoInvalidoException {
+        if (nombre == null || nombre.isBlank() ||
+                direccion == null || direccion.isBlank()) {
+
+            throw new DatoInvalidoException(
+                    "El nombre y la dirección del hotel no pueden estar vacíos");
+        }
+
+        if (cantidadHabitaciones <= 0) {
+            throw new DatoInvalidoException(
+                    "La cantidad de habitaciones debe ser mayor a cero");
+        }
+
+        if (cantidadOcupadas < 0 ||
+                cantidadOcupadas > cantidadHabitaciones) {
+
+            throw new DatoInvalidoException(
+                    "La cantidad de habitaciones ocupadas es inválida");
+        }
     }
 
 }

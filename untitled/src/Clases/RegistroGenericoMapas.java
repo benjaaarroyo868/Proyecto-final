@@ -13,7 +13,17 @@ public class RegistroGenericoMapas<K,V>{
         mapa=new HashMap<>();
     }
 
+    public boolean containsKey(K clave) {
+        return mapa.containsKey(clave);
+    }
 
+    public V get(K clave) {
+        return mapa.get(clave);
+    }
+
+    public void put(K clave, V valor) {
+        mapa.put(clave, valor);
+    }
     public void cargar(K clave, V valor) throws DatoInvalidoException {
         if (clave == null || valor == null) {
             throw new DatoInvalidoException("La clave y el valor no pueden ser nulos");
