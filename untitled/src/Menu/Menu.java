@@ -10,8 +10,6 @@ import java.time.LocalDateTime;
 import java.util.Scanner;
 import java.time.format.DateTimeFormatter;
 
-import static java.awt.Color.CYAN;
-
 
 public class Menu {
 
@@ -494,7 +492,7 @@ public class Menu {
             }
 
             System.out.println(ROJO +
-                    "║  ERROR: Ingresá entre 8 y 15 números." + RESET);
+                    "║  ERROR: telefono invalido" + RESET);
         }
 
 // EMAIL: validar formato
@@ -537,7 +535,7 @@ public class Menu {
             }
 
             System.out.println(ROJO +
-                    "║  ✘ ERROR: Mínimo 8 caracteres,             ║");
+                    "║   ERROR: Mínimo 8 caracteres,             ║");
             System.out.println(
                     "║    una mayúscula y un número.              ║" + RESET);
         }
@@ -640,6 +638,50 @@ public class Menu {
         }
     }
 
+    public static void buscarPasajero(
+            RegistroGenericoMapas<String, Pasajero> pasa) {
+
+        System.out.println();
+        System.out.println(CYAN + "╔═══════════════════════════════════════════╗");
+        System.out.println("║              BUSCAR PASAJERO              ║");
+        System.out.println("╠═══════════════════════════════════════════╣");
+
+        System.out.println(AZUL + "║                                           ║");
+        System.out.println("║  ◈ Ingrese DNI                    ║" + RESET);
+        System.out.print(VERDE + "║  ➜ " + RESET);
+
+        String dni = sc.nextLine().trim();
+
+        System.out.println(CYAN + "╠═══════════════════════════════════════════╣" + RESET);
+
+        try {
+            Usuario encontrado = pasa.buscar(dni).getUsuario();
+
+            System.out.println(VERDE +
+                    "║           USUARIO ENCONTRADO              ║" + RESET);
+
+            System.out.println(CYAN +
+                    "╠═══════════════════════════════════════════╣" + RESET);
+
+            System.out.printf(AZUL + "║ %-41s ║%n" + RESET,
+                    "  Nombre: " + encontrado.getNombreUsuario());
+
+            System.out.printf(AZUL + "║ %-41s ║%n" + RESET,
+                    "  Tipo: " + encontrado.getTipoDeUsuario());
+
+        } catch (DatoInvalidoException e) {
+
+            System.out.println(ROJO +
+                    "║           USUARIO NO ENCONTRADO           ║" + RESET);
+
+            System.out.printf(AMARILLO + "║ %-41s ║%n" + RESET,
+                    "  Verificá el nombre ingresado");
+        }
+
+        System.out.println(CYAN +
+                "╚═══════════════════════════════════════════╝" + RESET);
+    }
+
 
 
     public static String pedirSoloLetras(String campo, Scanner sc) {
@@ -659,6 +701,88 @@ public class Menu {
                     "║  ERROR: Mínimo 2 letras.                ║");
 
         }
+    }
+
+    public static void eliminarPasajero (RegistroGenericoMapas<String, Pasajero> pasa){
+        System.out.println();
+        System.out.println(CYAN + "╔═══════════════════════════════════════════╗");
+        System.out.println("║              ELIMINAR USUARIO              ║");
+        System.out.println("╠═══════════════════════════════════════════╣");
+
+        System.out.println(AZUL + "║                                           ║");
+        System.out.println("║  ◈ Dni Pasajero                           ║" + RESET);
+        System.out.print(VERDE + "║  ➜ " + RESET);
+        String nombre1 = sc.nextLine().trim();
+
+        try {
+            pasa.eliminar(nombre1);
+        } catch (DatoInvalidoException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void mostrarPasajeros(
+            RegistroGenericoMapas<String, Pasajero> pasa) {
+
+        System.out.println();
+        System.out.println(CYAN + "╔═══════════════════════════════════════════╗");
+        System.out.println("║             MOSTRAR PASAJEROS             ║");
+        System.out.println("╠═══════════════════════════════════════════╣" + RESET);
+
+        if (pasa.obtenerTodos().isEmpty()) {
+
+            System.out.printf(ROJO + "║ %-41s ║%n" + RESET,
+                    "  No hay usuarios registrados");
+
+        } else {
+
+            int contador = 0;
+            int total = pasa.obtenerTodos().size();
+
+
+            for (Pasajero pasajero : pasa.obtenerTodos()) {
+
+                System.out.printf(AZUL + "║ %-41s ║%n" + RESET,
+                        "  Nombre: " + pasajero.getNombre());
+
+                System.out.printf(AZUL + "║ %-41s ║%n" + RESET,
+                        "  Apellido: " + pasajero.getApellido());
+
+                System.out.printf(AZUL + "║ %-41s ║%n" + RESET,
+                        "  DNI: " + pasajero.getDNI());
+
+                System.out.printf(AZUL + "║ %-41s ║%n" + RESET,
+                        "  Teléfono: " + pasajero.getTelefono());
+
+                System.out.printf(AZUL + "║ %-41s ║%n" + RESET,
+                        "  Email: " + pasajero.getEmail());
+
+                System.out.printf(AZUL + "║ %-41s ║%n" + RESET,
+                        "  Origen: " + pasajero.getOrigen());
+
+                System.out.printf(AZUL + "║ %-41s ║%n" + RESET,
+                        "  Destino: " + pasajero.getDestino_origen());
+
+                System.out.printf(VERDE + "║ %-41s ║%n" + RESET,
+                        "  Usuario: " + pasajero.getUsuario().getNombreUsuario());
+
+                System.out.printf(VERDE + "║ %-41s ║%n" + RESET,
+                        "  Tipo: " + pasajero.getUsuario().getTipoDeUsuario());
+
+                System.out.println(CYAN +
+                        "╠═══════════════════════════════════════════╣" + RESET);
+
+            contador++;
+
+                if (contador < total) {
+                    System.out.println(CYAN +
+                            "╠═══════════════════════════════════════════╣" + RESET);
+                }
+            }
+        }
+
+        System.out.println(CYAN +
+                "╚═══════════════════════════════════════════╝" + RESET);
     }
 
 
@@ -844,14 +968,22 @@ public class Menu {
                 case 6:
                 case 7:
                 case 8:
+
                 case 9:
-
                     agregarPasajero(pasa, usu);
-
                     break;
+
                 case 10:
+                    buscarPasajero(pasa);
+                    break;
+
                 case 11:
+                    eliminarPasajero(pasa);
+                    break;
+
                 case 12:
+                    mostrarPasajeros(pasa);
+                    break;
                 case 13:
                 case 14:
                 case 15:
