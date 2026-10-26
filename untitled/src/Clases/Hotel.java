@@ -6,6 +6,7 @@ import Exepciones.AgenciaHotelException;
 import Exepciones.DatoInvalidoException;
 import Exepciones.ElementoDuplicadoException;
 import Exepciones.ReservaNoDisponibleException;
+import Generico.RegistroGenericoMapas;
 import Interfaces.IEmpleado;
 import Interfaces.IValidarDatos;
 
@@ -18,7 +19,7 @@ public class Hotel implements IValidarDatos {
     private String direccion;
     private int cantidadHabitaciones;
     private int cantidadOcupadas;
-    RegistroGenericoMapas <String, ArrayList<IEmpleado>> empleados;
+    RegistroGenericoMapas<String, ArrayList<IEmpleado>> empleados;
     RegistroGenericoMapas<ETipoTecnico, ArrayList <Tecnico>> tecnicos;
     RegistroGenericoMapas<ETipoHabitacion, ArrayList<Habitacion>> habitaciones;
     RegistroGenericoMapas<String, Pasajero> pasajeros;
