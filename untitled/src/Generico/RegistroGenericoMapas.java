@@ -90,26 +90,24 @@ public class RegistroGenericoMapas<K,V>{
     }
 
 
-    public V iniciarSesion(String nombre) {
+
+    public V iniciarSesion(K nombre, String contrasenia) {
 
         V valor = mapa.get(nombre);
-
-        if (valor == null) {
-            return null;
-        }
 
         if (valor instanceof Usuario) {
 
             Usuario usuario = (Usuario) valor;
 
-            if (usuario.getNombreUsuario().equals(nombre)) {
+            if (usuario.getContrasenia() != null &&
+                    usuario.getContrasenia().equals(contrasenia)) {
+
                 return valor;
             }
         }
 
         return null;
     }
-
 
 }
 

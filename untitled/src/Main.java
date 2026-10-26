@@ -63,13 +63,13 @@ void main() {
 
 
     try {
-         h1.agregarUsuario(usuarioPasajero);
-         h1.agregarUsuario(usuarioAdmin);
+         usu.cargar(usuarioAdmin.getNombreUsuario(), usuarioAdmin);
+         usu.cargar(usuarioPasajero.getNombreUsuario(), usuarioPasajero);
 
      } catch (AgenciaHotelException e) {
          throw new RuntimeException(e);
      }
 
 
-    m.menuPrincipal(h1);
+    m.menuPrincipal(h1, usu);
 }
