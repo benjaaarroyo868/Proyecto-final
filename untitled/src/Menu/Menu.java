@@ -2,6 +2,8 @@ package Menu;
 import Clases.*;
 import Enums.*;
 import Exepciones.AgenciaHotelException;
+import Exepciones.AgregadoCorrectamenteExepcion;
+import Exepciones.DatoInvalidoException;
 import Generico.*;
 
 import java.time.LocalDateTime;
@@ -21,6 +23,7 @@ public class Menu {
 
 
     static Scanner sc = new Scanner(System.in);
+    static RegistroGenericoMapas<String, Usuario> usu = new RegistroGenericoMapas<>();
 
 
     public static void menuPrincipal(Hotel hotel) {
@@ -182,7 +185,7 @@ public class Menu {
             System.out.println("║          VALIDANDO CREDENCIALES           ║");
             System.out.println("╠═══════════════════════════════════════════╣" + RESET);
 
-            usuario = hotel.iniciarSesion(nombre, contrasenia);
+            usuario = usu.iniciarSesion(nombre);
 
             if (usuario == null) {
 
@@ -338,6 +341,8 @@ public class Menu {
 
             int opcion;
 
+
+
             do {
                 System.out.println(CYAN + "╔═══════════════════════════════════════════╗");
                 System.out.println("║              GESTIÓN HOTEL                ║");
@@ -424,7 +429,7 @@ public class Menu {
                         break;
 
                     case 1:
-                        RegistroGenericoMapas<String, Usuario> usu = new RegistroGenericoMapas<>();
+
 
                         System.out.println("╠═══════════════════════════════════════════╣");
                         System.out.println("║             REGISTRAR USUARIO             ║");
@@ -461,14 +466,68 @@ public class Menu {
                             System.out.println(AMARILLO +
                                     "Ahora podés iniciar sesión." + RESET);
 
-                        } catch (AgenciaHotelException e) {
+                        }catch (AgregadoCorrectamenteExepcion e) {
+
+                            System.out.println(VERDE +
+                                    "\nUsuario -> " + e.getMessage() + RESET);
+                        }
+                        catch (AgenciaHotelException e) {
 
                             System.out.println(ROJO +
                                     "\nERROR: " + e.getMessage() + RESET);
                         }
 
+
                     case 2:
-                        
+                        System.out.println();
+                        System.out.println(CYAN + "╔═══════════════════════════════════════════╗");
+                        System.out.println("║               BUSCAR USUARIO              ║");
+                        System.out.println("╠═══════════════════════════════════════════╣" + RESET);
+
+                        System.out.println(AZUL + "║                                           ║");
+                        System.out.println("║  ◈ Contraseña                             ║" + RESET);
+                        System.out.print(VERDE + "║  ➜ " + RESET);
+
+                        String contra = sc.nextLine().trim();
+
+                        Usuario buscar = null;
+                        try {
+                            buscar = usu.buscar(contra);
+                        } catch (DatoInvalidoException e) {
+                            throw new RuntimeException(e);
+                        }
+
+                        System.out.println(CYAN + "╠═══════════════════════════════════════════╣" + RESET);
+
+                        if (buscar != null) {
+
+                            System.out.println(VERDE +
+                                    "║         ✔ USUARIO ENCONTRADO              ║" + RESET);
+
+                            System.out.println(CYAN +
+                                    "╠═══════════════════════════════════════════╣" + RESET);
+
+                            System.out.printf(AZUL + "║ %-41s ║%n" + RESET,
+                                    "  Nombre: " + buscar.getNombreUsuario());
+
+                            System.out.printf(AZUL + "║ %-41s ║%n" + RESET,
+                                    "  Tipo: " + buscar.getTipo_de_usuario());
+
+                        } else {
+
+                            System.out.println(ROJO +
+                                    "║          ✘ USUARIO NO ENCONTRADO          ║" + RESET);
+
+                            System.out.println(AMARILLO +
+                                    "║       Verificá los datos ingresados       ║" + RESET);
+                        }
+
+                        System.out.println(CYAN +
+                                "╚═══════════════════════════════════════════╝" + RESET);
+
+                        break;
+
+
                     case 3:
                     case 4:
                     case 5:
