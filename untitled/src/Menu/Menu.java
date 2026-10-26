@@ -492,7 +492,7 @@ public class Menu {
 
             telefono = sc.nextLine().trim();
 
-            if (telefono.matches("[0-9]{11}")) {
+            if (telefono.matches("[0-9]{8,10}")) {
                 break;
             }
 
@@ -921,7 +921,7 @@ public class Menu {
             System.out.print(VERDE + "║  ➜ " + RESET);
             telefono = sc.nextLine().trim();
 
-            if (telefono.matches("[0-9]{8,15}")) {
+            if (telefono.matches("[0-9]{8,10}")) {
                 break;
             }
 
