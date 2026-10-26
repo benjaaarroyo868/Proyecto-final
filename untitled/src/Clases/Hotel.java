@@ -71,64 +71,6 @@ public class Hotel implements IValidarDatos {
         this.cantidadOcupadas = cantidadOcupadas;
     }
 
-    public void agregarPasajero(Pasajero pasajero)throws AgenciaHotelException {
-        if(pasajero==null){
-            throw new DatoInvalidoException("El pasajero no puede ser nulo");
-        }
-
-        if (pasajeros.containsKey(pasajero.getDNI())) {
-            throw new ElementoDuplicadoException("Ya existe un pasajero con ese DNI");
-        }
-
-        pasajero.validarDatos();
-        pasajeros.put(pasajero.getDNI(), pasajero);
-
-
-    }
-
-    public void agregarReserva(Reserva reserva)throws AgenciaHotelException{
-        if(reserva==null){
-            throw new DatoInvalidoException("La reserva no puede ser nula");
-        }
-
-        if(reservas.containsKey(reserva.getIdReserva())){
-            throw new ElementoDuplicadoException("La reserva ya existe");
-
-        }
-        reserva.validarDatos();
-        reservas.put(reserva.getIdReserva(), reserva.getPasajero());
-        cantidadHabitaciones++;
-    }
-
-    public String agregarSectorEmpleado(String s){
-        if(empleados.containsKey(s)){
-            return "Sector -> "+s+" ya existe";
-        }
-
-        empleados.put(s, new ArrayList<>());
-        return "Sector -> "+s+" agregado correctamente";
-    }
-
-    public String agregarEmpleado (String s, IEmpleado a) throws AgenciaHotelException{
-        if(!empleados.containsKey(s)){
-            return "Sector -> "+s+" no existe";
-        }
-        if(empleados.get(s).contains(a)){
-            return "Empleado ya existe en este sector -> "+s;
-        }
-        if(a instanceof Administrador){
-            Administrador admin = (Administrador) a;
-
-            admin.validarDatos();
-        }
-        else if(a instanceof Conserje){
-            Conserje c = (Conserje) a;
-
-            c.validarDatos();
-        }
-        empleados.get(s).add(a);
-        return "Empleado guardado correctamente";
-    }
 
 
     public String agregarUsuario(Usuario u) throws AgenciaHotelException {

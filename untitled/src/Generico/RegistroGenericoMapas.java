@@ -1,5 +1,7 @@
 package Generico;
 
+import Exepciones.AgenciaHotelException;
+import Exepciones.AgregadoCorrectamenteExepcion;
 import Exepciones.DatoInvalidoException;
 
 import java.util.HashMap;
@@ -24,7 +26,8 @@ public class RegistroGenericoMapas<K,V>{
     public void put(K clave, V valor) {
         mapa.put(clave, valor);
     }
-    public void cargar(K clave, V valor) throws DatoInvalidoException {
+
+    public void cargar(K clave, V valor) throws AgenciaHotelException {
         if (clave == null || valor == null) {
             throw new DatoInvalidoException("La clave y el valor no pueden ser nulos");
         }
@@ -34,6 +37,7 @@ public class RegistroGenericoMapas<K,V>{
         }
 
         mapa.put(clave, valor);
+        throw new AgregadoCorrectamenteExepcion("Se agrego correctamente");
     }
 
     public void eliminar(K clave) throws DatoInvalidoException {
