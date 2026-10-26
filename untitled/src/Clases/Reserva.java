@@ -96,6 +96,21 @@ public class Reserva implements IValidarDatos {
         if(cantidadPasajeros>habitacion.getCantidadMaximaPersonas()){
             throw new ReservaNoDisponibleException("La cantidad de pasajeros supera la capacidad de la habitacion");
         }
+        if (fechaIngreso == null) {
+            throw new DatoInvalidoException("La fecha de ingreso no puede ser null");
+        }
+
+        if (fechaSalida == null) {
+            throw new DatoInvalidoException("La fecha de salida no puede ser null");
+        }
+
+        if (fechaIngreso.isBefore(LocalDate.now())) {
+            throw new DatoInvalidoException("La fecha de ingreso no puede ser anterior a hoy");
+        }
+
+        if (!fechaSalida.isAfter(fechaIngreso)) {
+            throw new DatoInvalidoException("La fecha de salida debe ser posterior a la fecha de ingreso");
+        }
 
     }
 }
