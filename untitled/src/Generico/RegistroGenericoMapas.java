@@ -1,5 +1,6 @@
 package Generico;
 
+import Clases.Usuario;
 import Exepciones.AgenciaHotelException;
 import Exepciones.AgregadoCorrectamenteExepcion;
 import Exepciones.DatoInvalidoException;
@@ -37,7 +38,7 @@ public class RegistroGenericoMapas<K,V>{
         }
 
         mapa.put(clave, valor);
-        throw new AgregadoCorrectamenteExepcion("Se agrego correctamente");
+
     }
 
     public void eliminar(K clave) throws DatoInvalidoException {
@@ -87,6 +88,28 @@ public class RegistroGenericoMapas<K,V>{
 
         return mapa.get(clave);
     }
+
+
+    public V iniciarSesion(String nombre) {
+
+        V valor = mapa.get(nombre);
+
+        if (valor == null) {
+            return null;
+        }
+
+        if (valor instanceof Usuario) {
+
+            Usuario usuario = (Usuario) valor;
+
+            if (usuario.getNombreUsuario().equals(nombre)) {
+                return valor;
+            }
+        }
+
+        return null;
+    }
+
 
 }
 

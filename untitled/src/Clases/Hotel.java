@@ -94,17 +94,6 @@ public class Hotel implements IValidarDatos {
     }
 
 
-    public Usuario iniciarSesion(String nombre, String contrasenia) {
-
-        Usuario u = usuario.get(nombre);
-
-        if (u != null &&
-                u.getContrasenia().equals(contrasenia)) {
-            return u;
-        }
-
-        return null;
-    }
     @Override
     public void validarDatos() throws DatoInvalidoException {
         if (nombre == null || nombre.isBlank() ||

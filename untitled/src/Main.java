@@ -58,6 +58,8 @@ void main() {
 
 
     RegistroGenericoMapas<String, Pasajero> pasa = new RegistroGenericoMapas<>();
+    RegistroGenericoMapas<String, Usuario> usu = new RegistroGenericoMapas<>();
+
 
 
     try {
