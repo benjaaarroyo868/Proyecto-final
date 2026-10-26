@@ -23,7 +23,7 @@ public class Hotel implements IValidarDatos {
     RegistroGenericoMapas<ETipoTecnico, ArrayList <Tecnico>> tecnicos;
     RegistroGenericoMapas<ETipoHabitacion, ArrayList<Habitacion>> habitaciones;
     RegistroGenericoMapas<String, Pasajero> pasajeros;
-    RegistroGenericoMapas<String, Pasajero> reservas;
+    RegistroGenericoMapas<String, Reserva> reservas;
     RegistroGenericoMapas<String, Usuario> usuario;
 
     public Hotel(String nombre, String direccion, int cantidadHabitaciones) {
