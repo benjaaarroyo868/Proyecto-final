@@ -450,12 +450,12 @@ public class Menu {
 
         do {
             System.out.println(CYAN + "╔═══════════════════════════════════════════╗");
-            System.out.println("║              GESTIÓN HOTEL                ║");
-            System.out.println("╠═══════════════════════════════════════════╣" + RESET);
-            System.out.println("║                                           ║");
-            System.out.println("║                MENÚ ADMIN                 ║");
-            System.out.println("║                                           ║");
-            System.out.println("╠═══════════════════════════════════════════╣" + RESET);
+            System.out.println(CYAN +"║              GESTIÓN HOTEL                ║");
+            System.out.println(CYAN +"╠═══════════════════════════════════════════╣" + RESET);
+            System.out.println(CYAN +"║                                           ║");
+            System.out.println(CYAN +"║                MENÚ ADMIN                 ║");
+            System.out.println(CYAN +"║                                           ║");
+            System.out.println(CYAN +"╠═══════════════════════════════════════════╣" + RESET);
             System.out.println(AZUL + "║    1. Agregar usuario                     ║ " + RESET);
             System.out.println(AZUL + "║    2. Buscar usuario                      ║ " + RESET);
             System.out.println(AZUL + "║    3. Eliminar usuario                    ║ " + RESET);
