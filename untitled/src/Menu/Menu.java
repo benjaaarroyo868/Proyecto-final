@@ -2,6 +2,7 @@ package Menu;
 import Clases.*;
 import Enums.*;
 import Exepciones.AgenciaHotelException;
+import Generico.*;
 
 import java.time.LocalDateTime;
 import java.util.Scanner;
@@ -398,7 +399,7 @@ public class Menu {
 
                 } while (true);
 
-                switch (opcion){
+                switch (opcion) {
 
                     case 0:
                         LocalDateTime fechaFinal = LocalDateTime.now();
@@ -423,7 +424,51 @@ public class Menu {
                         break;
 
                     case 1:
+                        RegistroGenericoMapas<String, Usuario> usu = new RegistroGenericoMapas<>();
+
+                        System.out.println("╠═══════════════════════════════════════════╣");
+                        System.out.println("║             REGISTRAR USUARIO             ║");
+                        System.out.println("╠═══════════════════════════════════════════╣" + RESET);
+
+                        System.out.println(AZUL + "║                                           ║");
+                        System.out.println("║  ◈ Nombre de usuario                      ║" + RESET);
+                        System.out.print(VERDE + "║  ➜ " + RESET);
+                        String nombre = sc.nextLine().trim();
+
+                        System.out.println(AZUL + "║                                           ║");
+                        System.out.println("║  ◈ Contraseña                             ║" + RESET);
+                        System.out.print(VERDE + "║  ➜ " + RESET);
+                        String contrasenia = sc.nextLine();
+
+                        System.out.println(CYAN + "║                                           ║");
+                        System.out.println("╚═══════════════════════════════════════════╝" + RESET);
+
+                        // Los registros públicos son de tipo PASAJERO
+                        Usuario nuevo = new Usuario(
+                                nombre,
+                                contrasenia,
+                                ETipoUsuario.PASAJERO
+                        );
+
+                        try {
+                            nuevo.validarDatos();
+
+                            usu.cargar(nuevo.getContrasenia(), nuevo);
+
+                            System.out.println(VERDE +
+                                    "\n Usuario registrado correctamente" + RESET);
+
+                            System.out.println(AMARILLO +
+                                    "Ahora podés iniciar sesión." + RESET);
+
+                        } catch (AgenciaHotelException e) {
+
+                            System.out.println(ROJO +
+                                    "\nERROR: " + e.getMessage() + RESET);
+                        }
+
                     case 2:
+                        
                     case 3:
                     case 4:
                     case 5:
@@ -442,11 +487,12 @@ public class Menu {
                     case 18:
                     case 19:
                     case 20:
-
                 }
+
             }while (opcion != 0);
+    }
 
 
         }
-    }
+
 
