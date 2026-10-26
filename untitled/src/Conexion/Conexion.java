@@ -30,5 +30,50 @@ public class Conexion {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+    public void crearTablaUsuario() throws SQLException {
+
+        String sql= """
+                    Create table if not exists Usuarios(
+                    nombreUsuario varchar(30) not null primary key,
+                    contrasenia varchar(30) not null,
+                   TipoUsuario varchar(30) 
+                    )
+                   
+                    """;
+        try{
+            PreparedStatement ps=conn.prepareStatement(sql);
+            ps.executeUpdate();
+            ps.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+    }
+    public void crearTablaTecnicos() throws SQLException {
+
+        String sql = """
+            CREATE TABLE IF NOT EXISTS Tecnicos (
+                DNI VARCHAR(15) NOT NULL PRIMARY KEY,
+                nombre VARCHAR(50) NOT NULL,
+                apellido VARCHAR(50) NOT NULL,
+                telefono VARCHAR(20) NOT NULL,
+                email VARCHAR(100) NOT NULL,
+                nombreUsuario VARCHAR(30) NOT NULL,
+                tipo_de_tecnico VARCHAR(30) NOT NULL,
+                formacion VARCHAR(100) NOT NULL,
+                disponible BOOLEAN NOT NULL,
+                FOREIGN KEY (nombreUsuario) REFERENCES Usuarios(nombreUsuario)
+            )
+            """;
+
+        try {
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.executeUpdate();
+            ps.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
     
+
 }
