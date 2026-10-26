@@ -210,7 +210,7 @@ public class Menu {
         System.out.println(CYAN +
                 "╚═══════════════════════════════════════════╝" + RESET);
 
-        switch (usuario.getTipo_de_usuario()) {
+        switch (usuario.getTipoDeUsuario()) {
 
             case ADMINISTRADOR:
                 IniciarMenu();
@@ -511,7 +511,7 @@ public class Menu {
                                     "  Nombre: " + buscar.getNombreUsuario());
 
                             System.out.printf(AZUL + "║ %-41s ║%n" + RESET,
-                                    "  Tipo: " + buscar.getTipo_de_usuario());
+                                    "  Tipo: " + buscar.getTipoDeUsuario());
 
                         } else {
 
