@@ -33,7 +33,12 @@ public class Pasajero extends Persona implements IValidarDatos {
         if (getNombre() == null || getNombre().isBlank() ||
                 getApellido() == null || getApellido().isBlank() ||
                 getDNI() == null || getDNI().isBlank() ||
-                getEmail() == null || getEmail().isBlank()) {
+                !getDNI().matches("[0-9]{8}")||
+                getEmail() == null || getEmail().isBlank()||
+               !getEmail().matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")||
+                getTelefono() == null || getTelefono().isBlank()||
+                getTelefono().matches("[0-9]{10}"))
+        {
 
             throw new DatoInvalidoException("Los datos personales son inválidos");
         }
