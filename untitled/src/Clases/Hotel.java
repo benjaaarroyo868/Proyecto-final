@@ -72,28 +72,6 @@ public class Hotel implements IValidarDatos {
     }
 
 
-
-    public String agregarUsuario(Usuario u) throws AgenciaHotelException {
-
-        if (usuario == null) {
-            throw new DatoInvalidoException(
-                    "El usuario no puede ser nulo");
-        }
-
-        u.validarDatos();
-
-        // Comprobamos si ya existe
-        if (usuario.containsKey(u.getNombreUsuario())) {
-            throw new DatoInvalidoException(
-                    "El nombre de usuario ya existe");
-        }
-
-        usuario.put(u.getNombreUsuario(), u);
-
-        return "Usuario agregado correctamente";
-    }
-
-
     @Override
     public void validarDatos() throws DatoInvalidoException {
         if (nombre == null || nombre.isBlank() ||

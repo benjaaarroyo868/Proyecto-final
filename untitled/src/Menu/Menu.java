@@ -1,34 +1,62 @@
+
 package Menu;
+
 import Clases.*;
-import Enums.*;
-import Exepciones.AgenciaHotelException;
-import Exepciones.AgregadoCorrectamenteExepcion;
-import Exepciones.DatoInvalidoException;
-import Generico.*;
+import Generico.RegistroGenericoMapas;
 
-import java.time.LocalDateTime;
 import java.util.Scanner;
-import java.time.format.DateTimeFormatter;
-
-import static java.awt.Color.CYAN;
-
 
 public class Menu {
 
-
-        public static final String RESET = "\u001B[0m";
-        public static final String AZUL = "\u001B[34m";
-        public static final String VERDE = "\u001B[32m";
-        public static final String ROJO = "\u001B[31m";
-        public static final String CYAN = "\u001B[36m";
-        public static final String AMARILLO = "\u001B[33m";
-
-
+    // COLORES
+    public static final String RESET = "\u001B[0m";
+    public static final String AZUL = "\u001B[34m";
+    public static final String VERDE = "\u001B[32m";
+    public static final String ROJO = "\u001B[31m";
+    public static final String CYAN = "\u001B[36m";
+    public static final String AMARILLO = "\u001B[33m";
 
     static Scanner sc = new Scanner(System.in);
 
+    // VALIDAR OPCIONES NUMÉRICAS
+    public static int pedirOpcion(int maximo) {
 
-    public static void menuPrincipal(Hotel hotel, RegistroGenericoMapas<String, Usuario> usu) {
+        while (true) {
+
+            System.out.print(VERDE + "\n➜ Elegí una opción: " + RESET);
+            String entrada = sc.nextLine().trim();
+
+            if (!entrada.matches("[0-9]+")) {
+                System.out.println(ROJO +
+                        "✘ ERROR: Solo se permiten números enteros." + RESET);
+                continue;
+            }
+
+            try {
+                int opcion = Integer.parseInt(entrada);
+
+                if (opcion >= 0 && opcion <= maximo) {
+                    return opcion;
+                }
+
+                System.out.println(ROJO +
+                        "✘ ERROR: Elegí una opción entre 0 y " +
+                        maximo + RESET);
+
+            } catch (NumberFormatException e) {
+                System.out.println(ROJO +
+                        "✘ ERROR: Número demasiado grande." + RESET);
+            }
+        }
+    }
+
+    // ==========================================
+    //             MENÚ PRINCIPAL
+    // ==========================================
+
+    public static void menuPrincipal(
+            Hotel hotel,
+            RegistroGenericoMapas<String, Usuario> usu) {
 
         int opcion;
 
@@ -52,226 +80,173 @@ public class Menu {
             System.out.println(CYAN + "║                                           ║");
             System.out.println("╚═══════════════════════════════════════════╝" + RESET);
 
-            // VALIDAR OPCIÓN
-            while (true) {
-
-                System.out.print(VERDE + "\n➜ Elegí una opción: " + RESET);
-                String entrada = sc.nextLine().trim();
-
-                if (!entrada.matches("[0-2]")) {
-                    System.out.println(ROJO +
-                            "ERROR: Ingresá un número del 0 al 2." + RESET);
-                    continue;
-                }
-
-                opcion = Integer.parseInt(entrada);
-                break;
-            }
+            opcion = pedirOpcion(2);
 
             switch (opcion) {
 
                 case 1:
-                    iniciarSesion(hotel, usu);
+                    FuncionesMenu.iniciarSesion(hotel, usu, sc);
                     break;
 
                 case 2:
-                    registrarUsuario(hotel, usu);
+                    FuncionesMenu.registrarUsuario(usu, sc);
                     break;
 
                 case 0:
-                    LocalDateTime fechaFinal = LocalDateTime.now();
-
-                    DateTimeFormatter formato =
-                            DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
-
-                    System.out.println();
-                    System.out.println(CYAN + "╔═══════════════════════════════════════════╗");
-                    System.out.println("║              SISTEMA CERRADO              ║");
-                    System.out.println("╠═══════════════════════════════════════════╣" + RESET);
-
-                    System.out.printf(VERDE + "║ %-41s ║%n" + RESET,
-                            "      Programa cerrado correctamente");
-
-                    System.out.printf(AMARILLO + "║ %-41s ║%n" + RESET,
-                            "          ¡Que tenga buen día!");
-
-                    System.out.printf(CYAN + "║ %-41s ║%n" + RESET,
-                            "      Fecha: " + fechaFinal.format(formato));
-
-                    System.out.println(CYAN +
-                            "╚═══════════════════════════════════════════╝" + RESET);
+                    FuncionesMenu.mostrarCierre("SISTEMA CERRADO");
                     break;
             }
 
         } while (opcion != 0);
     }
 
+    // ==========================================
+    //         MENÚ ADMINISTRADOR / CONSERJE
+    // ==========================================
 
-    public static void buscarUsuario(
+    public static void IniciarMenu(
             RegistroGenericoMapas<String, Usuario> usu) {
 
-        System.out.println();
-        System.out.println(CYAN + "╔═══════════════════════════════════════════╗");
-        System.out.println("║               BUSCAR USUARIO              ║");
-        System.out.println("╠═══════════════════════════════════════════╣");
-
-        System.out.println(AZUL + "║                                           ║");
-        System.out.println("║  ◈ Ingrese nombre de usuario              ║" + RESET);
-        System.out.print(VERDE + "║  ➜ " + RESET);
-
-        String nombre = sc.nextLine().trim();
-
-        System.out.println(CYAN + "╠═══════════════════════════════════════════╣" + RESET);
-
-        try {
-            Usuario encontrado = usu.buscar(nombre);
-
-            System.out.println(VERDE +
-                    "║           USUARIO ENCONTRADO              ║" + RESET);
-
-            System.out.println(CYAN +
-                    "╠═══════════════════════════════════════════╣" + RESET);
-
-            System.out.printf(AZUL + "║ %-41s ║%n" + RESET,
-                    "  Nombre: " + encontrado.getNombreUsuario());
-
-            System.out.printf(AZUL + "║ %-41s ║%n" + RESET,
-                    "  Tipo: " + encontrado.getTipo_de_usuario());
-
-        } catch (DatoInvalidoException e) {
-
-            System.out.println(ROJO +
-                    "║           USUARIO NO ENCONTRADO           ║" + RESET);
-
-            System.out.printf(AMARILLO + "║ %-41s ║%n" + RESET,
-                    "  Verificá el nombre ingresado");
-        }
-
-        System.out.println(CYAN +
-                "╚═══════════════════════════════════════════╝" + RESET);
-    }
-
-
-
-    public static void registrarUsuario(Hotel hotel, RegistroGenericoMapas<String, Usuario> usu) {
-
-        System.out.println();
-        System.out.println(CYAN + "╔═══════════════════════════════════════════╗");
-        System.out.println("║               GESTIÓN HOTEL               ║");
-        System.out.println("╠═══════════════════════════════════════════╣");
-        System.out.println("║             REGISTRAR USUARIO             ║");
-        System.out.println("╠═══════════════════════════════════════════╣" + RESET);
-
-        System.out.println(AZUL + "║                                           ║");
-        System.out.println("║  ◈ Nombre de usuario                      ║" + RESET);
-        System.out.print(VERDE + "║  ➜ " + RESET);
-        String nombre = sc.nextLine().trim();
-
-        System.out.println(AZUL + "║                                           ║");
-        System.out.println("║  ◈ Contraseña                             ║" + RESET);
-        System.out.print(VERDE + "║  ➜ " + RESET);
-        String contrasenia = sc.nextLine();
-
-        System.out.println(CYAN + "║                                           ║");
-        System.out.println("╚═══════════════════════════════════════════╝" + RESET);
-
-        // Los registros públicos son de tipo PASAJERO
-        Usuario nuevo = new Usuario(
-                nombre,
-                contrasenia,
-                ETipoUsuario.PASAJERO
-        );
-
-        try {
-            nuevo.validarDatos();
-
-            usu.cargar(nuevo.getNombreUsuario(), nuevo);
-
-            System.out.println(VERDE +
-                    "Usuario registrado correctamente" + RESET);
-
-        } catch (AgenciaHotelException e) {
-
-            System.out.println(ROJO +
-                    "ERROR: " + e.getMessage() + RESET);
-        }
-    }
-
-
-
-    public static void iniciarSesion(Hotel hotel, RegistroGenericoMapas<String, Usuario> usu) {
-
-        Usuario usuario;
+        int opcion;
 
         do {
             System.out.println();
             System.out.println(CYAN + "╔═══════════════════════════════════════════╗");
             System.out.println("║               GESTIÓN HOTEL               ║");
-            System.out.println("╠═══════════════════════════════════════════╣");
-            System.out.println("║                                           ║");
-            System.out.println("║             INICIO DE SESIÓN              ║");
-            System.out.println("║                                           ║");
-            System.out.println("╠═══════════════════════════════════════════╣");
-            System.out.println("║       Accedé a tu cuenta del hotel        ║");
-            System.out.println("║                                           ║");
-            System.out.println("║  ◈ Nombre de usuario                      ║" + RESET);
-
-            System.out.print(CYAN + "║  " + VERDE + "➜ " + RESET);
-            String nombre = sc.nextLine().trim();
-
-            System.out.println(CYAN + "║                                           ║");
-            System.out.println("║  ◈ Contraseña                             ║" + RESET);
-
-            System.out.print(CYAN + "║  " + VERDE + "➜ " + RESET);
-            String contrasenia = sc.nextLine();
-
-            System.out.println(CYAN + "║                                           ║");
-            System.out.println("╠═══════════════════════════════════════════╣");
-            System.out.println("║          VALIDANDO CREDENCIALES           ║");
             System.out.println("╠═══════════════════════════════════════════╣" + RESET);
 
-            usuario = usu.iniciarSesion(nombre, contrasenia);
+            System.out.println(AZUL + "║    1. Agregar usuario                     ║");
+            System.out.println("║    2. Buscar usuario                      ║");
+            System.out.println("║    3. Eliminar usuario                    ║");
+            System.out.println("║    4. Mostrar usuarios                    ║");
+            System.out.println("║                                           ║");
+            System.out.println("║    5. Realizar Reserva                    ║");
+            System.out.println("║    6. Buscar Reserva                      ║");
+            System.out.println("║    7. Eliminar Reserva                    ║");
+            System.out.println("║    8. Mostrar Reservas                    ║");
+            System.out.println("║                                           ║");
+            System.out.println("║    9. Agregar Pasajero                    ║");
+            System.out.println("║   10. Buscar Pasajero                     ║");
+            System.out.println("║   11. Eliminar Pasajero                   ║");
+            System.out.println("║   12. Mostrar Pasajeros                   ║");
+            System.out.println("║                                           ║");
+            System.out.println("║   13. Agregar Empleado                    ║");
+            System.out.println("║   14. Buscar Empleado                     ║");
+            System.out.println("║   15. Eliminar Empleado                   ║");
+            System.out.println("║   16. Mostrar Empleados                   ║");
+            System.out.println("║                                           ║");
+            System.out.println("║   17. Dar Permiso                         ║");
+            System.out.println("║                                           ║");
+            System.out.println("║   18. Mostrar Habitaciones                ║");
+            System.out.println("║   19. Mostrar Habitaciones Ocupadas       ║");
+            System.out.println("║   20. Mostrar Informacion Hotel           ║");
+            System.out.println("║                                           ║" + RESET);
 
-            if (usuario == null) {
+            System.out.println(ROJO + "║    0. Cerrar Sesión                       ║" + RESET);
+            System.out.println(CYAN + "╚═══════════════════════════════════════════╝" + RESET);
 
-                System.out.println(ROJO +
-                        "║     Usuario o contraseña incorrectos      ║" + RESET);
+            opcion = pedirOpcion(20);
 
-                System.out.println(AMARILLO +
-                        "║            Intentá nuevamente            ║" + RESET);
+            switch (opcion) {
 
-                System.out.println(CYAN +
-                        "╚═══════════════════════════════════════════╝" + RESET);
+                case 1:
+                    FuncionesMenu.registrarUsuario(usu, sc);
+                    break;
+
+                case 2:
+                    FuncionesMenu.buscarUsuario(usu, sc);
+                    break;
+
+                case 3:
+                    FuncionesMenu.eliminarUsuario(usu, sc);
+                    break;
+
+                case 4:
+                    FuncionesMenu.mostrarUsuarios(usu);
+                    break;
+
+                case 5:
+                    System.out.println(VERDE +
+                            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+                    System.out.println("              REALIZAR RESERVA");
+                    System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" + RESET);
+                    // Acá conectás tu función de realizar reserva.
+                    break;
+
+                case 6:
+                    System.out.println(CYAN + "BUSCAR RESERVA" + RESET);
+                    // Acá conectás tu función de buscar reserva.
+                    break;
+
+                case 7:
+                    System.out.println(AMARILLO + "ELIMINAR RESERVA" + RESET);
+                    // Acá conectás tu función de eliminar reserva.
+                    break;
+
+                case 8:
+                    System.out.println(CYAN + "MOSTRAR RESERVAS" + RESET);
+                    // Acá conectás tu función de mostrar reservas.
+                    break;
+
+                case 9:
+                    System.out.println(VERDE + "AGREGAR PASAJERO" + RESET);
+                    break;
+
+                case 10:
+                    System.out.println(CYAN + "BUSCAR PASAJERO" + RESET);
+                    break;
+
+                case 11:
+                    System.out.println(AMARILLO + "ELIMINAR PASAJERO" + RESET);
+                    break;
+
+                case 12:
+                    System.out.println(CYAN + "MOSTRAR PASAJEROS" + RESET);
+                    break;
+
+                case 13:
+                    System.out.println(VERDE + "AGREGAR EMPLEADO" + RESET);
+                    break;
+
+                case 14:
+                    System.out.println(CYAN + "BUSCAR EMPLEADO" + RESET);
+                    break;
+
+                case 15:
+                    System.out.println(AMARILLO + "ELIMINAR EMPLEADO" + RESET);
+                    break;
+
+                case 16:
+                    System.out.println(CYAN + "MOSTRAR EMPLEADOS" + RESET);
+                    break;
+
+                case 17:
+                    System.out.println(AMARILLO + "DAR PERMISO" + RESET);
+                    break;
+
+                case 18:
+                    System.out.println(CYAN + "MOSTRAR HABITACIONES" + RESET);
+                    break;
+
+                case 19:
+                    System.out.println(CYAN + "HABITACIONES OCUPADAS" + RESET);
+                    break;
+
+                case 20:
+                    System.out.println(CYAN + "INFORMACIÓN DEL HOTEL" + RESET);
+                    break;
+
+                case 0:
+                    FuncionesMenu.mostrarCierre("SESIÓN CERRADA");
+                    break;
             }
 
-        } while (usuario == null);
+        } while (opcion != 0);
+    }
 
-        System.out.println(VERDE +
-                "║       Inicio de sesión exitoso            ║" + RESET);
-
-        System.out.println(AMARILLO +
-                "║        Bienvenido al sistema              ║" + RESET);
-
-        System.out.println(CYAN +
-                "╚═══════════════════════════════════════════╝" + RESET);
-
-        switch (usuario.getTipo_de_usuario()) {
-
-            case ADMINISTRADOR:
-                IniciarMenu(usu);
-                break;
-
-            case PASAJERO:
-                menuPasajero();
-                break;
-
-            default:
-                System.out.println(ROJO +
-                        "Tipo de usuario no reconocido" + RESET);
-        }
-        }
-
-
+    // ==========================================
+    //              MENÚ PASAJERO
+    // ==========================================
 
     public static void menuPasajero() {
 
@@ -298,266 +273,42 @@ public class Menu {
             System.out.println(CYAN + "║                                           ║");
             System.out.println("╚═══════════════════════════════════════════╝" + RESET);
 
-            // VALIDACIÓN DE LA OPCIÓN
-            while (true) {
+            opcion = pedirOpcion(3);
 
-                System.out.print(VERDE + "\n➜ Elegí una opción: " + RESET);
-
-                String entrada = sc.nextLine().trim();
-
-                if (!entrada.matches("[0-3]")) {
-                    System.out.println(ROJO +
-                            "ERROR: Solo se permiten números del 0 al 3." + RESET);
-                    continue;
-                }
-
-                opcion = Integer.parseInt(entrada);
-                break;
-            }
-
-            // OPCIONES DEL MENÚ
             switch (opcion) {
 
                 case 1:
-                    System.out.println();
-                    System.out.println(VERDE + "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+                    System.out.println(VERDE +
+                            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
                     System.out.println("              REALIZAR RESERVA");
                     System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" + RESET);
 
-                    // Acá llamás a tu función para realizar reservas.
-                    // Utilizá el usuario que inició sesión.
-
+                    // Conectar método para realizar reserva.
                     break;
 
                 case 2:
-                    System.out.println();
-                    System.out.println(AMARILLO + "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+                    System.out.println(AMARILLO +
+                            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
                     System.out.println("              ELIMINAR RESERVA");
                     System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" + RESET);
 
-                    // Acá llamás a tu función para eliminar reservas.
-                    // Verificá que la reserva pertenezca al pasajero.
-
+                    // Verificar que la reserva pertenezca al pasajero.
                     break;
 
                 case 3:
-                    System.out.println();
-                    System.out.println(CYAN + "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+                    System.out.println(CYAN +
+                            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
                     System.out.println("         HABITACIONES DISPONIBLES");
                     System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" + RESET);
 
-                    // Acá llamás a la función de Hotel
-                    // para consultar las habitaciones disponibles.
-
+                    // Consultar disponibilidad según las fechas.
                     break;
 
                 case 0:
-                    LocalDateTime fechaCierre = LocalDateTime.now();
-
-                    DateTimeFormatter formato =
-                            DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
-
-                    System.out.println();
-                    System.out.println(CYAN + "╔═══════════════════════════════════════════╗");
-                    System.out.println("║              SESIÓN CERRADA               ║");
-                    System.out.println("╠═══════════════════════════════════════════╣" + RESET);
-
-                    System.out.printf(VERDE + "║ %-41s ║%n" + RESET,
-                            "      Sesión cerrada correctamente");
-
-                    System.out.printf(AMARILLO + "║ %-41s ║%n" + RESET,
-                            "          ¡Que tenga buen día!");
-
-                    System.out.println(CYAN + "║                                           ║");
-
-                    System.out.printf(CYAN + "║ %-41s ║%n" + RESET,
-                            "      Fecha: " + fechaCierre.format(formato));
-
-                    System.out.println(CYAN +
-                            "╚═══════════════════════════════════════════╝" + RESET);
+                    FuncionesMenu.mostrarCierre("SESIÓN CERRADA");
                     break;
             }
 
         } while (opcion != 0);
     }
-
-
-
-    public static void IniciarMenu(RegistroGenericoMapas<String, Usuario> usu) {
-
-            int opcion;
-
-
-
-            do {
-                System.out.println(CYAN + "╔═══════════════════════════════════════════╗");
-                System.out.println("║              GESTIÓN HOTEL                ║");
-                System.out.println("╠═══════════════════════════════════════════╣" + RESET);
-                System.out.println(AZUL + "║    1. Agregar usuario                     ║ " + RESET);
-                System.out.println(AZUL + "║    2. Buscar usuario                      ║ " + RESET);
-                System.out.println(AZUL + "║    3. Eliminar usuario                    ║ " + RESET);
-                System.out.println(AZUL + "║    4. Mostrar usuarios                    ║ " + RESET);
-                System.out.println(AZUL + "║                                           ║ " + RESET);
-                System.out.println(AZUL + "║    5. Realizar Reserva                    ║ " + RESET);
-                System.out.println(AZUL + "║    6. Buscar Reserva                      ║ " + RESET);
-                System.out.println(AZUL + "║    7. Eliminar Reserva                    ║ " + RESET);
-                System.out.println(AZUL + "║    8. Mostrar Reservas                    ║ " + RESET);
-                System.out.println(AZUL + "║                                           ║ " + RESET);
-                System.out.println(AZUL + "║    9. Agregar Pasajero                    ║" + RESET);
-                System.out.println(AZUL + "║   10. Buscar Pasajero                     ║" + RESET);
-                System.out.println(AZUL + "║   11. Eliminar Pasajero                   ║" + RESET);
-                System.out.println(AZUL + "║   12. Mostrar Pasajeros                   ║" + RESET);
-                System.out.println(AZUL + "║                                           ║" + RESET);
-                System.out.println(AZUL + "║   13. Agregar Empleado                    ║" + RESET);
-                System.out.println(AZUL + "║   14. Buscar Empleado                     ║" + RESET);
-                System.out.println(AZUL + "║   15. Eliminar Empleado                   ║" + RESET);
-                System.out.println(AZUL + "║   16. Mostar Empleados                    ║" + RESET);
-                System.out.println(AZUL + "║                                           ║" + RESET);
-                System.out.println(AZUL + "║   17. Dar Permiso                         ║" + RESET);
-                System.out.println(AZUL + "║                                           ║" + RESET);
-                System.out.println(AZUL + "║   18. Mostrar Habitaciones                ║" + RESET);
-                System.out.println(AZUL + "║   19. Mostrar Habitaciones Ocupadas       ║" + RESET);
-                System.out.println(AZUL + "║   20. Mostrar Informacion Hotel           ║" + RESET);
-                System.out.println(AZUL + "║                                           ║" + RESET);
-                System.out.println(ROJO + "║    0. Salir                               ║" + RESET);
-                System.out.println(CYAN + "╚═══════════════════════════════════════════╝" + RESET);
-
-                String entrada;
-
-                do {
-                    System.out.print(VERDE + "\n➜ Elegí una opción: " + RESET);
-                    entrada = sc.nextLine().trim();
-
-                    if (!entrada.matches("[0-9]+")) {
-                        System.out.println(ROJO +
-                                "ERROR: Solo se permiten números enteros." + RESET);
-                    } else {
-                        try {
-                            opcion = Integer.parseInt(entrada);
-
-                            if (opcion < 0 || opcion > 20) {
-                                System.out.println(ROJO +
-                                        "ERROR: Elegí una opción entre 0 y 20." + RESET);
-                            } else {
-                                break;
-                            }
-
-                        } catch (NumberFormatException e) {
-                            System.out.println(ROJO +
-                                    "ERROR: Número demasiado grande." + RESET);
-                        }
-                    }
-
-                } while (true);
-
-                switch (opcion) {
-
-                    case 0:
-                        LocalDateTime fechaFinal = LocalDateTime.now();
-
-                        DateTimeFormatter formato =
-                                DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
-
-                        System.out.println(CYAN + "╔═══════════════════════════════════════════╗");
-                        System.out.println("║            GESTIÓN HOTEL - FIN            ║");
-                        System.out.println("╠═══════════════════════════════════════════╣" + RESET);
-
-                        System.out.printf(VERDE + "║ %-41s ║%n" + RESET,
-                                "      Programa cerrado correctamente");
-
-                        System.out.printf(AMARILLO + "║ %-41s ║%n" + RESET,
-                                "          ¡Que tenga buen día!");
-
-                        System.out.printf(CYAN + "║ %-41s ║%n" + RESET,
-                                "      Fecha: " + fechaFinal.format(formato));
-
-                        System.out.println(CYAN + "╚═══════════════════════════════════════════╝" + RESET);
-                        break;
-
-                    case 1:
-
-
-                        System.out.println("╠═══════════════════════════════════════════╣");
-                        System.out.println("║             REGISTRAR USUARIO             ║");
-                        System.out.println("╠═══════════════════════════════════════════╣" + RESET);
-
-                        System.out.println(AZUL + "║                                           ║");
-                        System.out.println("║  ◈ Nombre de usuario                      ║" + RESET);
-                        System.out.print(VERDE + "║  ➜ " + RESET);
-                        String nombre = sc.nextLine().trim();
-
-                        System.out.println(AZUL + "║                                           ║");
-                        System.out.println("║  ◈ Contraseña                             ║" + RESET);
-                        System.out.print(VERDE + "║  ➜ " + RESET);
-                        String contrasenia = sc.nextLine();
-
-                        System.out.println(CYAN + "║                                           ║");
-                        System.out.println("╚═══════════════════════════════════════════╝" + RESET);
-
-                        // Los registros públicos son de tipo PASAJERO
-                        Usuario nuevo = new Usuario(
-                                nombre,
-                                contrasenia,
-                                ETipoUsuario.PASAJERO
-                        );
-
-                        try {
-                            nuevo.validarDatos();
-
-                            usu.cargar(nuevo.getContrasenia(), nuevo);
-
-                            System.out.println(VERDE +
-                                    "\n Usuario registrado correctamente" + RESET);
-
-                            System.out.println(AMARILLO +
-                                    "Ahora podés iniciar sesión." + RESET);
-
-                        }catch (AgregadoCorrectamenteExepcion e) {
-
-                            System.out.println(VERDE +
-                                    "\nUsuario -> " + e.getMessage() + RESET);
-                        }
-                        catch (AgenciaHotelException e) {
-
-                            System.out.println(ROJO +
-                                    "\nERROR: " + e.getMessage() + RESET);
-                        }
-
-
-                    case 2:
-                        System.out.println();
-                        System.out.println(CYAN + "╔═══════════════════════════════════════════╗");
-                        System.out.println("║               BUSCAR USUARIO              ║");
-                        System.out.println("╠═══════════════════════════════════════════╣" + RESET);
-
-                        buscarUsuario(usu);
-                        break;
-
-
-                    case 3:
-                    case 4:
-                    case 5:
-                    case 6:
-                    case 7:
-                    case 8:
-                    case 9:
-                    case 10:
-                    case 11:
-                    case 12:
-                    case 13:
-                    case 14:
-                    case 15:
-                    case 16:
-                    case 17:
-                    case 18:
-                    case 19:
-                    case 20:
-                }
-
-            }while (opcion != 0);
-    }
-
-
-        }
-
-
+}
