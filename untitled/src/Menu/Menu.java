@@ -28,7 +28,8 @@ public class Menu {
     static Scanner sc = new Scanner(System.in);
 
 
-    public static void menuPrincipal(Hotel hotel, RegistroGenericoMapas<String, Usuario> usu) {
+    public static void menuPrincipal(Hotel hotel, RegistroGenericoMapas<String, Usuario> usu,
+                                     RegistroGenericoMapas<String, Pasajero> pasa) {
 
         int opcion;
 
@@ -71,7 +72,7 @@ public class Menu {
             switch (opcion) {
 
                 case 1:
-                    iniciarSesion(hotel, usu);
+                    iniciarSesion(hotel, usu, pasa);
                     break;
 
                 case 2:
@@ -199,7 +200,8 @@ public class Menu {
 
 
 
-    public static void iniciarSesion(Hotel hotel, RegistroGenericoMapas<String, Usuario> usu) {
+    public static void iniciarSesion(Hotel hotel, RegistroGenericoMapas<String, Usuario> usu,
+                                     RegistroGenericoMapas<String, Pasajero> pasa) {
 
         Usuario usuario;
 
@@ -258,7 +260,7 @@ public class Menu {
         switch (usuario.getTipoDeUsuario()) {
 
             case ADMINISTRADOR:
-                IniciarMenu(usu);
+                IniciarMenu(usu, pasa);
                 break;
 
             case PASAJERO:
@@ -444,7 +446,226 @@ public class Menu {
     }
 
 
-    public static void IniciarMenu(RegistroGenericoMapas<String, Usuario> usu) {
+    public static void agregarPasajero(
+            RegistroGenericoMapas<String, Pasajero> pasajeros,
+            RegistroGenericoMapas<String, Usuario> usuarios
+            ) {
+
+        System.out.println();
+        System.out.println(CYAN + "╔═══════════════════════════════════════════╗");
+        System.out.println("║              AGREGAR PASAJERO             ║");
+        System.out.println("╠═══════════════════════════════════════════╣" + RESET);
+
+
+        String nombre = pedirSoloLetras("Nombre", sc);
+
+        String apellido = pedirSoloLetras("Apellido", sc);
+
+// DNI: solo números, entre 7 y 8 dígitos
+        String dni;
+
+        while (true) {
+            System.out.println(AZUL +
+                    "║  ◈ DNI                                     ║" + RESET);
+            System.out.print(VERDE + "║  ➜ " + RESET);
+
+            dni = sc.nextLine().trim();
+
+            if (dni.matches("[0-9]{7,8}")) {
+                break;
+            }
+
+            System.out.println(ROJO +
+                    "║  ERROR: El DNI debe tener 7 u 8 números." + RESET);
+        }
+
+// TELÉFONO: solo números, entre 8 y 15 dígitos
+        String telefono;
+
+        while (true) {
+            System.out.println(AZUL +
+                    "║  Teléfono                                ║" + RESET);
+            System.out.print(VERDE + "║  ➜ " + RESET);
+
+            telefono = sc.nextLine().trim();
+
+            if (telefono.matches("[0-9]{11}")) {
+                break;
+            }
+
+            System.out.println(ROJO +
+                    "║  ERROR: Ingresá entre 8 y 15 números." + RESET);
+        }
+
+// EMAIL: validar formato
+        String email;
+
+        while (true) {
+            System.out.println(AZUL +
+                    "║  ◈ Email                                   ║" + RESET);
+            System.out.print(VERDE + "║  ➜ " + RESET);
+
+            email = sc.nextLine().trim();
+
+            if (email.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
+                break;
+            }
+
+            System.out.println(ROJO +
+                    "║  ERROR: Ingresá un email válido." + RESET);
+        }
+
+
+        // CREAR USUARIO PARA EL PASAJERO
+        System.out.println(CYAN + "╠═══════════════════════════════════════════╣");
+        System.out.println("║          CREAR CUENTA DE USUARIO          ║");
+        System.out.println("╠═══════════════════════════════════════════╣" + RESET);
+
+
+        String nombreUsuario;
+
+        while (true) {
+
+            System.out.println(AZUL +
+                    "║  ◈ Nombre de usuario                       ║" + RESET);
+            System.out.print(VERDE + "║  ➜ " + RESET);
+
+            nombreUsuario = sc.nextLine().trim();
+
+            if (nombreUsuario.matches("^(?=.*[A-Z])(?=.*[0-9])[a-zA-Z0-9]{8,}$")) {
+                break;
+            }
+
+            System.out.println(ROJO +
+                    "║  ✘ ERROR: Mínimo 8 caracteres,             ║");
+            System.out.println(
+                    "║    una mayúscula y un número.              ║" + RESET);
+        }
+
+
+// CONTRASEÑA
+        String contrasenia;
+
+        while (true) {
+
+            System.out.println(AZUL +
+                    "║  ◈ Contraseña                              ║" + RESET);
+            System.out.print(VERDE + "║  ➜ " + RESET);
+
+            contrasenia = sc.nextLine();
+
+            if (contrasenia.matches("^(?=.*[A-Z])(?=.*[0-9])(?=.*[^a-zA-Z0-9\\s])\\S{8,}$")) {
+                break;
+            }
+
+            System.out.println(ROJO +
+                    "║  ERROR: Mínimo 8 caracteres,             ║");
+            System.out.println(
+                    "║    una mayúscula, un número y un símbolo.  ║" + RESET);
+        }
+
+        Usuario nuevoUsuario = new Usuario(
+                nombreUsuario,
+                contrasenia,
+                ETipoUsuario.PASAJERO
+        );
+
+        System.out.println(CYAN + "╠═══════════════════════════════════════════╣");
+        System.out.println("║          INFORMACIÓN DEL PASAJERO         ║");
+        System.out.println("╠═══════════════════════════════════════════╣" + RESET);
+
+        String origen = pedirSoloLetras("Origen", sc);
+
+        String destinoOrigen = pedirSoloLetras("Destino", sc);
+
+        System.out.println(CYAN +
+                "╚═══════════════════════════════════════════╝" + RESET);
+
+        try {
+            nuevoUsuario.validarDatos();
+
+            // COMPROBAR DUPLICADOS ANTES DE GUARDAR
+            if (usuarios.containsKey(nombreUsuario)) {
+                System.out.println(ROJO +
+                        "ERROR: El nombre de usuario ya existe." + RESET);
+                return;
+            }
+
+            if (pasajeros.containsKey(dni)) {
+                System.out.println(ROJO +
+                        "ERROR: Ya existe un pasajero con ese DNI." + RESET);
+                return;
+            }
+
+            // CREAR PASAJERO Y ASOCIARLE SU USUARIO
+            Pasajero nuevoPasajero = new Pasajero(
+                    nombre,
+                    apellido,
+                    dni,
+                    telefono,
+                    email,
+                    nuevoUsuario,
+                    origen,
+                    destinoOrigen
+            );
+
+            // GUARDAR LOS DOS OBJETOS
+            usuarios.cargar(nombreUsuario, nuevoUsuario);
+            pasajeros.cargar(dni, nuevoPasajero);
+
+            System.out.println(VERDE +
+                    "╔═══════════════════════════════════════════╗");
+            System.out.println("║         PASAJERO AGREGADO CON ÉXITO       ║");
+            System.out.println("╠═══════════════════════════════════════════╣" + RESET);
+
+            System.out.printf(AZUL + "║ %-41s ║%n" + RESET,
+                    "  Nombre: " + nombre + " " + apellido);
+
+            System.out.printf(AZUL + "║ %-41s ║%n" + RESET,
+                    "  DNI: " + dni);
+
+            System.out.printf(AZUL + "║ %-41s ║%n" + RESET,
+                    "  Usuario: " + nombreUsuario);
+
+            System.out.printf(AZUL + "║ %-41s ║%n" + RESET,
+                    "  Tipo: " + nuevoUsuario.getTipoDeUsuario());
+
+            System.out.println(CYAN +
+                    "╚═══════════════════════════════════════════╝" + RESET);
+
+        } catch (AgenciaHotelException e) {
+
+            System.out.println(ROJO +
+                    "ERROR: " + e.getMessage() + RESET);
+        }
+    }
+
+
+
+    public static String pedirSoloLetras(String campo, Scanner sc) {
+
+        while (true) {
+
+            System.out.printf(AZUL + "║  ◈ %-41s ║%n" + RESET, campo);
+            System.out.print(VERDE + "║  ➜ " + RESET);
+
+            String dato = sc.nextLine().trim();
+
+            if (dato.matches("^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ]{2,}( [a-zA-ZáéíóúÁÉÍÓÚüÜñÑ]+)*$")) {
+                return dato;
+            }
+
+            System.out.println(ROJO +
+                    "║  ERROR: Mínimo 2 letras.                ║");
+
+        }
+    }
+
+
+
+
+    public static void IniciarMenu(RegistroGenericoMapas<String, Usuario> usu,
+                                   RegistroGenericoMapas<String, Pasajero> pasa) {
 
         int opcion;
 
@@ -539,7 +760,6 @@ public class Menu {
 
                 case 1:
 
-
                     System.out.println("╠═══════════════════════════════════════════╣");
                     System.out.println("║             REGISTRAR USUARIO             ║");
                     System.out.println("╠═══════════════════════════════════════════╣" + RESET);
@@ -625,6 +845,10 @@ public class Menu {
                 case 7:
                 case 8:
                 case 9:
+
+                    agregarPasajero(pasa, usu);
+
+                    break;
                 case 10:
                 case 11:
                 case 12:
