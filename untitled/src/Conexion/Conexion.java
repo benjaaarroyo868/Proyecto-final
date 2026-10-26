@@ -30,6 +30,10 @@ public class Conexion {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+
+
+
+
     public void crearTablaUsuario() throws SQLException {
 
         String sql= """
@@ -72,50 +76,6 @@ public class Conexion {
             ps.close();
         } catch (SQLException ex) {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-    public void crearTablaAdministrador() {
-        String sql = "CREATE TABLE IF NOT EXISTS Administradores(" +
-                "id INT AUTO_INCREMENT PRIMARY KEY, " +
-                "nombre VARCHAR(100), " +
-                "apellido VARCHAR(100), " +
-                "dni VARCHAR(20), " +
-                "telefono VARCHAR(20), " +
-                "email VARCHAR(100), " +
-                "nombreUsuario INT, " +
-                "legajo VARCHAR(50), " +
-                "sueldo DOUBLE, " +
-                "FOREIGN KEY (nombreUsuario) REFERENCES usuarios(nombreUsuario))";
-
-        try {
-            PreparedStatement ps = conn.prepareStatement(sql);
-            ps.executeUpdate();
-            ps.close();
-
-        } catch (SQLException e) {
-            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, e);
-        }
-    }
-    public void crearTablaConserje() {
-        String sql = "CREATE TABLE IF NOT EXISTS Conserjes(" +
-                "id INT AUTO_INCREMENT PRIMARY KEY, " +
-                "nombre VARCHAR(100), " +
-                "apellido VARCHAR(100), " +
-                "dni VARCHAR(20), " +
-                "telefono VARCHAR(20), " +
-                "email VARCHAR(100), " +
-                "nombreUsuario INT, " +
-                "sueldoPorVenta DOUBLE, " +
-                "FOREIGN KEY (nombreUsuario) REFERENCES usuarios(id))";
-
-        try {
-            PreparedStatement ps = conn.prepareStatement(sql);
-
-            ps.executeUpdate();
-            ps.close();
-
-        } catch (SQLException e) {
-            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, e);
         }
     }
     
