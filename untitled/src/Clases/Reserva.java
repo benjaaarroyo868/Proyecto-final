@@ -5,6 +5,7 @@ import Exepciones.DatoInvalidoException;
 import Exepciones.ReservaNoDisponibleException;
 import Interfaces.IValidarDatos;
 
+import java.time.LocalDate;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -13,6 +14,8 @@ public class Reserva implements IValidarDatos {
     private Pasajero pasajero;
     private Habitacion habitacion;
     private int cantidadPasajeros;
+    private LocalDate fechaIngreso;
+    private LocalDate fechaSalida;
     private UUID cont;
 
     public Reserva(Pasajero pasajero, Habitacion habitacion, int cantidadPasajeros) {
@@ -93,6 +96,7 @@ public class Reserva implements IValidarDatos {
         if(cantidadPasajeros>habitacion.getCantidadMaximaPersonas()){
             throw new ReservaNoDisponibleException("La cantidad de pasajeros supera la capacidad de la habitacion");
         }
+        if(fechaIngreso==null)
 
     }
 }

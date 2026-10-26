@@ -93,9 +93,12 @@ public class Hotel {
             throw new ElementoDuplicadoException("La reserva ya existe");
 
         }
+        if(reserva.getHabitacion().isEstado()){
+            throw new ReservaNoDisponibleException("La habitacion esta ocupada");
+        }
         reserva.validarDatos();
         reservas.put(reserva.getIdReserva(), reserva.getPasajero());
-        cantidadHabitaciones++;
+        cantidadOcupadas++;
     }
 
     public String agregarSectorEmpleado(String s){
