@@ -1,6 +1,8 @@
 package Conexion;
 import Clases.Administrador;
 import Clases.Conserje;
+import Clases.Habitacion;
+import Clases.Hotel;
 import com.sun.tools.javac.Main;
 
 import java.sql.*;
@@ -141,6 +143,25 @@ public class Conexion {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, e);
         }
     }
+    public void insertarHabitacion(Habitacion h) {
+        String sql = "INSERT INTO habitaciones(numero_habitacion, cantidad_camas, cantidad_maxima_personas, estado) " +
+                "VALUES (?, ?, ?, ?)";
+
+        try {
+            PreparedStatement ps = conn.prepareStatement(sql);
+
+            ps.setInt(1, h.getNumeroHabitacion());
+            ps.setInt(2, h.getCantidadCamas());
+            ps.setInt(3, h.getCantidadMaximaPersonas());
+            ps.setBoolean(4, h.isEstado());
+
+            ps.executeUpdate();
+            ps.close();
+
+        } catch (SQLException ex) {
+            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
     public void crearTablaAdministrador() {
         String sql = "CREATE TABLE IF NOT EXISTS Administradores(" +
                 "id INT AUTO_INCREMENT PRIMARY KEY, " +
@@ -226,6 +247,24 @@ public class Conexion {
 
         } catch (SQLException e) {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, e);
+        }
+    }
+    public void insertarHotel(Hotel h) {
+        String sql = "INSERT INTO hoteles(nombre, direccion, cantidad_habitaciones) " +
+                "VALUES (?, ?, ?)";
+
+        try {
+            PreparedStatement ps = conn.prepareStatement(sql);
+
+            ps.setString(1, h.getNombre());
+            ps.setString(2, h.getDireccion());
+            ps.setInt(3, h.getCantidadHabitaciones());
+
+            ps.executeUpdate();
+            ps.close();
+
+        } catch (SQLException ex) {
+            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
