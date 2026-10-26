@@ -71,5 +71,5 @@ void main() {
      }
 
 
-    m.menuPrincipal(h1, usu);
+    m.menuPrincipal(h1);
 }

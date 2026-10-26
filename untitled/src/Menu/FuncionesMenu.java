@@ -84,7 +84,7 @@ public class FuncionesMenu {
                     "  Nombre: " + encontrado.getNombreUsuario());
 
             System.out.printf(AZUL + "║ %-41s ║%n" + RESET,
-                    "  Tipo: " + encontrado.getTipo_de_usuario());
+                    "  Tipo: " + encontrado.getTipoDeUsuario());
 
         } catch (DatoInvalidoException e) {
             System.out.println(ROJO +
@@ -194,11 +194,11 @@ public class FuncionesMenu {
         } while (usuario == null);
 
         // MOSTRAR MENÚ SEGÚN TIPO DE USUARIO
-        switch (usuario.getTipo_de_usuario()) {
+        switch (usuario.getTipoDeUsuario()) {
 
             case ADMINISTRADOR:
             case CONSERJE:
-                Menu.IniciarMenu(usu);
+                Menu.IniciarMenu();
                 break;
 
             case PASAJERO:
