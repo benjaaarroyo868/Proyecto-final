@@ -1,7 +1,10 @@
 package Clases;
 import Enums.ETipoTecnico;
+import Exepciones.AgenciaHotelException;
+import Exepciones.DatoInvalidoException;
+import Interfaces.IValidarDatos;
 
-public class Tecnico extends Persona {
+public class Tecnico extends Persona implements IValidarDatos {
     private ETipoTecnico tipo_de_tecnico;
     private String formacion;
     private boolean disponible;
@@ -44,6 +47,18 @@ public class Tecnico extends Persona {
                 ", formacion='" + formacion + '\'' +
                 ", disponible=" + disponible +
                 '}';
+    }
+
+    @Override
+    public void validarDatos() throws AgenciaHotelException {
+        if (tipo_de_tecnico == null) {
+            throw new DatoInvalidoException("El tipo de técnico no puede ser nulo");
+        }
+
+        if (formacion == null || formacion.isBlank()) {
+            throw new DatoInvalidoException("La formación no puede estar vacía");
+        }
+
     }
 }
 
