@@ -1369,31 +1369,55 @@ public class Menu {
     // INICIAR SESIÓN
     // =========================================
 
+
     public static void iniciarSesion(Hotel hotel) {
+
         System.out.println();
         System.out.println(CYAN +
                 "╔═══════════════════════════════════════════╗");
-        System.out.println("║              INICIAR SESIÓN               ║");
-        System.out.println("╠═══════════════════════════════════════════╣" + RESET);
+        System.out.println("║                                           ║");
+        System.out.println("║              INICIO DE SESIÓN             ║");
+        System.out.println("║                                           ║");
+        System.out.println("╠═══════════════════════════════════════════╣");
+        System.out.println("║                                           ║");
+        System.out.println("║       Accedé a tu cuenta del hotel        ║");
+        System.out.println("║                                           ║" + RESET);
 
-        System.out.print(AZUL + "Nombre de usuario: " + RESET);
+        System.out.println(CYAN +
+                "║  ◈ Nombre de usuario" + RESET);
+        System.out.print(VERDE + "║  ➜ " + RESET);
+
         String nombre = sc.nextLine().trim();
 
-        System.out.print(AZUL + "Contraseña: " + RESET);
+        System.out.println(CYAN +
+                "║                                           ║");
+        System.out.println("║  ◈ Contraseña" + RESET);
+        System.out.print(VERDE + "║  ➜ " + RESET);
+
         String contrasenia = sc.nextLine();
+
+        System.out.println(CYAN +
+                "║                                           ║");
+        System.out.println("╚═══════════════════════════════════════════╝" + RESET);
 
         Usuario usuario = hotel.iniciarSesion(nombre, contrasenia);
 
         if (usuario == null) {
+
             System.out.println(ROJO +
-                    "Usuario o contraseña incorrectos" + RESET);
+                    "╔═══════════════════════════════════════════╗");
+            System.out.println("║        USUARIO O CONTRASEÑA INCORRECTOS  ║");
+            System.out.println("╚═══════════════════════════════════════════╝" + RESET);
             return;
         }
 
         System.out.println(VERDE +
-                "Inicio de sesión exitoso" + RESET);
+                "╔═══════════════════════════════════════════╗");
+        System.out.println("║          INICIO DE SESIÓN EXITOSO         ║");
+        System.out.println("╚═══════════════════════════════════════════╝" + RESET);
 
         switch (usuario.getTipoDeUsuario()) {
+
             case ADMINISTRADOR:
                 IniciarMenu(hotel, usuario);
                 break;
@@ -1407,6 +1431,7 @@ public class Menu {
                 break;
         }
     }
+
     // =========================================
     // INFORMACION HOTEL
     // =========================================
