@@ -57,7 +57,7 @@ public class Administrador  extends Persona implements IEmpleado, IValidarDatos 
         if(getTelefono() == null || getTelefono().isBlank()){
             throw new DatoInvalidoException("El numero de telefono no puede ser vacio");
         }
-        if(getTelefono().matches("[0-9]{11}")){
+        if(!getTelefono().matches("[0-9]{10}")){
             throw new DatoInvalidoException("El numero de telefono no valido tiene que tener solo numeros y 8 numeros");
         }
         if(getEmail() == null || getEmail().isBlank()){
@@ -77,4 +77,8 @@ public class Administrador  extends Persona implements IEmpleado, IValidarDatos 
         }
     }
 
+    @Override
+    public String getDni() {
+        return getDNI();
+    }
 }

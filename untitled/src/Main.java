@@ -1,7 +1,9 @@
 import Clases.*;
 import Enums.*;
 import Exepciones.AgenciaHotelException;
+import Generico.RegistroGenericoMapas;
 import Menu.*;
+import Interfaces.*;
 
 void main() {
 
@@ -44,18 +46,32 @@ void main() {
              "Buenos Aires"
      );
 
-     try {
-         h1.agregarSectorEmpleado("Administrador");
-         h1.agregarEmpleado("Administrador", administrador);
+    Pasajero pasajero1 = new Pasajero(
+            "Sebastian",
+            "Perez",
+            "12345678",
+            "2235678901",
+            "juan@gmail.com",
+            usuarioPasajero,
+            "Mar del Plata",
+            "Buenos Aires"
+    );
 
-         h1.agregarPasajero(pasajero);
 
-         h1.agregarUsuario(usuarioPasajero);
-         h1.agregarUsuario(usuarioAdmin);
+    RegistroGenericoMapas<String, Pasajero> pasa = new RegistroGenericoMapas<>();
+    RegistroGenericoMapas<String, Usuario> usu = new RegistroGenericoMapas<>();
+    RegistroGenericoMapas<String, ArrayList<IEmpleado>> empleado = new RegistroGenericoMapas<>();
+
+
+
+    try {
+         usu.cargar(usuarioAdmin.getNombreUsuario(), usuarioAdmin);
+         usu.cargar(usuarioPasajero.getNombreUsuario(), usuarioPasajero);
+
      } catch (AgenciaHotelException e) {
          throw new RuntimeException(e);
      }
 
 
-    m.menuPrincipal(h1);
+    m.menuPrincipal(h1, usu, pasa, empleado);
 }

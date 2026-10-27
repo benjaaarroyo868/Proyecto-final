@@ -18,13 +18,30 @@ public class Reserva implements IValidarDatos {
     private LocalDate fechaSalida;
     private UUID cont;
 
-    public Reserva(Pasajero pasajero, Habitacion habitacion, int cantidadPasajeros) {
+    public Reserva(Pasajero pasajero, Habitacion habitacion, int cantidadPasajeros, LocalDate fechaIngreso, LocalDate fechaSalida) {
         this.idReserva = UUID.randomUUID().toString().substring(0,5);
         this.pasajero = pasajero;
         this.habitacion = habitacion;
         this.cantidadPasajeros = cantidadPasajeros;
+        this.fechaIngreso = fechaIngreso;
+        this.fechaSalida = fechaSalida;
     }
 
+    public LocalDate getFechaIngreso() {
+        return fechaIngreso;
+    }
+
+    public void setFechaIngreso(LocalDate fechaIngreso) {
+        this.fechaIngreso = fechaIngreso;
+    }
+
+    public LocalDate getFechaSalida() {
+        return fechaSalida;
+    }
+
+    public void setFechaSalida(LocalDate fechaSalida) {
+        this.fechaSalida = fechaSalida;
+    }
 
     public String getIdReserva() {
         return idReserva;
@@ -89,6 +106,9 @@ public class Reserva implements IValidarDatos {
         }
         if(habitacion==null){
             throw new DatoInvalidoException("La reserva debe tener una habitacion");
+        }
+        if(habitacion.isEstado()){
+            throw new ReservaNoDisponibleException("La habitacion esta ocupada");
         }
         if(cantidadPasajeros<0){
             throw new DatoInvalidoException("La cantidad de pasajeros debe ser mayor a cero");

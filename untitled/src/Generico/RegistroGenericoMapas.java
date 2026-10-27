@@ -1,7 +1,11 @@
 package Generico;
 
+import Clases.Usuario;
+import Exepciones.AgenciaHotelException;
+import Exepciones.AgregadoCorrectamenteExepcion;
 import Exepciones.DatoInvalidoException;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,7 +28,8 @@ public class RegistroGenericoMapas<K,V>{
     public void put(K clave, V valor) {
         mapa.put(clave, valor);
     }
-    public void cargar(K clave, V valor) throws DatoInvalidoException {
+
+    public void cargar(K clave, V valor) throws AgenciaHotelException {
         if (clave == null || valor == null) {
             throw new DatoInvalidoException("La clave y el valor no pueden ser nulos");
         }
@@ -34,6 +39,7 @@ public class RegistroGenericoMapas<K,V>{
         }
 
         mapa.put(clave, valor);
+
     }
 
     public void eliminar(K clave) throws DatoInvalidoException {
@@ -82,6 +88,30 @@ public class RegistroGenericoMapas<K,V>{
         }
 
         return mapa.get(clave);
+    }
+
+
+
+    public V iniciarSesion(K nombre, String contrasenia) {
+
+        V valor = mapa.get(nombre);
+
+        if (valor instanceof Usuario) {
+
+            Usuario usuario = (Usuario) valor;
+
+            if (usuario.getContrasenia() != null &&
+                    usuario.getContrasenia().equals(contrasenia)) {
+
+                return valor;
+            }
+        }
+
+        return null;
+    }
+
+    public Collection<V> obtenerTodos() {
+        return mapa.values();
     }
 
 }
