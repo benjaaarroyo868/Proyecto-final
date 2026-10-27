@@ -1389,34 +1389,51 @@ public class Menu {
     // HABITACIONES
     // =========================================
 
+
     public static void mostrarHabitacionesDisponibles(Hotel hotel) {
 
-        System.out.println(CYAN + "╔═══════════════════════════════════════════╗");
-        System.out.println("║         HABITACIONES DISPONIBLES          ║");
+        System.out.println();
+        System.out.println(CYAN +
+                "╔═══════════════════════════════════════════╗");
+        System.out.println("║           HABITACIONES REGISTRADAS        ║");
         System.out.println("╠═══════════════════════════════════════════╣" + RESET);
 
-        if (hotel.verHabitacionesDisponibles().isEmpty()) {
+        java.util.List<Habitacion> habitaciones =
+                new java.util.ArrayList<>(
+                        hotel.getHabitaciones().obtenerTodos());
+
+        if (habitaciones.isEmpty()) {
 
             System.out.println(ROJO +
-                    "No hay habitaciones disponibles" + RESET);
+                    "║  No hay habitaciones registradas" + RESET);
 
         } else {
 
-            for (Habitacion h : hotel.verHabitacionesDisponibles()) {
+            System.out.println(CYAN +
+                    "║                                           ║" + RESET);
 
-                System.out.println(VERDE +
-                        "HABITACIÓN DISPONIBLE" + RESET);
+            for (int i = 0; i < habitaciones.size(); i++) {
 
-                System.out.println(AZUL + h + RESET);
+                Habitacion h = habitaciones.get(i);
+
+                System.out.println(AZUL +
+                        "║  " + (i + 1) + ". Habitación " +
+                        h.getNumeroHabitacion() + RESET);
+
+                System.out.println(AZUL +
+                        "║     Camas: " + h.getCantidadCamas() +
+                        " | Capacidad: " +
+                        h.getCantidadMaximaPersonas() + RESET);
 
                 System.out.println(CYAN +
-                        "╠═══════════════════════════════════════════╣" + RESET);
+                        "║                                           ║" + RESET);
             }
         }
 
         System.out.println(CYAN +
                 "╚═══════════════════════════════════════════╝" + RESET);
     }
+
 
     public static void mostrarHabitacionesOcupadas(Hotel hotel) {
 
@@ -1462,18 +1479,25 @@ public class Menu {
                     "╔═══════════════════════════════════════════╗");
             System.out.println("║               GESTIÓN HOTEL               ║");
             System.out.println("╠═══════════════════════════════════════════╣");
+            System.out.println("║                                           ║");
             System.out.println("║               MENÚ PRINCIPAL              ║");
+            System.out.println("║                                           ║");
             System.out.println("╠═══════════════════════════════════════════╣" + RESET);
-
+            System.out.println(CYAN+
+                    "║                                           ║");
             System.out.println(AZUL +
                     "║    1. Iniciar Sesión                      ║");
-            System.out.println(
-                    "║    2. Registrarse                         ║" + RESET);
-
+            System.out.println(CYAN+
+                    "║                                           ║");
+            System.out.println(AZUL+
+                    "║    2. Registrarse                         ║" );
+            System.out.println(CYAN+
+                    "║                                           ║");
             System.out.println(ROJO +
-                    "║    0. Salir                               ║" + RESET);
-
+                    "║    0. Salir                               ║"+RESET);
             System.out.println(CYAN +
+                    "║                                           ║");
+            System.out.println(
                     "╚═══════════════════════════════════════════╝" + RESET);
 
             opcion = pedirOpcion(0, 2);
@@ -1536,7 +1560,7 @@ public class Menu {
 
             System.out.println(ROJO +
                     "╔═══════════════════════════════════════════╗");
-            System.out.println("║        USUARIO O CONTRASEÑA INCORRECTOS  ║");
+            System.out.println("║     USUARIO O CONTRASEÑA INCORRECTOS      ║");
             System.out.println("╚═══════════════════════════════════════════╝" + RESET);
             return;
         }
