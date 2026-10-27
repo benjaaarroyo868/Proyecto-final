@@ -5,7 +5,7 @@ import Exepciones.AgenciaHotelException;
 import Exepciones.AgregadoCorrectamenteExepcion;
 import Exepciones.DatoInvalidoException;
 import Generico.*;
-import Interfaces.IEmpleado;
+import Interfaces.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -1577,6 +1577,7 @@ public class Menu {
 
                 case 15:
                     eliminarEmpleado(empleado, usu, sc);
+                    break;
 
                 case 16:
                     mostrarEmpleados(empleado);
