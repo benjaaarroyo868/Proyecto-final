@@ -58,20 +58,13 @@ void main() {
     );
 
 
-    RegistroGenericoMapas<String, Pasajero> pasa = new RegistroGenericoMapas<>();
-    RegistroGenericoMapas<String, Usuario> usu = new RegistroGenericoMapas<>();
-    RegistroGenericoMapas<String, ArrayList<IEmpleado>> empleado = new RegistroGenericoMapas<>();
-
-
-
     try {
-         usu.cargar(usuarioAdmin.getNombreUsuario(), usuarioAdmin);
-         usu.cargar(usuarioPasajero.getNombreUsuario(), usuarioPasajero);
+        h1.agregarUsuario(usuarioAdmin);
+        h1.agregarUsuario(usuarioPasajero);
+    } catch (AgenciaHotelException e) {
+        throw new RuntimeException(e);
+    }
 
-     } catch (AgenciaHotelException e) {
-         throw new RuntimeException(e);
-     }
 
-
-    m.menuPrincipal(h1, usu, pasa, empleado);
+    m.menuPrincipal(h1);
 }

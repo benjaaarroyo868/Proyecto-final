@@ -1,18 +1,23 @@
 package Clases;
 
+import Enums.EEstadoMantenimiento;
+
 public class Habitacion {
     private int numeroHabitacion;
     private int cantidadCamas;
     private int cantidadMaximaPersonas;
-    private boolean estado;
+    private boolean disponible;
+    private EEstadoMantenimiento estado;
 
 
-    public Habitacion(int numeroHabitacion, int cantidadCamas, int cantidadMaximaPersonas, boolean estado) {
+    public Habitacion(int numeroHabitacion, int cantidadCamas, int cantidadMaximaPersonas, boolean disponible, EEstadoMantenimiento estado) {
         this.numeroHabitacion = numeroHabitacion;
         this.cantidadCamas = cantidadCamas;
         this.cantidadMaximaPersonas = cantidadMaximaPersonas;
+        this.disponible = disponible;
         this.estado = estado;
     }
+
 
     public int getNumeroHabitacion() {
         return numeroHabitacion;
@@ -38,11 +43,51 @@ public class Habitacion {
         this.cantidadMaximaPersonas = cantidadMaximaPersonas;
     }
 
-    public boolean isEstado() {
+    public boolean isDisponible() {
+        return disponible;
+    }
+
+    public void setDisponible(boolean disponible) {
+        this.disponible = disponible;
+    }
+
+    public EEstadoMantenimiento getEstado() {
         return estado;
     }
 
-    public void setEstado(boolean estado) {
+    public void setEstado(EEstadoMantenimiento estado) {
         this.estado = estado;
     }
+
+
+    private EEstadoMantenimiento estadoMantenimiento =
+            EEstadoMantenimiento.NORMAL;
+
+    public EEstadoMantenimiento getEstadoMantenimiento() {
+        return estadoMantenimiento;
+    }
+
+    public void setEstadoMantenimiento(
+            EEstadoMantenimiento estadoMantenimiento) {
+
+        if (estadoMantenimiento == null) {
+            throw new IllegalArgumentException(
+                    "El estado de mantenimiento no puede ser nulo");
+        }
+
+        this.estadoMantenimiento = estadoMantenimiento;
+    }
+
+    public boolean necesitaReparacion() {
+        return estadoMantenimiento ==
+                EEstadoMantenimiento.EN_REPARACION;
+    }
+
+    public boolean estaEnReparacion() {
+        return estadoMantenimiento ==
+                EEstadoMantenimiento.EN_REPARACION;
+    }
+
+
+
 }
