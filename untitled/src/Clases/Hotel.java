@@ -10,6 +10,7 @@ import Generico.RegistroGenericoMapas;
 import Interfaces.IEmpleado;
 import Interfaces.IValidarDatos;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -26,7 +27,7 @@ public class Hotel implements IValidarDatos {
     private RegistroGenericoMapas<String, Tecnico> tecnicos;
     private RegistroGenericoMapas<String, Habitacion> habitaciones;
     private RegistroGenericoMapas<String, Pasajero> pasajeros;
-    private RegistroGenericoMapas<String, Pasajero> reservas;
+    private RegistroGenericoMapas<String, Reserva> reservas;
     private RegistroGenericoMapas<String, Usuario> usuario;
     private RegistroGenericoMapas<Habitacion, Tecnico> reparaciones;
 
@@ -99,7 +100,7 @@ public class Hotel implements IValidarDatos {
         return pasajeros;
     }
 
-    public RegistroGenericoMapas<String, Pasajero> getReservas() {
+    public RegistroGenericoMapas<String, Reserva> getReservas() {
         return reservas;
     }
 
@@ -177,34 +178,131 @@ public class Hotel implements IValidarDatos {
     // ========================================
 
     // AGREGAR RESERVA
+    public void agregarReserva(Reserva reserva) {
 
-    public void agregarReserva(Reserva reserva)
-            throws AgenciaHotelException {
+        try {
 
-        if (reserva == null) {
-            throw new DatoInvalidoException(
-                    "La reserva no puede ser nula");
+            // VALIDAR QUE LA RESERVA NO SEA NULA
+            if (reserva == null) {
+                throw new DatoInvalidoException(
+                        "La reserva no puede ser nula");
+            }
+
+            // VALIDAR DATOS DE LA RESERVA
+            reserva.validarDatos();
+
+            // VERIFICAR ID DUPLICADO
+            if (reservas.containsKey(reserva.getIdReserva())) {
+                throw new ElementoDuplicadoException(
+                        "Ya existe una reserva con ese ID");
+            }
+
+            // COMPROBAR DISPONIBILIDAD SEGÚN LAS FECHAS
+            if (!habitacionDisponible(
+                    reserva.getHabitacion(),
+                    reserva.getFechaIngreso(),
+                    reserva.getFechaSalida())) {
+
+                throw new ReservaNoDisponibleException(
+                        "La habitación ya tiene una reserva " +
+                                "que se superpone con las fechas solicitadas");
+            }
+
+            // GUARDAR LA RESERVA COMPLETA
+            reservas.put(reserva.getIdReserva(), reserva);
+
+            System.out.println(
+                    "Reserva realizada correctamente");
+
+        } catch (AgenciaHotelException e) {
+
+            System.out.println(
+                    "ERROR AL REALIZAR LA RESERVA: " + e.getMessage());
         }
-
-        if (reservas.containsKey(reserva.getIdReserva())) {
-            throw new ElementoDuplicadoException(
-                    "La reserva ya existe");
-        }
-
-        if (reserva.getHabitacion().isDisponible()) {
-            throw new ReservaNoDisponibleException(
-                    "La habitación está ocupada");
-        }
-
-        reserva.validarDatos();
-
-        reservas.put(
-                reserva.getIdReserva(),
-                reserva.getPasajero()
-        );
-
-        cantidadOcupadas++;
     }
+
+// VALIDAR FECHAS
+    public boolean habitacionDisponible(
+            Habitacion habitacion,
+            LocalDate nuevaEntrada,
+            LocalDate nuevaSalida) {
+
+        // Validar fechas
+        if (habitacion == null ||
+                nuevaEntrada == null ||
+                nuevaSalida == null ||
+                !nuevaEntrada.isBefore(nuevaSalida)) {
+
+            return false;
+        }
+
+        // Recorrer todas las reservas existentes
+        for (Reserva reserva : reservas.obtenerTodos()) {
+
+            // Comprobar si es la misma habitación
+            if (reserva.getHabitacion().equals(habitacion)) {
+
+                LocalDate entradaExistente =
+                        reserva.getFechaIngreso();
+
+                LocalDate salidaExistente =
+                        reserva.getFechaSalida();
+
+                // Comprobar si se superponen
+                boolean seSuperponen =
+                        nuevaEntrada.isBefore(salidaExistente) &&
+                                nuevaSalida.isAfter(entradaExistente);
+
+                if (seSuperponen) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    public Reserva buscarReserva(String idReserva) {
+
+        try {
+            if (idReserva == null || idReserva.isBlank()) {
+                throw new DatoInvalidoException(
+                        "El ID de la reserva no puede estar vacío");
+            }
+
+            Reserva reserva = reservas.buscar(idReserva);
+
+            return reserva;
+
+        } catch (AgenciaHotelException e) {
+            System.out.println("ERROR: " + e.getMessage());
+            return null;
+        }
+    }
+
+    public boolean eliminarReserva(String idReserva) {
+
+        try {
+            if (idReserva == null || idReserva.isBlank()) {
+                throw new DatoInvalidoException(
+                        "El ID de la reserva no puede estar vacío");
+            }
+
+            reservas.eliminar(idReserva);
+
+            return true;
+
+        } catch (AgenciaHotelException e) {
+            System.out.println("ERROR: " + e.getMessage());
+            return false;
+        }
+    }
+
+    public Collection<Reserva> mostrarReservas() {
+        return reservas.obtenerTodos();
+    }
+
+
 
     // ========================================
     //               EMPLEADOS
@@ -465,7 +563,7 @@ public class Hotel implements IValidarDatos {
         List<Habitacion> lista = new ArrayList<>();
 
         for (Habitacion h : habitaciones.obtenerTodos()) {
-            if (h.estaEnReparacion()) {
+            if (h.getEstadoMantenimiento().equals(EEstadoMantenimiento.EN_REPARACION)) {
                 lista.add(h);
             }
         }
@@ -483,7 +581,7 @@ public class Hotel implements IValidarDatos {
                     "La habitación no pertenece al hotel");
         }
 
-        if (habitacion.estaEnReparacion()) {
+        if (habitacion.getEstadoMantenimiento().equals(EEstadoMantenimiento.EN_REPARACION)) {
             throw new IllegalStateException(
                     "La habitación ya está en reparación");
         }
@@ -540,7 +638,7 @@ public class Hotel implements IValidarDatos {
 
     public void finalizarReparacion(Habitacion habitacion) {
 
-        if (habitacion == null || !habitacion.estaEnReparacion()) {
+        if (habitacion == null || !habitacion.getEstadoMantenimiento().equals(EEstadoMantenimiento.NORMAL)) {
             throw new IllegalStateException(
                     "La habitación no está en reparación");
         }
@@ -554,6 +652,65 @@ public class Hotel implements IValidarDatos {
         habitacion.setEstadoMantenimiento(
                 EEstadoMantenimiento.NORMAL
         );
+    }
+
+    // AGREGAR HABITACIÓN
+    public boolean agregarHabitacion(Habitacion habitacion) {
+
+        try {
+
+            if (habitacion == null) {
+                throw new DatoInvalidoException(
+                        "La habitación no puede ser nula");
+            }
+
+            String numero = String.valueOf(
+                    habitacion.getNumeroHabitacion());
+
+            if (habitaciones.containsKey(numero)) {
+                throw new ElementoDuplicadoException(
+                        "Ya existe una habitación con ese número");
+            }
+
+            habitacion.validarDatos();
+
+            habitaciones.put(numero, habitacion);
+
+            System.out.println(
+                    "Habitación agregada correctamente");
+
+            return true;
+
+        } catch (AgenciaHotelException e) {
+
+            System.out.println(
+                    "ERROR: " + e.getMessage());
+
+            return false;
+        }
+    }
+
+    // BUSCAR HABITACIÓN
+    public Habitacion buscarHabitacion(int numeroHabitacion) {
+
+        try {
+
+            String numero = String.valueOf(numeroHabitacion);
+
+            if (!habitaciones.containsKey(numero)) {
+                throw new DatoInvalidoException(
+                        "No existe una habitación con ese número");
+            }
+
+            return habitaciones.get(numero);
+
+        } catch (AgenciaHotelException e) {
+
+            System.out.println(
+                    "ERROR: " + e.getMessage());
+
+            return null;
+        }
     }
 
 

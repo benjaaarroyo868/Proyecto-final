@@ -38,7 +38,7 @@ void main() {
      Pasajero pasajero = new Pasajero(
              "Juan",
              "Perez",
-             "45678912",
+             "48033021",
              "2235678901",
              "juan@gmail.com",
              usuarioPasajero,
@@ -46,21 +46,18 @@ void main() {
              "Buenos Aires"
      );
 
-    Pasajero pasajero1 = new Pasajero(
-            "Sebastian",
-            "Perez",
-            "12345678",
-            "2235678901",
-            "juan@gmail.com",
-            usuarioPasajero,
-            "Mar del Plata",
-            "Buenos Aires"
-    );
+
+
+    Habitacion habitacion1 = new Habitacion(101, 2, 2);
+    Habitacion habitacion2 = new Habitacion(102, 3, 4);
 
 
     try {
         h1.agregarUsuario(usuarioAdmin);
         h1.agregarUsuario(usuarioPasajero);
+        h1.agregarPasajero(pasajero);
+        h1.agregarHabitacion(habitacion1);
+        h1.agregarHabitacion(habitacion2);
     } catch (AgenciaHotelException e) {
         throw new RuntimeException(e);
     }

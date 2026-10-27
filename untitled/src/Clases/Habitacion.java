@@ -1,8 +1,11 @@
 package Clases;
 
 import Enums.EEstadoMantenimiento;
+import Exepciones.AgenciaHotelException;
+import Exepciones.DatoInvalidoException;
+import Interfaces.IValidarDatos;
 
-public class Habitacion {
+public class Habitacion implements IValidarDatos {
     private int numeroHabitacion;
     private int cantidadCamas;
     private int cantidadMaximaPersonas;
@@ -10,12 +13,12 @@ public class Habitacion {
     private EEstadoMantenimiento estado;
 
 
-    public Habitacion(int numeroHabitacion, int cantidadCamas, int cantidadMaximaPersonas, boolean disponible, EEstadoMantenimiento estado) {
+    public Habitacion(int numeroHabitacion, int cantidadCamas, int cantidadMaximaPersonas) {
         this.numeroHabitacion = numeroHabitacion;
         this.cantidadCamas = cantidadCamas;
         this.cantidadMaximaPersonas = cantidadMaximaPersonas;
-        this.disponible = disponible;
-        this.estado = estado;
+        this.disponible = false;
+        this.estado = EEstadoMantenimiento.NORMAL;
     }
 
 
@@ -51,20 +54,13 @@ public class Habitacion {
         this.disponible = disponible;
     }
 
-    public EEstadoMantenimiento getEstado() {
-        return estado;
-    }
 
     public void setEstado(EEstadoMantenimiento estado) {
         this.estado = estado;
     }
 
-
-    private EEstadoMantenimiento estadoMantenimiento =
-            EEstadoMantenimiento.NORMAL;
-
     public EEstadoMantenimiento getEstadoMantenimiento() {
-        return estadoMantenimiento;
+        return estado;
     }
 
     public void setEstadoMantenimiento(
@@ -75,19 +71,25 @@ public class Habitacion {
                     "El estado de mantenimiento no puede ser nulo");
         }
 
-        this.estadoMantenimiento = estadoMantenimiento;
+        this.estado = estadoMantenimiento;
     }
 
     public boolean necesitaReparacion() {
-        return estadoMantenimiento ==
-                EEstadoMantenimiento.EN_REPARACION;
-    }
-
-    public boolean estaEnReparacion() {
-        return estadoMantenimiento ==
+        return estado ==
                 EEstadoMantenimiento.EN_REPARACION;
     }
 
 
-
+    @Override
+    public void validarDatos() throws AgenciaHotelException {
+        if(cantidadCamas <= 0){
+            throw new DatoInvalidoException("La cantidad de camas no puede ser 0");
+        }
+        if(numeroHabitacion <= 0){
+            throw new DatoInvalidoException("El numero de la habitacion no puede ser 0");
+        }
+        if(cantidadMaximaPersonas <= 0){
+            throw new DatoInvalidoException("La cantidad maxima de personas no puede ser 0");
+        }
+    }
 }
