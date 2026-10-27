@@ -55,7 +55,7 @@ void main() {
     try {
         h1.agregarUsuario(usuarioAdmin);
         h1.agregarUsuario(usuarioPasajero);
-        h11.agregarPasajero(pasajero);
+        h1.agregarPasajero(pasajero);
         h1.agregarHabitacion(habitacion1);
         h1.agregarHabitacion(habitacion2);
     } catch (AgenciaHotelException e) {

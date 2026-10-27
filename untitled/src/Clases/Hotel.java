@@ -178,50 +178,40 @@ public class Hotel implements IValidarDatos {
     // ========================================
 
     // AGREGAR RESERVA
-    public void agregarReserva(Reserva reserva) {
+
+    public boolean agregarReserva(Reserva reserva) {
 
         try {
-
-            // VALIDAR QUE LA RESERVA NO SEA NULA
             if (reserva == null) {
                 throw new DatoInvalidoException(
                         "La reserva no puede ser nula");
             }
 
-            // VALIDAR DATOS DE LA RESERVA
             reserva.validarDatos();
 
-            // VERIFICAR ID DUPLICADO
             if (reservas.containsKey(reserva.getIdReserva())) {
                 throw new ElementoDuplicadoException(
                         "Ya existe una reserva con ese ID");
             }
 
-            // COMPROBAR DISPONIBILIDAD SEGÚN LAS FECHAS
             if (!habitacionDisponible(
                     reserva.getHabitacion(),
                     reserva.getFechaIngreso(),
                     reserva.getFechaSalida())) {
 
                 throw new ReservaNoDisponibleException(
-                        "La habitación ya tiene una reserva " +
-                                "que se superpone con las fechas solicitadas");
+                        "La habitación ya está reservada en esas fechas");
             }
 
-            // GUARDAR LA RESERVA COMPLETA
             reservas.put(reserva.getIdReserva(), reserva);
-
-            System.out.println(
-                    "Reserva realizada correctamente");
+            return true;
 
         } catch (AgenciaHotelException e) {
-
-            System.out.println(
-                    "ERROR AL REALIZAR LA RESERVA: " + e.getMessage());
+            return false;
         }
     }
 
-// VALIDAR FECHAS
+    // VALIDAR FECHAS
     public boolean habitacionDisponible(
             Habitacion habitacion,
             LocalDate nuevaEntrada,

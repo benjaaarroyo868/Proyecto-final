@@ -92,4 +92,15 @@ public class Habitacion implements IValidarDatos {
             throw new DatoInvalidoException("La cantidad maxima de personas no puede ser 0");
         }
     }
+
+    @Override
+    public String toString() {
+        return "Habitacion{" +
+                "numeroHabitacion=" + numeroHabitacion +
+                ", cantidadCamas=" + cantidadCamas +
+                ", cantidadMaximaPersonas=" + cantidadMaximaPersonas +
+                ", disponible=" + disponible +
+                ", estado=" + estado +
+                '}';
+    }
 }
