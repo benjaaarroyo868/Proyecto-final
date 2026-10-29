@@ -47,6 +47,21 @@ void main() {
      );
 
 
+    Usuario usuarioConserje = new Usuario(
+            "MartinZalez1234",
+            "Martin1234@",
+            ETipoUsuario.CONSERJE);
+
+    Conserje conserje = new Conserje(
+            "Martin",
+            "Gonzalez",
+            "35123456",
+            "2234567890",
+            "martin.gonzalez@gmail.com",
+            usuarioConserje,
+            "CON001",
+            15000.0
+    );
 
     Habitacion habitacion1 = new Habitacion(101, 2, 2);
     Habitacion habitacion2 = new Habitacion(102, 3, 4);
@@ -55,6 +70,7 @@ void main() {
     try {
         h1.agregarUsuario(usuarioAdmin);
         h1.agregarUsuario(usuarioPasajero);
+        h1.agregarUsuario(usuarioConserje);
         h1.agregarPasajero(pasajero);
         h1.agregarHabitacion(habitacion1);
         h1.agregarHabitacion(habitacion2);
