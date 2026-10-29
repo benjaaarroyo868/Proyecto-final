@@ -211,6 +211,73 @@ public class Hotel implements IValidarDatos {
         }
     }
 
+
+    // ========================================
+    //       PRÓXIMA FECHA DISPONIBLE
+    // ========================================
+
+    public LocalDate proximaFechaDisponible(
+            Habitacion habitacion,
+            LocalDate fechaIngreso,
+            LocalDate fechaSalida) {
+
+        // VALIDAR DATOS
+        if (habitacion == null ||
+                fechaIngreso == null ||
+                fechaSalida == null ||
+                !fechaIngreso.isBefore(fechaSalida)) {
+            return null;
+        }
+
+        // CALCULAR CANTIDAD DE NOCHES
+        long cantidadNoches =
+                java.time.temporal.ChronoUnit.DAYS.between(
+                        fechaIngreso, fechaSalida);
+
+        LocalDate proximaFecha = fechaIngreso;
+
+        // BUSCAR UN PERÍODO SIN RESERVAS SUPERPUESTAS
+        while (true) {
+
+            LocalDate proximaSalida =
+                    proximaFecha.plusDays(cantidadNoches);
+
+            boolean haySuperposicion = false;
+
+            for (Reserva reserva : reservas.obtenerTodos()) {
+
+                // COMPROBAR QUE SEA LA MISMA HABITACIÓN
+                if (reserva.getHabitacion()
+                        .getNumeroHabitacion() ==
+                        habitacion.getNumeroHabitacion()) {
+
+                    LocalDate ingresoReservado =
+                            reserva.getFechaIngreso();
+
+                    LocalDate salidaReservada =
+                            reserva.getFechaSalida();
+
+                    // COMPROBAR SUPERPOSICIÓN
+                    if (proximaFecha.isBefore(salidaReservada) &&
+                            proximaSalida.isAfter(ingresoReservado)) {
+
+                        // PROBAR DESDE LA SALIDA DE ESA RESERVA
+                        proximaFecha = salidaReservada;
+
+                        haySuperposicion = true;
+                        break;
+                    }
+                }
+            }
+
+            // SI NO HAY SUPERPOSICIÓN, DEVOLVER FECHA
+            if (!haySuperposicion) {
+                return proximaFecha;
+            }
+        }
+    }
+
+
     // VALIDAR FECHAS
     public boolean habitacionDisponible(
             Habitacion habitacion,

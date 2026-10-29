@@ -894,6 +894,8 @@ public class Menu {
 
 
 
+
+
     public static void realizarReserva(Hotel hotel, Usuario usuario) {
 
         System.out.println();
@@ -953,6 +955,7 @@ public class Menu {
 
         System.out.println(AMARILLO +
                 "║  HABITACIONES REGISTRADAS" + RESET);
+
         System.out.println(CYAN +
                 "║                                           ║" + RESET);
 
@@ -969,15 +972,23 @@ public class Menu {
                             " | Capacidad: " +
                             h.getCantidadMaximaPersonas() + RESET);
 
-            // RENGLÓN VACÍO ENTRE HABITACIONES
             System.out.println(CYAN +
                     "║                                           ║" + RESET);
         }
 
-        System.out.println(CYAN +
-                "╠═══════════════════════════════════════════╣" + RESET);
+        System.out.println(AMARILLO +
+                "║  0. Volver al menú" + RESET);
 
-        int opcion = pedirOpcion(1, habitaciones.size());
+        System.out.println(CYAN +
+                "╚═══════════════════════════════════════════╝" + RESET);
+
+        int opcion = pedirOpcion(0, habitaciones.size());
+
+        if (opcion == 0) {
+            System.out.println(AMARILLO +
+                    "Reserva cancelada. Volviendo al menú..." + RESET);
+            return;
+        }
 
         Habitacion habitacion = habitaciones.get(opcion - 1);
 
@@ -992,38 +1003,73 @@ public class Menu {
         System.out.println("╠═══════════════════════════════════════════╣" + RESET);
 
         System.out.println(AZUL +
+                "║  Habitación: " +
+                habitacion.getNumeroHabitacion());
+
+        System.out.println(
                 "║  Capacidad máxima: " +
-                habitacion.getCantidadMaximaPersonas() + RESET);
+                        habitacion.getCantidadMaximaPersonas() + RESET);
 
         System.out.println(CYAN +
                 "║                                           ║" + RESET);
 
+        System.out.println(AMARILLO +
+                "║  0. Volver al menú" + RESET);
+
+        System.out.println(CYAN +
+                "╚═══════════════════════════════════════════╝" + RESET);
+
         int cantidadPasajeros = pedirOpcion(
-                1, habitacion.getCantidadMaximaPersonas());
+                0, habitacion.getCantidadMaximaPersonas());
+
+        if (cantidadPasajeros == 0) {
+            System.out.println(AMARILLO +
+                    "Reserva cancelada. Volviendo al menú..." + RESET);
+            return;
+        }
 
         // =========================================
-        // 4. FECHA DE INGRESO
+        // 4. FECHAS DE RESERVA
         // =========================================
-
-        java.time.LocalDate fechaIngreso;
 
         System.out.println();
         System.out.println(CYAN +
-                "╠═══════════════════════════════════════════╣");
+                "╔═══════════════════════════════════════════╗");
         System.out.println("║             FECHAS DE RESERVA             ║");
         System.out.println("╠═══════════════════════════════════════════╣" + RESET);
+
+        System.out.println(AMARILLO +
+                "║  Escribí 0 para volver al menú" + RESET);
+
+        System.out.println(CYAN +
+                "║                                           ║" + RESET);
+
+        // FECHA DE INGRESO
+        java.time.LocalDate fechaIngreso;
 
         while (true) {
 
             System.out.print(AZUL +
                     "║  Fecha de ingreso (AAAA-MM-DD): " + RESET);
 
+            String entrada = sc.nextLine().trim();
+
+            if (entrada.equals("0")) {
+
+                System.out.println(AMARILLO +
+                        "Reserva cancelada. Volviendo al menú..." + RESET);
+
+                System.out.println(CYAN +
+                        "╚═══════════════════════════════════════════╝" + RESET);
+                return;
+            }
+
             try {
 
-                fechaIngreso = java.time.LocalDate.parse(
-                        sc.nextLine().trim());
+                fechaIngreso = java.time.LocalDate.parse(entrada);
 
-                if (fechaIngreso.isBefore(java.time.LocalDate.now())) {
+                if (fechaIngreso.isBefore(
+                        java.time.LocalDate.now())) {
 
                     System.out.println(ROJO +
                             "║  ERROR: No puede ser anterior a hoy" + RESET);
@@ -1039,10 +1085,10 @@ public class Menu {
             }
         }
 
-        // =========================================
-        // 5. FECHA DE SALIDA
-        // =========================================
+        System.out.println(CYAN +
+                "║                                           ║" + RESET);
 
+        // FECHA DE SALIDA
         java.time.LocalDate fechaSalida;
 
         while (true) {
@@ -1050,10 +1096,21 @@ public class Menu {
             System.out.print(AZUL +
                     "║  Fecha de salida (AAAA-MM-DD): " + RESET);
 
+            String entrada = sc.nextLine().trim();
+
+            if (entrada.equals("0")) {
+
+                System.out.println(AMARILLO +
+                        "Reserva cancelada. Volviendo al menú..." + RESET);
+
+                System.out.println(CYAN +
+                        "╚═══════════════════════════════════════════╝" + RESET);
+                return;
+            }
+
             try {
 
-                fechaSalida = java.time.LocalDate.parse(
-                        sc.nextLine().trim());
+                fechaSalida = java.time.LocalDate.parse(entrada);
 
                 if (!fechaSalida.isAfter(fechaIngreso)) {
 
@@ -1072,23 +1129,51 @@ public class Menu {
             }
         }
 
+        System.out.println(CYAN +
+                "╚═══════════════════════════════════════════╝" + RESET);
+
         // =========================================
-        // 6. VALIDAR DISPONIBILIDAD
+        // 5. VALIDAR DISPONIBILIDAD
         // =========================================
 
         if (!hotel.habitacionDisponible(
                 habitacion, fechaIngreso, fechaSalida)) {
 
+            // BUSCAR LA PRÓXIMA FECHA DISPONIBLE
+            java.time.LocalDate proximaFecha =
+                    hotel.proximaFechaDisponible(
+                            habitacion,
+                            fechaIngreso,
+                            fechaSalida
+                    );
+
+            System.out.println();
+            System.out.println(CYAN +
+                    "╔═══════════════════════════════════════════╗");
+            System.out.println("║          DISPONIBILIDAD HABITACIÓN        ║");
+            System.out.println("╠═══════════════════════════════════════════╣" + RESET);
+
             System.out.println(ROJO +
                     "║  ERROR: Habitación ocupada en esas fechas" + RESET);
 
+            if (proximaFecha != null) {
+
+                System.out.println(CYAN +
+                        "║                                           ║" + RESET);
+
+                System.out.println(VERDE +
+                        "║  Próxima fecha disponible: " +
+                        proximaFecha + RESET);
+            }
+
             System.out.println(CYAN +
                     "╚═══════════════════════════════════════════╝" + RESET);
+
             return;
         }
 
         // =========================================
-        // 7. CREAR LA RESERVA
+        // 6. CREAR LA RESERVA
         // =========================================
 
         Reserva reserva = new Reserva(
@@ -1100,7 +1185,7 @@ public class Menu {
         );
 
         // =========================================
-        // 8. MOSTRAR RESUMEN CON ID
+        // 7. MOSTRAR RESUMEN CON ID
         // =========================================
 
         System.out.println();
@@ -1113,7 +1198,8 @@ public class Menu {
                 "║  ID: " + reserva.getIdReserva());
 
         System.out.println(
-                "║  Habitación: " + habitacion.getNumeroHabitacion());
+                "║  Habitación: " +
+                        habitacion.getNumeroHabitacion());
 
         System.out.println(
                 "║  Cantidad de personas: " + cantidadPasajeros);
@@ -1128,11 +1214,14 @@ public class Menu {
                 "╠═══════════════════════════════════════════╣" + RESET);
 
         // =========================================
-        // 9. CONFIRMAR RESERVA
+        // 8. CONFIRMAR RESERVA
         // =========================================
 
         System.out.println(AMARILLO +
                 "║  ¿Confirmar reserva? (Si/No)" + RESET);
+
+        System.out.println(AMARILLO +
+                "║  0. Volver al menú" + RESET);
 
         String respuesta;
 
@@ -1142,18 +1231,21 @@ public class Menu {
 
             respuesta = sc.nextLine().trim();
 
-            if (respuesta.equalsIgnoreCase("Si") ||
+            if (respuesta.equals("0") ||
+                    respuesta.equalsIgnoreCase("Si") ||
                     respuesta.equalsIgnoreCase("S") ||
                     respuesta.equalsIgnoreCase("No") ||
                     respuesta.equalsIgnoreCase("N")) {
+
                 break;
             }
 
             System.out.println(ROJO +
-                    "║  ERROR: Ingresá Si o No" + RESET);
+                    "║  ERROR: Ingresá Si, No o 0" + RESET);
         }
 
-        if (respuesta.equalsIgnoreCase("No") ||
+        if (respuesta.equals("0") ||
+                respuesta.equalsIgnoreCase("No") ||
                 respuesta.equalsIgnoreCase("N")) {
 
             System.out.println(AMARILLO +
@@ -1165,7 +1257,7 @@ public class Menu {
         }
 
         // =========================================
-        // 10. GUARDAR RESERVA EN HOTEL
+        // 9. GUARDAR RESERVA EN HOTEL
         // =========================================
 
         if (hotel.agregarReserva(reserva)) {
@@ -1174,7 +1266,8 @@ public class Menu {
                     "║  Reserva realizada correctamente" + RESET);
 
             System.out.println(VERDE +
-                    "║  Guardá tu ID: " + reserva.getIdReserva() + RESET);
+                    "║  Guardá tu ID: " +
+                    reserva.getIdReserva() + RESET);
 
         } else {
 
