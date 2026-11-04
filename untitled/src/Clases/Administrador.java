@@ -24,6 +24,7 @@ public class Administrador  extends Persona implements IEmpleado, IValidarDatos 
         return getDNI();
     }
 
+
     public void setLegajo(String legajo) {
         this.legajo = legajo;
     }

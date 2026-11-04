@@ -108,6 +108,88 @@ public class Hotel implements IValidarDatos {
         return usuario;
     }
 
+
+    // ========================================
+    //                TECNICOS
+    // ========================================
+
+
+    public String agregarTecnico( Tecnico tecnico)
+            throws AgenciaHotelException {
+
+        if (tecnico == null) {
+            throw new DatoInvalidoException(
+                    "El técnico no puede ser nulo");
+        }
+
+        // VALIDAR LOS DATOS DEL TÉCNICO
+
+
+        // GUARDAR EN EL REGISTRO DEL HOTEL
+        tecnicos.put(tecnico.getDNI(), tecnico);
+
+        return "Técnico agregado correctamente";
+    }
+
+
+    // ========================================
+    // BUSCAR TECNICO POR DNI
+    // ========================================
+
+    public Tecnico buscarTecnico(String dni)
+            throws DatoInvalidoException {
+
+        if (dni == null || !dni.matches("[0-9]{7,8}")) {
+            throw new DatoInvalidoException(
+                    "El DNI debe tener 7 u 8 números");
+        }
+
+        return tecnicos.buscar(dni);
+    }
+
+    // ========================================
+    // ELIMINAR TECNICO POR DNI
+    // ========================================
+
+    public String eliminarTecnico(String dni)
+            throws DatoInvalidoException {
+
+        if (dni == null || !dni.matches("[0-9]{7,8}")) {
+            throw new DatoInvalidoException(
+                    "El DNI debe tener 7 u 8 números");
+        }
+
+        if (!tecnicos.containsKey(dni)) {
+            throw new DatoInvalidoException(
+                    "No existe un técnico con ese DNI");
+        }
+
+        // NO ELIMINAR SI TIENE REPARACIONES ASIGNADAS
+        Tecnico tecnico = tecnicos.buscar(dni);
+
+        for (Habitacion habitacion : habitaciones.obtenerTodos()) {
+
+            if (tecnico.equals(reparaciones.get(habitacion))) {
+                throw new DatoInvalidoException(
+                        "El técnico tiene una reparación asignada");
+            }
+        }
+
+        tecnicos.eliminar(dni);
+
+        return "Técnico eliminado correctamente";
+    }
+
+    // ========================================
+    // MOSTRAR TODOS LOS TECNICOS
+    // ========================================
+
+    public Collection<Tecnico> mostrarTecnicos() {
+
+        return tecnicos.obtenerTodos();
+    }
+
+
     // ========================================
     //              PASAJEROS
     // ========================================
@@ -385,13 +467,19 @@ public class Hotel implements IValidarDatos {
 
     // AGREGAR EMPLEADO POR LEGAJO
 
-    public String agregarEmpleado(String legajo, IEmpleado empleado)
+
+
+    public String agregarEmpleado(IEmpleado empleado)
             throws AgenciaHotelException {
 
+        // VALIDAR EMPLEADO
         if (empleado == null) {
             throw new DatoInvalidoException(
                     "El empleado no puede ser nulo");
         }
+
+        // OBTENER LEGAJO DIRECTAMENTE DEL OBJETO
+        String legajo = empleado.getLegajo();
 
         if (legajo == null || legajo.isBlank()) {
             throw new DatoInvalidoException(
@@ -400,13 +488,13 @@ public class Hotel implements IValidarDatos {
 
         legajo = legajo.trim();
 
-        // COMPROBAR LEGAJO DUPLICADO
+        // VALIDAR LEGAJO DUPLICADO
         if (empleados.containsKey(legajo)) {
             throw new ElementoDuplicadoException(
                     "Ya existe un empleado con ese legajo");
         }
 
-        // VALIDAR DNI COMO DATO PERSONAL
+        // VALIDAR DNI
         String dni = empleado.getDni();
 
         if (dni == null || !dni.matches("[0-9]{7,8}")) {
@@ -414,13 +502,13 @@ public class Hotel implements IValidarDatos {
                     "El DNI debe tener 7 u 8 números");
         }
 
-        // COMPROBAR DNI DUPLICADO
+        // VALIDAR DNI DUPLICADO
         if (existeDniEmpleado(dni)) {
             throw new ElementoDuplicadoException(
                     "Ya existe un empleado con ese DNI");
         }
 
-        // VALIDAR LOS DATOS SEGÚN EL TIPO
+        // VALIDAR SEGÚN EL TIPO
         if (empleado instanceof Administrador) {
 
             Administrador admin = (Administrador) empleado;
@@ -432,30 +520,20 @@ public class Hotel implements IValidarDatos {
             conserje.validarDatos();
 
         } else {
+
             throw new DatoInvalidoException(
                     "Tipo de empleado no válido");
         }
 
-        // GUARDAR POR LEGAJO
+        // GUARDAR EMPLEADO POR LEGAJO
         empleados.put(legajo, empleado);
 
         return "Empleado agregado correctamente";
     }
 
-    // BUSCAR EMPLEADO POR LEGAJO
-
-    public IEmpleado buscarEmpleado(String legajo)
-            throws DatoInvalidoException {
-
-        if (legajo == null || legajo.isBlank()) {
-            throw new DatoInvalidoException(
-                    "El legajo no puede estar vacío");
-        }
-
-        return empleados.buscar(legajo.trim());
-    }
 
     // ELIMINAR EMPLEADO POR LEGAJO
+
 
     public String eliminarEmpleado(String legajo)
             throws DatoInvalidoException {
@@ -465,16 +543,51 @@ public class Hotel implements IValidarDatos {
                     "El legajo no puede estar vacío");
         }
 
-        empleados.eliminar(legajo.trim());
+        legajo = legajo.trim();
+
+        if (!empleados.containsKey(legajo)) {
+            throw new DatoInvalidoException(
+                    "No existe un empleado con ese legajo");
+        }
+
+        empleados.eliminar(legajo);
 
         return "Empleado eliminado correctamente";
     }
 
+
     // MOSTRAR TODOS LOS EMPLEADOS
 
+
     public Collection<IEmpleado> mostrarEmpleados() {
+
         return empleados.obtenerTodos();
     }
+
+
+    // BUSCAR EMPLEADO
+
+    public IEmpleado buscarEmpleado(String legajo)
+            throws DatoInvalidoException {
+
+        // VALIDAR LEGAJO
+        if (legajo == null || legajo.isBlank()) {
+            throw new DatoInvalidoException(
+                    "El legajo no puede estar vacío");
+        }
+
+        legajo = legajo.trim();
+
+        // VERIFICAR SI EXISTE
+        if (!empleados.containsKey(legajo)) {
+            throw new DatoInvalidoException(
+                    "No existe un empleado con ese legajo");
+        }
+
+        // DEVOLVER EMPLEADO
+        return empleados.buscar(legajo);
+    }
+
 
     // ========================================
     //                USUARIOS
@@ -650,40 +763,60 @@ public class Hotel implements IValidarDatos {
 
 // ASIGNAR TÉCNICO A UNA HABITACIÓN
 
+
     public void asignarTecnico(
             Habitacion habitacion, Tecnico tecnico) {
 
+        // VALIDAR DATOS
         if (habitacion == null || tecnico == null) {
             throw new IllegalArgumentException(
                     "Debe seleccionar una habitación y un técnico");
         }
 
+        // VALIDAR QUE LA HABITACIÓN EXISTA
         if (!habitaciones.obtenerTodos().contains(habitacion)) {
             throw new IllegalArgumentException(
                     "La habitación no pertenece al hotel");
         }
 
+        // VALIDAR QUE EL TÉCNICO EXISTA
         if (!tecnicos.obtenerTodos().contains(tecnico)) {
             throw new IllegalArgumentException(
                     "El técnico no pertenece al hotel");
         }
 
-        if (!habitacion.necesitaReparacion()) {
+        // VALIDAR DISPONIBILIDAD DEL TÉCNICO
+        if (!tecnico.isDisponible()) {
             throw new IllegalStateException(
-                    "La habitación no está pendiente de reparación");
+                    "El técnico seleccionado no está disponible");
         }
 
+        // VALIDAR QUE NO ESTÉ YA EN REPARACIÓN
+        if (habitacion.getEstadoMantenimiento()
+                == EEstadoMantenimiento.EN_REPARACION) {
+
+            throw new IllegalStateException(
+                    "La habitación ya está en reparación");
+        }
+
+        // LA HABITACIÓN DEBE ESTAR LIBRE
+        // Se mantiene la lógica actual de tu clase Hotel
         if (habitacion.isDisponible()) {
             throw new IllegalStateException(
                     "La habitación está ocupada. Debe liberarse primero");
         }
 
+        // REGISTRAR ASIGNACIÓN
         reparaciones.put(habitacion, tecnico);
 
+        // CAMBIAR ESTADO
         habitacion.setEstadoMantenimiento(
-                EEstadoMantenimiento.EN_REPARACION
-        );
+                EEstadoMantenimiento.EN_REPARACION);
+
+        // MARCAR TÉCNICO COMO OCUPADO
+        tecnico.setDisponible(false);
     }
+
 
 // CONSULTAR TÉCNICO ASIGNADO
 
@@ -695,21 +828,42 @@ public class Hotel implements IValidarDatos {
 
     public void finalizarReparacion(Habitacion habitacion) {
 
-        if (habitacion == null || !habitacion.getEstadoMantenimiento().equals(EEstadoMantenimiento.NORMAL)) {
+        if (habitacion == null ||
+                habitacion.getEstadoMantenimiento() !=
+                        EEstadoMantenimiento.EN_REPARACION) {
+
             throw new IllegalStateException(
                     "La habitación no está en reparación");
         }
 
+        // BUSCAR TÉCNICO ASIGNADO
+        Tecnico tecnico = reparaciones.get(habitacion);
+
+        // ELIMINAR LA ASIGNACIÓN
         try {
+
             reparaciones.eliminar(habitacion);
+
         } catch (DatoInvalidoException e) {
-            System.out.println(e.getMessage());;
+
+            throw new IllegalStateException(
+                    "No se pudo finalizar la reparación: " +
+                            e.getMessage());
         }
 
+        // LIBERAR TÉCNICO
+        if (tecnico != null) {
+            tecnico.setDisponible(true);
+        }
+
+        // CAMBIAR HABITACIÓN A NORMAL
         habitacion.setEstadoMantenimiento(
-                EEstadoMantenimiento.NORMAL
-        );
+                EEstadoMantenimiento.NORMAL);
     }
+
+
+
+
 
     // AGREGAR HABITACIÓN
     public boolean agregarHabitacion(Habitacion habitacion) {

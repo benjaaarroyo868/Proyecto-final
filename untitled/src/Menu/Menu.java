@@ -556,7 +556,9 @@ public class Menu {
     // EMPLEADOS
     // =========================================
 
+
     public static void agregarEmpleado(Hotel hotel) {
+
         System.out.println();
         System.out.println(CYAN +
                 "╔═══════════════════════════════════════════╗");
@@ -565,8 +567,13 @@ public class Menu {
 
         System.out.println(AZUL +
                 "║    1. Administrador                       ║");
-        System.out.println("║    2. Conserje                            ║");
-        System.out.println("║    0. Volver                              ║" + RESET);
+        System.out.println("║    2. Conserje                            ║" + RESET);
+
+        System.out.println(AMARILLO +
+                "║    0. Volver                              ║" + RESET);
+
+        System.out.println(CYAN +
+                "╚═══════════════════════════════════════════╝" + RESET);
 
         int opcion = pedirOpcion(0, 2);
 
@@ -574,18 +581,21 @@ public class Menu {
             return;
         }
 
+        // DATOS PERSONALES
         String nombre = pedirSoloLetras("Nombre", sc);
         String apellido = pedirSoloLetras("Apellido", sc);
 
-        // DNI COMO DATO PERSONAL
         String dni;
 
         while (true) {
+
             dni = pedirDni();
 
             if (hotel.existeDniEmpleado(dni)) {
+
                 System.out.println(ROJO +
-                        "ERROR: Ya existe un empleado con ese DNI" + RESET);
+                        "ERROR: Ya existe un empleado con ese DNI"
+                        + RESET);
                 continue;
             }
 
@@ -595,9 +605,11 @@ public class Menu {
         String telefono = pedirTelefono();
         String email = pedirEmail();
 
+        // CREAR USUARIO
+        System.out.println();
         System.out.println(CYAN +
-                "╠═══════════════════════════════════════════╣");
-        System.out.println("║             CREAR USUARIO                 ║");
+                "╔═══════════════════════════════════════════╗");
+        System.out.println("║              CREAR USUARIO                ║");
         System.out.println("╠═══════════════════════════════════════════╣" + RESET);
 
         String nombreUsuario = pedirNombreUsuario(hotel);
@@ -613,23 +625,28 @@ public class Menu {
                 tipoUsuario
         );
 
-        // LEGAJO: CLAVE DEL MAP
+        // LEGAJO
         String legajo;
 
         while (true) {
+
             System.out.println(AZUL +
                     "║  ◈ Número de legajo" + RESET);
+
             System.out.print(VERDE + "║  ➜ " + RESET);
 
             legajo = sc.nextLine().trim();
 
             if (legajo.isBlank()) {
+
                 System.out.println(ROJO +
-                        "ERROR: El legajo no puede estar vacío" + RESET);
+                        "ERROR: El legajo no puede estar vacío"
+                        + RESET);
                 continue;
             }
 
             if (hotel.getEmpleados().containsKey(legajo)) {
+
                 System.out.println(ROJO +
                         "ERROR: El legajo ya existe" + RESET);
                 continue;
@@ -638,13 +655,18 @@ public class Menu {
             break;
         }
 
+        // SUELDO
         double sueldo;
 
         while (true) {
-            System.out.println(AZUL + "║  ◈ Sueldo" + RESET);
+
+            System.out.println(AZUL +
+                    "║  ◈ Sueldo" + RESET);
+
             System.out.print(VERDE + "║  ➜ " + RESET);
 
             try {
+
                 sueldo = Double.parseDouble(
                         sc.nextLine().trim().replace(",", "."));
 
@@ -653,16 +675,18 @@ public class Menu {
                 }
 
             } catch (NumberFormatException e) {
-                // Pedir nuevamente.
+                // Volver a solicitar sueldo
             }
 
             System.out.println(ROJO +
                     "ERROR: Ingresá un sueldo válido" + RESET);
         }
 
+        // CREAR EMPLEADO
         IEmpleado nuevoEmpleado;
 
         if (opcion == 1) {
+
             nuevoEmpleado = new Administrador(
                     nombre,
                     apellido,
@@ -675,57 +699,87 @@ public class Menu {
             );
 
         } else {
-            // Se necesita el constructor real de Conserje.
-            System.out.println(AMARILLO +
-                    "Falta configurar el constructor de Conserje." + RESET);
-            return;
+
+            nuevoEmpleado = new Conserje(
+                    nombre,
+                    apellido,
+                    dni,
+                    telefono,
+                    email,
+                    nuevoUsuario,
+                    legajo,
+                    sueldo
+            );
         }
 
+        // GUARDAR EMPLEADO Y USUARIO
         try {
+
             nuevoUsuario.validarDatos();
 
-            hotel.agregarEmpleado(legajo, nuevoEmpleado);
+            // AGREGAR SOLO EL OBJETO
+            hotel.agregarEmpleado(nuevoEmpleado);
 
             try {
+
                 hotel.agregarUsuario(nuevoUsuario);
 
             } catch (AgenciaHotelException e) {
+
                 hotel.eliminarEmpleado(legajo);
                 throw e;
             }
 
+            System.out.println();
             System.out.println(VERDE +
                     "╔═══════════════════════════════════════════╗");
             System.out.println("║        EMPLEADO AGREGADO CON ÉXITO        ║");
-            System.out.println("╠═══════════════════════════════════════════╣" + RESET);
+            System.out.println("╠═══════════════════════════════════════════╣");
 
             System.out.println(AZUL +
                     "║  Nombre: " + nombre + " " + apellido);
+
             System.out.println("║  DNI: " + dni);
             System.out.println("║  Legajo: " + legajo);
             System.out.println("║  Usuario: " + nombreUsuario);
             System.out.println("║  Tipo: " + tipoUsuario + RESET);
 
             System.out.println(CYAN +
-                    "╚═══════════════════════════════════════════╝" + RESET);
+                    "╚═══════════════════════════════════════════╝"
+                    + RESET);
 
         } catch (AgenciaHotelException e) {
+
             System.out.println(ROJO +
                     "ERROR: " + e.getMessage() + RESET);
         }
     }
 
+
     public static void buscarEmpleado(Hotel hotel) {
+
         System.out.println();
         System.out.println(CYAN +
                 "╔═══════════════════════════════════════════╗");
         System.out.println("║              BUSCAR EMPLEADO              ║");
         System.out.println("╠═══════════════════════════════════════════╣" + RESET);
 
-        System.out.print(AZUL + "Número de legajo: " + RESET);
+        System.out.println(AMARILLO +
+                "║  Ingresá 0 para volver al menú" + RESET);
+
+        System.out.print(AZUL +
+                "║  Número de legajo: " + RESET);
+
         String legajo = sc.nextLine().trim();
 
+        if (legajo.equals("0")) {
+            System.out.println(AMARILLO +
+                    "Búsqueda cancelada" + RESET);
+            return;
+        }
+
         try {
+
             IEmpleado empleado = hotel.buscarEmpleado(legajo);
 
             String tipo = empleado instanceof Administrador
@@ -735,58 +789,112 @@ public class Menu {
                     "║  EMPLEADO ENCONTRADO" + RESET);
 
             System.out.println(AZUL +
-                    "║  Legajo: " + legajo);
+                    "║  Legajo: " + empleado.getLegajo());
 
-            System.out.println("║  DNI: " +
-                    empleado.getDni());
+            System.out.println(
+                    "║  DNI: " + empleado.getDni());
 
-            System.out.println("║  Tipo: " + tipo + RESET);
+            System.out.println(
+                    "║  Tipo: " + tipo + RESET);
+
+            if (empleado instanceof Persona) {
+
+                Persona persona = (Persona) empleado;
+
+                System.out.println(AZUL +
+                        "║  Nombre: " + persona.getNombre());
+
+                System.out.println(
+                        "║  Apellido: " + persona.getApellido());
+
+                System.out.println(
+                        "║  Teléfono: " + persona.getTelefono());
+
+                System.out.println(
+                        "║  Email: " + persona.getEmail() + RESET);
+            }
 
         } catch (DatoInvalidoException e) {
+
             System.out.println(ROJO +
-                    "Empleado no encontrado" + RESET);
+                    "║  ERROR: " + e.getMessage() + RESET);
         }
 
         System.out.println(CYAN +
                 "╚═══════════════════════════════════════════╝" + RESET);
     }
 
+
+
     public static void eliminarEmpleado(Hotel hotel) {
+
         System.out.println();
         System.out.println(CYAN +
                 "╔═══════════════════════════════════════════╗");
         System.out.println("║             ELIMINAR EMPLEADO             ║");
         System.out.println("╠═══════════════════════════════════════════╣" + RESET);
 
-        System.out.print(AZUL + "Número de legajo: " + RESET);
+        System.out.println(AMARILLO +
+                "║  Ingresá 0 para volver al menú" + RESET);
+
+        System.out.print(AZUL +
+                "║  Número de legajo: " + RESET);
+
         String legajo = sc.nextLine().trim();
 
+        if (legajo.equals("0")) {
+            System.out.println(AMARILLO +
+                    "Eliminación cancelada" + RESET);
+            return;
+        }
+
         try {
+
             IEmpleado empleado = hotel.buscarEmpleado(legajo);
 
             System.out.println(AZUL +
-                    "║  Legajo: " + legajo);
-            System.out.println("║  DNI: " +
-                    empleado.getDni() + RESET);
+                    "║  Legajo: " + empleado.getLegajo());
+
+            System.out.println(
+                    "║  DNI: " + empleado.getDni());
+
+            if (empleado instanceof Persona) {
+
+                Persona persona = (Persona) empleado;
+
+                System.out.println(
+                        "║  Nombre: " + persona.getNombre());
+
+                System.out.println(
+                        "║  Apellido: " + persona.getApellido());
+            }
+
+            System.out.println(RESET);
 
             if (confirmarEliminacion()) {
+
                 System.out.println(VERDE +
                         hotel.eliminarEmpleado(legajo) + RESET);
+
             } else {
+
                 System.out.println(AMARILLO +
                         "Eliminación cancelada" + RESET);
             }
 
         } catch (DatoInvalidoException e) {
+
             System.out.println(ROJO +
-                    "Empleado no encontrado" + RESET);
+                    "ERROR: " + e.getMessage() + RESET);
         }
 
         System.out.println(CYAN +
                 "╚═══════════════════════════════════════════╝" + RESET);
     }
 
+
     public static void mostrarEmpleados(Hotel hotel) {
+
         System.out.println();
         System.out.println(CYAN +
                 "╔═══════════════════════════════════════════╗");
@@ -794,30 +902,60 @@ public class Menu {
         System.out.println("╠═══════════════════════════════════════════╣" + RESET);
 
         if (hotel.mostrarEmpleados().isEmpty()) {
+
             System.out.println(ROJO +
                     "║  No hay empleados registrados" + RESET);
 
         } else {
+
+            int contador = 1;
+
             for (IEmpleado empleado : hotel.mostrarEmpleados()) {
 
                 String tipo = empleado instanceof Administrador
                         ? "ADMINISTRADOR" : "CONSERJE";
 
                 System.out.println(VERDE +
-                        "║  Tipo: " + tipo + RESET);
+                        "║  EMPLEADO " + contador + RESET);
 
                 System.out.println(AZUL +
-                        "║  DNI: " + empleado.getDni() + RESET);
+                        "║  Legajo: " + empleado.getLegajo());
+
+                System.out.println(
+                        "║  DNI: " + empleado.getDni());
+
+                System.out.println(
+                        "║  Tipo: " + tipo);
+
+                if (empleado instanceof Persona) {
+
+                    Persona persona = (Persona) empleado;
+
+                    System.out.println(
+                            "║  Nombre: " + persona.getNombre());
+
+                    System.out.println(
+                            "║  Apellido: " + persona.getApellido());
+
+                    System.out.println(
+                            "║  Teléfono: " + persona.getTelefono());
+
+                    System.out.println(
+                            "║  Email: " + persona.getEmail());
+                }
+
+                System.out.println(RESET);
 
                 System.out.println(CYAN +
                         "╠═══════════════════════════════════════════╣" + RESET);
+
+                contador++;
             }
         }
 
         System.out.println(CYAN +
                 "╚═══════════════════════════════════════════╝" + RESET);
     }
-
 
 
     // =========================================
@@ -901,9 +1039,420 @@ public class Menu {
         System.out.println(RESET);
     }
 
+
+
+
+    private static Pasajero seleccionarPasajeroReserva(
+            Hotel hotel, Usuario usuario) {
+
+        if (usuario == null) {
+            System.out.println(ROJO +
+                    "ERROR: No hay sesión iniciada" + RESET);
+            return null;
+        }
+
+        // =========================================
+        // 1. BUSCAR SI YA TIENE UN PASAJERO ASOCIADO
+        // =========================================
+
+        Pasajero pasajeroActual = null;
+
+        for (Pasajero p : hotel.mostrarPasajeros()) {
+
+            if (p.getUsuario() != null &&
+                    p.getUsuario().getNombreUsuario()
+                            .equals(usuario.getNombreUsuario())) {
+
+                pasajeroActual = p;
+                break;
+            }
+        }
+
+        // =========================================
+        // 2. SI ES PASAJERO COMÚN
+        // =========================================
+
+        if (usuario.getTipoDeUsuario() == ETipoUsuario.PASAJERO) {
+
+            if (pasajeroActual != null) {
+                return pasajeroActual;
+            }
+
+            System.out.println(ROJO +
+                    "ERROR: No hay pasajero asociado a tu cuenta"
+                    + RESET);
+
+            return null;
+        }
+
+        // =========================================
+        // 3. BUSCAR ADMINISTRADOR O CONSERJE
+        // =========================================
+
+        Persona empleadoActual = null;
+
+        for (Interfaces.IEmpleado empleado : hotel.mostrarEmpleados()) {
+
+            if (empleado instanceof Administrador) {
+
+                Administrador admin = (Administrador) empleado;
+
+                if (admin.getUsuario() != null &&
+                        admin.getUsuario().getNombreUsuario()
+                                .equals(usuario.getNombreUsuario())) {
+
+                    empleadoActual = admin;
+                    break;
+                }
+
+            } else if (empleado instanceof Conserje) {
+
+                Conserje conserje = (Conserje) empleado;
+
+                if (conserje.getUsuario() != null &&
+                        conserje.getUsuario().getNombreUsuario()
+                                .equals(usuario.getNombreUsuario())) {
+
+                    empleadoActual = conserje;
+                    break;
+                }
+            }
+        }
+
+        // =========================================
+        // 4. ELEGIR PARA QUIÉN ES LA RESERVA
+        // =========================================
+
+        System.out.println();
+        System.out.println(CYAN +
+                "╔═══════════════════════════════════════════╗");
+        System.out.println("║          ¿PARA QUIÉN ES LA RESERVA?       ║");
+        System.out.println("╠═══════════════════════════════════════════╣" + RESET);
+
+        System.out.println(AZUL +
+                "║  1. Para mí                               ║");
+        System.out.println("║  2. Para otro pasajero                    ║" + RESET);
+
+        System.out.println(AMARILLO +
+                "║  0. Volver al menú                        ║" + RESET);
+
+        System.out.println(CYAN +
+                "╚═══════════════════════════════════════════╝" + RESET);
+
+        int opcion = pedirOpcion(0, 2);
+
+        if (opcion == 0) {
+
+            System.out.println(AMARILLO +
+                    "Operación cancelada" + RESET);
+            return null;
+        }
+
+        // =========================================
+        // 5. OPCIÓN 1: RESERVA PARA MÍ
+        // =========================================
+
+        if (opcion == 1) {
+
+            // SI YA ESTÁ REGISTRADO COMO PASAJERO,
+            // UTILIZAR SUS DATOS
+            if (pasajeroActual != null) {
+
+                System.out.println(VERDE +
+                        "Se utilizarán tus datos registrados" + RESET);
+
+                return pasajeroActual;
+            }
+
+            // BUSCAR LOS DATOS DEL EMPLEADO
+            if (empleadoActual == null) {
+
+                System.out.println();
+                System.out.println(CYAN +
+                        "╔═══════════════════════════════════════════╗");
+                System.out.println("║            EMPLEADO NO ENCONTRADO         ║");
+                System.out.println("╠═══════════════════════════════════════════╣" + RESET);
+
+                System.out.println(ROJO +
+                        "║  No se encontraron tus datos de empleado"
+                        + RESET);
+
+                System.out.println(AMARILLO +
+                        "║  Verificá tu registro en el hotel"
+                        + RESET);
+
+                System.out.println(CYAN +
+                        "╚═══════════════════════════════════════════╝" + RESET);
+
+                return null;
+            }
+
+            // =========================================
+            // 6. OBTENER DATOS DEL EMPLEADO
+            // =========================================
+
+            String nombre = empleadoActual.getNombre();
+            String apellido = empleadoActual.getApellido();
+            String dni = empleadoActual.getDNI();
+            String telefono = empleadoActual.getTelefono();
+            String email = empleadoActual.getEmail();
+
+            System.out.println();
+            System.out.println(CYAN +
+                    "╔═══════════════════════════════════════════╗");
+            System.out.println("║              MIS DATOS                    ║");
+            System.out.println("╠═══════════════════════════════════════════╣" + RESET);
+
+            System.out.println(AZUL +
+                    "║  Nombre: " + nombre);
+
+            System.out.println(
+                    "║  Apellido: " + apellido);
+
+            System.out.println(
+                    "║  DNI: " + dni);
+
+            System.out.println(
+                    "║  Teléfono: " + telefono);
+
+            System.out.println(
+                    "║  Email: " + email + RESET);
+
+            System.out.println(CYAN +
+                    "╚═══════════════════════════════════════════╝" + RESET);
+
+            // VERIFICAR SI YA EXISTE COMO PASAJERO
+            for (Pasajero p : hotel.mostrarPasajeros()) {
+
+                if (p.getDNI().equals(dni)) {
+
+                    // MISMO DNI Y MISMO USUARIO
+                    if (p.getUsuario() != null &&
+                            p.getUsuario().getNombreUsuario()
+                                    .equals(usuario.getNombreUsuario())) {
+
+                        return p;
+                    }
+
+                    System.out.println(ROJO +
+                            "ERROR: Ese DNI ya está asociado a otro usuario"
+                            + RESET);
+                    return null;
+                }
+            }
+
+            // DATOS PROPIOS DEL PASAJERO
+            String origen = pedirSoloLetras("Origen", sc);
+            String destino = pedirSoloLetras("Destino", sc);
+
+            // CREAR PASAJERO CON DATOS DEL EMPLEADO
+            Pasajero nuevoPasajero = new Pasajero(
+                    nombre,
+                    apellido,
+                    dni,
+                    telefono,
+                    email,
+                    usuario,
+                    origen,
+                    destino
+            );
+
+            try {
+
+                nuevoPasajero.validarDatos();
+
+                hotel.agregarPasajero(nuevoPasajero);
+
+                System.out.println();
+                System.out.println(VERDE +
+                        "╔═══════════════════════════════════════════╗");
+                System.out.println("║       DATOS ASOCIADOS CORRECTAMENTE       ║");
+                System.out.println("╠═══════════════════════════════════════════╣");
+
+                System.out.println("║  Nombre: " +
+                        nombre + " " + apellido);
+
+                System.out.println("║  DNI: " + dni);
+
+                System.out.println("║  Usuario: " +
+                        usuario.getNombreUsuario());
+
+                System.out.println("╚═══════════════════════════════════════════╝"
+                        + RESET);
+
+                return nuevoPasajero;
+
+            } catch (AgenciaHotelException e) {
+
+                System.out.println(ROJO +
+                        "ERROR: " + e.getMessage() + RESET);
+
+                return null;
+            }
+        }
+
+        // =========================================
+        // 7. OPCIÓN 2: PARA OTRO PASAJERO
+        // =========================================
+
+        System.out.println();
+        System.out.println(CYAN +
+                "╔═══════════════════════════════════════════╗");
+        System.out.println("║             BUSCAR PASAJERO               ║");
+        System.out.println("╠═══════════════════════════════════════════╣" + RESET);
+
+        System.out.println(AMARILLO +
+                "║  Ingresá 0 para cancelar" + RESET);
+
+        String dni;
+
+        while (true) {
+
+            System.out.print(AZUL +
+                    "║  DNI del pasajero: " + RESET);
+
+            dni = sc.nextLine().trim();
+
+            if (dni.equals("0")) {
+                return null;
+            }
+
+            if (dni.matches("[0-9]{7,8}")) {
+                break;
+            }
+
+            System.out.println(ROJO +
+                    "║  ERROR: DNI de 7 u 8 números" + RESET);
+        }
+
+        // =========================================
+        // 8. BUSCAR SI YA ESTÁ REGISTRADO
+        // =========================================
+
+        for (Pasajero p : hotel.mostrarPasajeros()) {
+
+            if (p.getDNI().equals(dni)) {
+
+                System.out.println(VERDE +
+                        "║  PASAJERO ENCONTRADO" + RESET);
+
+                System.out.println(AZUL +
+                        "║  Nombre: " + p.getNombre());
+
+                System.out.println(
+                        "║  Apellido: " + p.getApellido());
+
+                System.out.println(
+                        "║  DNI: " + p.getDNI() + RESET);
+
+                System.out.println(CYAN +
+                        "╚═══════════════════════════════════════════╝" + RESET);
+
+                return p;
+            }
+        }
+
+        // =========================================
+        // 9. REGISTRAR PASAJERO NUEVO
+        // =========================================
+
+        System.out.println(AMARILLO +
+                "║  El pasajero no está registrado" + RESET);
+
+        System.out.println(VERDE +
+                "║  Vamos a cargar sus datos" + RESET);
+
+        System.out.println(CYAN +
+                "╚═══════════════════════════════════════════╝" + RESET);
+
+        String nombre = pedirSoloLetras("Nombre", sc);
+        String apellido = pedirSoloLetras("Apellido", sc);
+        String telefono = pedirTelefono();
+        String email = pedirEmail();
+
+        System.out.println();
+        System.out.println(CYAN +
+                "╔═══════════════════════════════════════════╗");
+        System.out.println("║         CREAR USUARIO PASAJERO            ║");
+        System.out.println("╠═══════════════════════════════════════════╣" + RESET);
+
+        String nombreUsuario = pedirNombreUsuario(hotel);
+        String contrasenia = pedirContrasenia();
+
+        Usuario usuarioPasajero = new Usuario(
+                nombreUsuario,
+                contrasenia,
+                ETipoUsuario.PASAJERO
+        );
+
+        String origen = pedirSoloLetras("Origen", sc);
+        String destino = pedirSoloLetras("Destino", sc);
+
+        Pasajero nuevoPasajero = new Pasajero(
+                nombre,
+                apellido,
+                dni,
+                telefono,
+                email,
+                usuarioPasajero,
+                origen,
+                destino
+        );
+
+        // =========================================
+        // 10. GUARDAR PASAJERO Y USUARIO
+        // =========================================
+
+        try {
+
+            usuarioPasajero.validarDatos();
+            nuevoPasajero.validarDatos();
+
+            hotel.agregarPasajero(nuevoPasajero);
+
+            try {
+
+                hotel.agregarUsuario(usuarioPasajero);
+
+            } catch (AgenciaHotelException e) {
+
+                hotel.eliminarPasajero(dni);
+                throw e;
+            }
+
+            System.out.println();
+            System.out.println(VERDE +
+                    "╔═══════════════════════════════════════════╗");
+            System.out.println("║       PASAJERO REGISTRADO CON ÉXITO       ║");
+            System.out.println("╠═══════════════════════════════════════════╣");
+
+            System.out.println("║  Nombre: " +
+                    nombre + " " + apellido);
+
+            System.out.println("║  DNI: " + dni);
+
+            System.out.println("║  Usuario: " + nombreUsuario);
+
+            System.out.println("╚═══════════════════════════════════════════╝"
+                    + RESET);
+
+            return nuevoPasajero;
+
+        } catch (AgenciaHotelException e) {
+
+            System.out.println(ROJO +
+                    "ERROR: " + e.getMessage() + RESET);
+
+            return null;
+        }
+    }
+
+
     // =========================================
     //              AGREGAR RESERVA
     // =========================================
+
+
 
     public static void realizarReserva(Hotel hotel, Usuario usuario) {
 
@@ -914,59 +1463,92 @@ public class Menu {
         System.out.println("╠═══════════════════════════════════════════╣" + RESET);
 
         // =========================================
-        // 1. OBTENER PASAJERO
+        // 1. SELECCIONAR PASAJERO
         // =========================================
 
         if (usuario == null) {
+
             System.out.println(ROJO +
                     "║  ERROR: No hay sesión iniciada" + RESET);
+
             System.out.println(CYAN +
                     "╚═══════════════════════════════════════════╝" + RESET);
             return;
         }
 
-        Pasajero pasajero = null;
-
-        for (Pasajero p : hotel.mostrarPasajeros()) {
-
-            if (p.getUsuario() != null &&
-                    p.getUsuario().getNombreUsuario()
-                            .equals(usuario.getNombreUsuario())) {
-
-                pasajero = p;
-                break;
-            }
-        }
+        // ESTE MÉTODO PERMITE QUE EL ADMINISTRADOR
+        // O CONSERJE RESERVE PARA SÍ MISMO O PARA OTRO
+        Pasajero pasajero =
+                seleccionarPasajeroReserva(hotel, usuario);
 
         if (pasajero == null) {
-            System.out.println(ROJO +
-                    "║  ERROR: Usuario sin pasajero asociado" + RESET);
-            System.out.println(CYAN +
-                    "╚═══════════════════════════════════════════╝" + RESET);
+
+            System.out.println(AMARILLO +
+                    "Reserva cancelada. Volviendo al menú..." + RESET);
             return;
         }
 
+        System.out.println();
+        System.out.println(CYAN +
+                "╔═══════════════════════════════════════════╗");
+        System.out.println("║          PASAJERO SELECCIONADO            ║");
+        System.out.println("╠═══════════════════════════════════════════╣" + RESET);
+
+        System.out.println(VERDE +
+                "║  Pasajero seleccionado correctamente" + RESET);
+
+        System.out.println(AZUL +
+                "║  Nombre: " +
+                pasajero.getNombre() + " " +
+                pasajero.getApellido());
+
+        System.out.println(
+                "║  DNI: " + pasajero.getDNI() + RESET);
+
+        System.out.println(CYAN +
+                "╚═══════════════════════════════════════════╝" + RESET);
+
         // =========================================
-        // 2. MOSTRAR HABITACIONES
+        // 2. OBTENER HABITACIONES EN ESTADO NORMAL
         // =========================================
 
         java.util.List<Habitacion> habitaciones =
-                new java.util.ArrayList<>(
-                        hotel.getHabitaciones().obtenerTodos());
+                new java.util.ArrayList<>();
+
+        for (Habitacion h : hotel.getHabitaciones().obtenerTodos()) {
+
+            if (h.getEstadoMantenimiento()
+                    == EEstadoMantenimiento.NORMAL) {
+
+                habitaciones.add(h);
+            }
+        }
 
         if (habitaciones.isEmpty()) {
+
+            System.out.println();
+            System.out.println(CYAN +
+                    "╔═══════════════════════════════════════════╗");
+            System.out.println("║           HABITACIONES DISPONIBLES        ║");
+            System.out.println("╠═══════════════════════════════════════════╣" + RESET);
+
             System.out.println(ROJO +
-                    "║  ERROR: No hay habitaciones registradas" + RESET);
+                    "║  ERROR: No hay habitaciones habilitadas" + RESET);
+
             System.out.println(CYAN +
                     "╚═══════════════════════════════════════════╝" + RESET);
             return;
         }
 
-        System.out.println(AMARILLO +
-                "║  HABITACIONES REGISTRADAS" + RESET);
+        // =========================================
+        // 3. MOSTRAR HABITACIONES
+        // =========================================
 
+        System.out.println();
         System.out.println(CYAN +
-                "║                                           ║" + RESET);
+                "╔═══════════════════════════════════════════╗");
+        System.out.println("║          HABITACIONES DISPONIBLES         ║");
+        System.out.println("╠═══════════════════════════════════════════╣" + RESET);
 
         for (int i = 0; i < habitaciones.size(); i++) {
 
@@ -994,6 +1576,7 @@ public class Menu {
         int opcion = pedirOpcion(0, habitaciones.size());
 
         if (opcion == 0) {
+
             System.out.println(AMARILLO +
                     "Reserva cancelada. Volviendo al menú..." + RESET);
             return;
@@ -1002,7 +1585,7 @@ public class Menu {
         Habitacion habitacion = habitaciones.get(opcion - 1);
 
         // =========================================
-        // 3. CANTIDAD DE PERSONAS
+        // 4. CANTIDAD DE PERSONAS
         // =========================================
 
         System.out.println();
@@ -1028,17 +1611,18 @@ public class Menu {
         System.out.println(CYAN +
                 "╚═══════════════════════════════════════════╝" + RESET);
 
-        int cantidadPasajeros = pedirOpcion(
-                0, habitacion.getCantidadMaximaPersonas());
+        int cantidadPasajeros =
+                pedirOpcion(0, habitacion.getCantidadMaximaPersonas());
 
         if (cantidadPasajeros == 0) {
+
             System.out.println(AMARILLO +
                     "Reserva cancelada. Volviendo al menú..." + RESET);
             return;
         }
 
         // =========================================
-        // 4. FECHAS DE RESERVA
+        // 5. FECHAS DE RESERVA
         // =========================================
 
         System.out.println();
@@ -1064,8 +1648,10 @@ public class Menu {
             String entrada = sc.nextLine().trim();
 
             if (entrada.equals("0")) {
+
                 System.out.println(AMARILLO +
                         "Reserva cancelada. Volviendo al menú..." + RESET);
+
                 System.out.println(CYAN +
                         "╚═══════════════════════════════════════════╝" + RESET);
                 return;
@@ -1108,8 +1694,10 @@ public class Menu {
             String entrada = sc.nextLine().trim();
 
             if (entrada.equals("0")) {
+
                 System.out.println(AMARILLO +
                         "Reserva cancelada. Volviendo al menú..." + RESET);
+
                 System.out.println(CYAN +
                         "╚═══════════════════════════════════════════╝" + RESET);
                 return;
@@ -1142,7 +1730,32 @@ public class Menu {
                 "╚═══════════════════════════════════════════╝" + RESET);
 
         // =========================================
-        // 5. VALIDAR DISPONIBILIDAD
+        // 6. VALIDAR ESTADO DE LA HABITACIÓN
+        // =========================================
+
+        if (habitacion.getEstadoMantenimiento()
+                != EEstadoMantenimiento.NORMAL) {
+
+            System.out.println();
+            System.out.println(CYAN +
+                    "╔═══════════════════════════════════════════╗");
+            System.out.println("║          DISPONIBILIDAD HABITACIÓN        ║");
+            System.out.println("╠═══════════════════════════════════════════╣" + RESET);
+
+            System.out.println(ROJO +
+                    "║  ERROR: Habitación no habilitada" + RESET);
+
+            System.out.println(AMARILLO +
+                    "║  Estado: " +
+                    habitacion.getEstadoMantenimiento() + RESET);
+
+            System.out.println(CYAN +
+                    "╚═══════════════════════════════════════════╝" + RESET);
+            return;
+        }
+
+        // =========================================
+        // 7. VALIDAR DISPONIBILIDAD POR FECHAS
         // =========================================
 
         if (!hotel.habitacionDisponible(
@@ -1174,23 +1787,21 @@ public class Menu {
 
             System.out.println(CYAN +
                     "╚═══════════════════════════════════════════╝" + RESET);
-
             return;
         }
 
         // =========================================
-        // 6. CALCULAR DÍAS Y NOCHES
+        // 8. CALCULAR DÍAS Y NOCHES
         // =========================================
 
         long cantidadNoches =
                 java.time.temporal.ChronoUnit.DAYS.between(
                         fechaIngreso, fechaSalida);
 
-        // Contamos también el día de salida
         long cantidadDias = cantidadNoches + 1;
 
         // =========================================
-        // 7. CREAR LA RESERVA
+        // 9. CREAR RESERVA
         // =========================================
 
         Reserva reserva = new Reserva(
@@ -1202,7 +1813,7 @@ public class Menu {
         );
 
         // =========================================
-        // 8. MOSTRAR RESUMEN CON ID
+        // 10. MOSTRAR RESUMEN
         // =========================================
 
         System.out.println();
@@ -1213,6 +1824,14 @@ public class Menu {
 
         System.out.println(AZUL +
                 "║  ID: " + reserva.getIdReserva());
+
+        System.out.println(
+                "║  Pasajero: " +
+                        pasajero.getNombre() + " " +
+                        pasajero.getApellido());
+
+        System.out.println(
+                "║  DNI: " + pasajero.getDNI());
 
         System.out.println(
                 "║  Habitación: " +
@@ -1229,18 +1848,18 @@ public class Menu {
                 "║  Salida: " +
                         fechaSalida.format(FORMATO_FECHA));
 
-        // NUEVO: TOTAL DE DÍAS Y NOCHES
         System.out.println(
                 "║  Total de días: " + cantidadDias);
 
         System.out.println(
-                "║  Total de noches: " + cantidadNoches + RESET);
+                "║  Total de noches: " +
+                        cantidadNoches + RESET);
 
         System.out.println(CYAN +
                 "╠═══════════════════════════════════════════╣" + RESET);
 
         // =========================================
-        // 9. CONFIRMAR RESERVA
+        // 11. CONFIRMAR RESERVA
         // =========================================
 
         System.out.println(AMARILLO +
@@ -1282,7 +1901,7 @@ public class Menu {
         }
 
         // =========================================
-        // 10. GUARDAR RESERVA EN HOTEL
+        // 12. GUARDAR RESERVA EN HOTEL
         // =========================================
 
         if (hotel.agregarReserva(reserva)) {
@@ -1303,6 +1922,7 @@ public class Menu {
         System.out.println(CYAN +
                 "╚═══════════════════════════════════════════╝" + RESET);
     }
+
 
 
 
@@ -1580,6 +2200,516 @@ public class Menu {
 
         System.out.println(CYAN +
                 "╚═══════════════════════════════════════════╝" + RESET);
+    }
+
+    // =========================================
+    // MANDAR HABIATCION A REPARAR
+    // =========================================
+
+
+    public static void ponerHabitacionEnReparacion(Hotel hotel) {
+
+        System.out.println();
+        System.out.println(CYAN +
+                "╔═══════════════════════════════════════════╗");
+        System.out.println("║          GESTIÓN DE HABITACIONES          ║");
+        System.out.println("╠═══════════════════════════════════════════╣" + RESET);
+
+        // =========================================
+        // 1. MOSTRAR TODAS LAS HABITACIONES
+        // =========================================
+
+        java.util.Collection<Habitacion> habitaciones =
+                hotel.getHabitaciones().obtenerTodos();
+
+        if (habitaciones.isEmpty()) {
+
+            System.out.println(ROJO +
+                    "║  ERROR: No hay habitaciones registradas" + RESET);
+
+            System.out.println(CYAN +
+                    "╚═══════════════════════════════════════════╝" + RESET);
+            return;
+        }
+
+        System.out.println(AMARILLO +
+                "║  HABITACIONES REGISTRADAS" + RESET);
+
+        System.out.println(CYAN +
+                "║                                           ║" + RESET);
+
+        for (Habitacion h : habitaciones) {
+
+            System.out.println(AZUL +
+                    "║  Habitación: " + h.getNumeroHabitacion());
+
+            System.out.println(
+                    "║  Capacidad: " +
+                            h.getCantidadMaximaPersonas());
+
+            System.out.println(
+                    "║  Estado: " +
+                            h.getEstadoMantenimiento() + RESET);
+
+            System.out.println(CYAN +
+                    "║                                           ║" + RESET);
+        }
+
+        System.out.println(AMARILLO +
+                "║  0. Volver al menú" + RESET);
+
+        System.out.println(CYAN +
+                "╠═══════════════════════════════════════════╣" + RESET);
+
+        // =========================================
+        // 2. SELECCIONAR HABITACIÓN POR NÚMERO
+        // =========================================
+
+        System.out.print(AZUL +
+                "║  Número de habitación: " + RESET);
+
+        String numeroIngresado = sc.nextLine().trim();
+
+        if (numeroIngresado.equals("0")) {
+
+            System.out.println(AMARILLO +
+                    "║  Operación cancelada" + RESET);
+
+            System.out.println(CYAN +
+                    "╚═══════════════════════════════════════════╝" + RESET);
+            return;
+        }
+
+        Habitacion habitacion = null;
+
+        for (Habitacion h : habitaciones) {
+
+            if (String.valueOf(h.getNumeroHabitacion())
+                    .equals(numeroIngresado)) {
+
+                habitacion = h;
+                break;
+            }
+        }
+
+        if (habitacion == null) {
+
+            System.out.println(ROJO +
+                    "║  ERROR: La habitación no existe" + RESET);
+
+            System.out.println(CYAN +
+                    "╚═══════════════════════════════════════════╝" + RESET);
+            return;
+        }
+
+        // =========================================
+        // 3. ELEGIR ESTADO DE LA HABITACIÓN
+        // =========================================
+
+        System.out.println();
+        System.out.println(CYAN +
+                "╔═══════════════════════════════════════════╗");
+        System.out.println("║              CAMBIAR ESTADO               ║");
+        System.out.println("╠═══════════════════════════════════════════╣" + RESET);
+
+        System.out.println(AZUL +
+                "║  Habitación: " +
+                habitacion.getNumeroHabitacion());
+
+        System.out.println(
+                "║  Estado actual: " +
+                        habitacion.getEstadoMantenimiento() + RESET);
+
+        System.out.println(CYAN +
+                "║                                           ║" + RESET);
+
+        System.out.println(VERDE +
+                "║  1. NORMAL                                ║" + RESET);
+
+        System.out.println(AMARILLO +
+                "║  2. NECESITA_REPARACION                   ║" + RESET);
+
+        System.out.println(ROJO +
+                "║  3. EN_REPARACION                         ║" + RESET);
+
+        System.out.println(CYAN +
+                "║                                           ║" + RESET);
+
+        System.out.println(AMARILLO +
+                "║  0. Volver al menú" + RESET);
+
+        System.out.println(CYAN +
+                "╚═══════════════════════════════════════════╝" + RESET);
+
+        int opcionEstado = pedirOpcion(0, 3);
+
+        if (opcionEstado == 0) {
+
+            System.out.println(AMARILLO +
+                    "Operación cancelada" + RESET);
+            return;
+        }
+
+        EEstadoMantenimiento estadoActual =
+                habitacion.getEstadoMantenimiento();
+
+        // =========================================
+        // 4. OPCIÓN 1: NORMAL
+        // =========================================
+
+        if (opcionEstado == 1) {
+
+            if (estadoActual == EEstadoMantenimiento.NORMAL) {
+
+                System.out.println(AMARILLO +
+                        "La habitación ya está en estado NORMAL" + RESET);
+                return;
+            }
+
+            try {
+
+                // SI ESTABA EN REPARACIÓN, FINALIZARLA
+                if (estadoActual ==
+                        EEstadoMantenimiento.EN_REPARACION) {
+
+                    hotel.finalizarReparacion(habitacion);
+
+                } else {
+
+                    // SI SOLO NECESITABA REPARACIÓN
+                    habitacion.setEstadoMantenimiento(
+                            EEstadoMantenimiento.NORMAL);
+                }
+
+                System.out.println();
+                System.out.println(VERDE +
+                        "╔═══════════════════════════════════════════╗");
+                System.out.println("║       ESTADO CAMBIADO CORRECTAMENTE       ║");
+                System.out.println("╠═══════════════════════════════════════════╣");
+                System.out.println("║  Habitación: " +
+                        habitacion.getNumeroHabitacion());
+                System.out.println("║  Nuevo estado: " +
+                        habitacion.getEstadoMantenimiento());
+                System.out.println("╚═══════════════════════════════════════════╝"
+                        + RESET);
+
+            } catch (IllegalStateException e) {
+
+                System.out.println(ROJO +
+                        "ERROR: " + e.getMessage() + RESET);
+            }
+
+            return;
+        }
+
+        // =========================================
+        // 5. OPCIÓN 2: NECESITA_REPARACION
+        // =========================================
+
+        if (opcionEstado == 2) {
+
+            if (estadoActual ==
+                    EEstadoMantenimiento.NECESITA_REPARACION) {
+
+                System.out.println(AMARILLO +
+                        "La habitación ya está en ese estado" + RESET);
+                return;
+            }
+
+            if (estadoActual ==
+                    EEstadoMantenimiento.EN_REPARACION) {
+
+                System.out.println(ROJO +
+                        "ERROR: La habitación está en reparación" + RESET);
+
+                System.out.println(AMARILLO +
+                        "Primero debe finalizar la reparación" + RESET);
+                return;
+            }
+
+            try {
+
+                // CAMBIAR SOLO A NECESITA_REPARACION
+                hotel.registrarNecesidadReparacion(habitacion);
+
+                System.out.println();
+                System.out.println(VERDE +
+                        "╔═══════════════════════════════════════════╗");
+                System.out.println("║       ESTADO CAMBIADO CORRECTAMENTE       ║");
+                System.out.println("╠═══════════════════════════════════════════╣");
+                System.out.println("║  Habitación: " +
+                        habitacion.getNumeroHabitacion());
+                System.out.println("║  Nuevo estado: " +
+                        habitacion.getEstadoMantenimiento());
+                System.out.println("╚═══════════════════════════════════════════╝"
+                        + RESET);
+
+            } catch (IllegalArgumentException |
+                     IllegalStateException e) {
+
+                System.out.println(ROJO +
+                        "ERROR: " + e.getMessage() + RESET);
+            }
+
+            return;
+        }
+
+        // =========================================
+        // 6. OPCIÓN 3: EN_REPARACION
+        // =========================================
+
+        if (opcionEstado == 3) {
+
+            if (estadoActual ==
+                    EEstadoMantenimiento.EN_REPARACION) {
+
+                System.out.println(AMARILLO +
+                        "La habitación ya está en reparación" + RESET);
+
+                Tecnico asignado =
+                        hotel.obtenerTecnicoAsignado(habitacion);
+
+                if (asignado != null) {
+
+                    System.out.println(AZUL +
+                            "Técnico: " + asignado.getNombre());
+
+                    System.out.println(
+                            "Tipo: " + asignado.getTipo_de_tecnico());
+
+                    System.out.println(
+                            "Teléfono: " +
+                                    asignado.getTelefono() + RESET);
+                }
+
+                return;
+            }
+
+            // =========================================
+            // 7. OBTENER TÉCNICOS DISPONIBLES
+            // =========================================
+
+            java.util.List<Tecnico> tecnicos =
+                    new java.util.ArrayList<>();
+
+            for (Tecnico t : hotel.verTecnicos()) {
+
+                if (t.isDisponible()) {
+                    tecnicos.add(t);
+                }
+            }
+
+            if (tecnicos.isEmpty()) {
+
+                System.out.println();
+                System.out.println(CYAN +
+                        "╔═══════════════════════════════════════════╗");
+                System.out.println("║              ASIGNAR TÉCNICO              ║");
+                System.out.println("╠═══════════════════════════════════════════╣" + RESET);
+
+                System.out.println(ROJO +
+                        "║  ERROR: No hay técnicos disponibles" + RESET);
+
+                System.out.println(CYAN +
+                        "╚═══════════════════════════════════════════╝" + RESET);
+                return;
+            }
+
+            // =========================================
+            // 8. MOSTRAR TÉCNICOS DISPONIBLES
+            // =========================================
+
+            System.out.println();
+            System.out.println(CYAN +
+                    "╔═══════════════════════════════════════════╗");
+            System.out.println("║              ASIGNAR TÉCNICO              ║");
+            System.out.println("╠═══════════════════════════════════════════╣" + RESET);
+
+            System.out.println(AZUL +
+                    "║  Habitación: " +
+                    habitacion.getNumeroHabitacion() + RESET);
+
+            System.out.println(CYAN +
+                    "║                                           ║" + RESET);
+
+            System.out.println(AMARILLO +
+                    "║  TÉCNICOS DISPONIBLES" + RESET);
+
+            System.out.println(CYAN +
+                    "║                                           ║" + RESET);
+
+            for (int i = 0; i < tecnicos.size(); i++) {
+
+                Tecnico tecnico = tecnicos.get(i);
+
+                System.out.println(AZUL +
+                        "║  " + (i + 1) + ". Nombre: " +
+                        tecnico.getNombre());
+
+                System.out.println(
+                        "║     Tipo: " +
+                                tecnico.getTipo_de_tecnico());
+
+                System.out.println(
+                        "║     Teléfono: " +
+                                tecnico.getTelefono() + RESET);
+
+                System.out.println(CYAN +
+                        "║                                           ║" + RESET);
+            }
+
+            System.out.println(AMARILLO +
+                    "║  0. Cancelar" + RESET);
+
+            System.out.println(CYAN +
+                    "╠═══════════════════════════════════════════╣" + RESET);
+
+            System.out.println(VERDE +
+                    "║  Seleccioná un técnico:" + RESET);
+
+            int opcionTecnico = pedirOpcion(0, tecnicos.size());
+
+            if (opcionTecnico == 0) {
+
+                System.out.println(AMARILLO +
+                        "Asignación cancelada" + RESET);
+                return;
+            }
+
+            Tecnico tecnicoSeleccionado =
+                    tecnicos.get(opcionTecnico - 1);
+
+            // =========================================
+            // 9. CONFIRMAR ASIGNACIÓN
+            // =========================================
+
+            System.out.println();
+            System.out.println(CYAN +
+                    "╔═══════════════════════════════════════════╗");
+            System.out.println("║           CONFIRMAR ASIGNACIÓN            ║");
+            System.out.println("╠═══════════════════════════════════════════╣" + RESET);
+
+            System.out.println(AZUL +
+                    "║  Habitación: " +
+                    habitacion.getNumeroHabitacion());
+
+            System.out.println(
+                    "║  Técnico: " +
+                            tecnicoSeleccionado.getNombre());
+
+            System.out.println(
+                    "║  Tipo: " +
+                            tecnicoSeleccionado.getTipo_de_tecnico());
+
+            System.out.println(
+                    "║  Teléfono: " +
+                            tecnicoSeleccionado.getTelefono() + RESET);
+
+            System.out.println(CYAN +
+                    "║                                           ║" + RESET);
+
+            System.out.println(AMARILLO +
+                    "║  ¿Confirmar asignación? (Si/No)" + RESET);
+
+            String respuesta;
+
+            while (true) {
+
+                System.out.print(VERDE +
+                        "║  ➜ " + RESET);
+
+                respuesta = sc.nextLine().trim();
+
+                if (respuesta.equalsIgnoreCase("Si") ||
+                        respuesta.equalsIgnoreCase("S") ||
+                        respuesta.equalsIgnoreCase("No") ||
+                        respuesta.equalsIgnoreCase("N") ||
+                        respuesta.equals("0")) {
+                    break;
+                }
+
+                System.out.println(ROJO +
+                        "║  ERROR: Ingresá Si, No o 0" + RESET);
+            }
+
+            if (respuesta.equalsIgnoreCase("No") ||
+                    respuesta.equalsIgnoreCase("N") ||
+                    respuesta.equals("0")) {
+
+                System.out.println(AMARILLO +
+                        "║  Asignación cancelada" + RESET);
+
+                System.out.println(CYAN +
+                        "╚═══════════════════════════════════════════╝" + RESET);
+                return;
+            }
+
+            // =========================================
+            // 10. ASIGNAR TÉCNICO Y CAMBIAR ESTADO
+            // =========================================
+
+            try {
+
+                if (!tecnicoSeleccionado.isDisponible()) {
+
+                    throw new IllegalStateException(
+                            "El técnico seleccionado no está disponible");
+                }
+
+                // COMPROBAR QUE LA HABITACIÓN ESTÉ LIBRE
+                if (habitacion.isDisponible()) {
+
+                    throw new IllegalStateException(
+                            "La habitación está ocupada. " +
+                                    "Debe liberarse primero");
+                }
+
+                // SI ESTÁ NORMAL, REGISTRAR QUE NECESITA REPARACIÓN
+                if (estadoActual ==
+                        EEstadoMantenimiento.NORMAL) {
+
+                    hotel.registrarNecesidadReparacion(habitacion);
+                }
+
+                // ASIGNAR TÉCNICO:
+                // ESTE MÉTODO PONE LA HABITACIÓN EN EN_REPARACION
+                hotel.asignarTecnico(
+                        habitacion, tecnicoSeleccionado);
+
+                // MARCAR AL TÉCNICO COMO OCUPADO
+                tecnicoSeleccionado.setDisponible(false);
+
+                System.out.println();
+                System.out.println(VERDE +
+                        "╔═══════════════════════════════════════════╗");
+                System.out.println("║       TÉCNICO ASIGNADO CORRECTAMENTE      ║");
+                System.out.println("╠═══════════════════════════════════════════╣");
+
+                System.out.println("║  Habitación: " +
+                        habitacion.getNumeroHabitacion());
+
+                System.out.println("║  Técnico: " +
+                        tecnicoSeleccionado.getNombre());
+
+                System.out.println("║  Tipo: " +
+                        tecnicoSeleccionado.getTipo_de_tecnico());
+
+                System.out.println("║  Teléfono: " +
+                        tecnicoSeleccionado.getTelefono());
+
+                System.out.println("║  Nuevo estado: " +
+                        habitacion.getEstadoMantenimiento());
+
+                System.out.println("╚═══════════════════════════════════════════╝"
+                        + RESET);
+
+            } catch (IllegalArgumentException |
+                     IllegalStateException e) {
+
+                System.out.println(ROJO +
+                        "║  ERROR: " + e.getMessage() + RESET);
+            }
+        }
     }
 
 
@@ -1868,6 +2998,7 @@ public class Menu {
 
 
 
+
     public static void IniciarMenu(Hotel hotel, Usuario usuario) {
 
         int opcion;
@@ -1880,50 +3011,79 @@ public class Menu {
             System.out.println("║                MENÚ ADMIN                 ║");
             System.out.println("╠═══════════════════════════════════════════╣" + RESET);
 
-            System.out.println(AZUL + "║    1. Agregar Reserva                     ║");
-            System.out.println("║    2. Buscar Reserva                      ║");
-            System.out.println("║    3. Eliminar Reserva                    ║");
-            System.out.println("║    4. Mostrar Reservas                    ║");
+            // USUARIOS
+            System.out.println(AZUL + "║    1. Buscar Usuario                      ║");
+            System.out.println("║    2. Eliminar Usuario                    ║");
+            System.out.println("║    3. Mostrar Todos los Usuarios          ║");
             System.out.println("║                                           ║");
-            System.out.println("║    5. Agregar Pasajero                    ║");
-            System.out.println("║    6. Buscar Pasajero                     ║");
-            System.out.println("║    7. Eliminar Pasajero                   ║");
-            System.out.println("║    8. Mostrar Pasajeros                   ║");
+
+            // RESERVAS
+            System.out.println("║    4. Agregar Reserva                     ║");
+            System.out.println("║    5. Buscar Reserva                      ║");
+            System.out.println("║    6. Eliminar Reserva                    ║");
+            System.out.println("║    7. Mostrar Reservas                    ║");
             System.out.println("║                                           ║");
-            System.out.println("║    9. Agregar Empleado                    ║");
-            System.out.println("║   10. Buscar Empleado                     ║");
-            System.out.println("║   11. Eliminar Empleado                   ║");
-            System.out.println("║   12. Mostrar Empleados                   ║");
+
+            // PASAJEROS
+            System.out.println("║    8. Agregar Pasajero                    ║");
+            System.out.println("║    9. Buscar Pasajero                     ║");
+            System.out.println("║   10. Eliminar Pasajero                   ║");
+            System.out.println("║   11. Mostrar Pasajeros                   ║");
             System.out.println("║                                           ║");
-            System.out.println("║   13. Dar Permiso                         ║");
-            System.out.println("║   14. Ver Habitaciones Disponibles        ║");
-            System.out.println("║   15. Ver Habitaciones Ocupadas           ║");
-            System.out.println("║   16. Ver Información del Hotel           ║" + RESET);
+
+            // EMPLEADOS
+            System.out.println("║   12. Agregar Empleado                    ║");
+            System.out.println("║   13. Buscar Empleado                     ║");
+            System.out.println("║   14. Eliminar Empleado                   ║");
+            System.out.println("║   15. Mostrar Empleados                   ║");
+            System.out.println("║                                           ║");
+
+            // PERMISOS Y HABITACIONES
+            System.out.println("║   16. Dar Permiso                         ║");
+            System.out.println("║   17. Ver Habitaciones Disponibles        ║");
+            System.out.println("║   18. Ver Habitaciones Ocupadas           ║");
+            System.out.println("║   19. Ver Información del Hotel           ║" + RESET);
 
             System.out.println(ROJO + "║    0. Cerrar Sesión                       ║" + RESET);
             System.out.println(CYAN + "╚═══════════════════════════════════════════╝" + RESET);
 
-            opcion = pedirOpcion(0, 16);
+            opcion = pedirOpcion(0, 19);
 
             switch (opcion) {
+
+                // =========================================
+                // USUARIOS
+                // =========================================
+
+                case 1:
+                    buscarUsuario(hotel);
+                    break;
+
+                case 2:
+                    eliminarUsuario(hotel);
+                    break;
+
+                case 3:
+                    mostrarUsuarios(hotel);
+                    break;
 
                 // =========================================
                 // RESERVAS
                 // =========================================
 
-                case 1:
+                case 4:
                     realizarReserva(hotel, usuario);
                     break;
 
-                case 2:
+                case 5:
                     verReserva(hotel, usuario, true);
                     break;
 
-                case 3:
+                case 6:
                     eliminarReserva(hotel, usuario, true);
                     break;
 
-                case 4:
+                case 7:
                     mostrarReservas(hotel);
                     break;
 
@@ -1931,19 +3091,19 @@ public class Menu {
                 // PASAJEROS
                 // =========================================
 
-                case 5:
+                case 8:
                     agregarPasajero(hotel);
                     break;
 
-                case 6:
+                case 9:
                     buscarPasajero(hotel);
                     break;
 
-                case 7:
+                case 10:
                     eliminarPasajero(hotel);
                     break;
 
-                case 8:
+                case 11:
                     mostrarPasajeros(hotel);
                     break;
 
@@ -1951,19 +3111,19 @@ public class Menu {
                 // EMPLEADOS
                 // =========================================
 
-                case 9:
+                case 12:
                     agregarEmpleado(hotel);
                     break;
 
-                case 10:
+                case 13:
                     buscarEmpleado(hotel);
                     break;
 
-                case 11:
+                case 14:
                     eliminarEmpleado(hotel);
                     break;
 
-                case 12:
+                case 15:
                     mostrarEmpleados(hotel);
                     break;
 
@@ -1971,7 +3131,7 @@ public class Menu {
                 // PERMISOS
                 // =========================================
 
-                case 13:
+                case 16:
                     System.out.println(AMARILLO +
                             "Función de permisos pendiente" + RESET);
                     break;
@@ -1980,11 +3140,11 @@ public class Menu {
                 // HABITACIONES
                 // =========================================
 
-                case 14:
+                case 17:
                     mostrarHabitacionesDisponibles(hotel);
                     break;
 
-                case 15:
+                case 18:
                     mostrarHabitacionesOcupadas(hotel);
                     break;
 
@@ -1992,7 +3152,7 @@ public class Menu {
                 // INFORMACIÓN DEL HOTEL
                 // =========================================
 
-                case 16:
+                case 19:
                     mostrarInformacionHotel(hotel);
                     break;
 
@@ -2007,6 +3167,7 @@ public class Menu {
 
         } while (opcion != 0);
     }
+
 
     // =========================================
     // MENÚ PASAJERO
@@ -2079,6 +3240,7 @@ public class Menu {
 
 
 
+
     public static void menuConserje(Hotel hotel, Usuario usuario) {
 
         int opcion;
@@ -2103,19 +3265,25 @@ public class Menu {
             System.out.println("║    8. Eliminar Pasajero                   ║");
             System.out.println("║    9. Mostrar Pasajeros                   ║");
             System.out.println("║                                           ║");
-            System.out.println("║   10. Llamar a Técnico                    ║");
-            System.out.println("║   11. Ver Habitaciones Disponibles        ║");
-            System.out.println("║   12. Ver Habitaciones Ocupadas           ║");
-            System.out.println("║   13. Ver Información del Hotel           ║" + RESET);
+            System.out.println("║   11. Poner Habitación en Reparación      ║");
+            System.out.println("║                                           ║");
+            System.out.println("║   12. Ver Habitaciones Disponibles        ║");
+            System.out.println("║                                           ║");
+            System.out.println("║   13. Ver Habitaciones Ocupadas           ║");
+            System.out.println("║                                           ║");
+            System.out.println("║   14. Ver Información del Hotel           ║" );
+            System.out.println("║                                           ║"+ RESET);
 
             System.out.println(ROJO + "║    0. Cerrar Sesión                       ║" + RESET);
             System.out.println(CYAN + "╚═══════════════════════════════════════════╝" + RESET);
 
-            opcion = pedirOpcion(0, 13);
+            opcion = pedirOpcion(0, 14);
 
             switch (opcion) {
 
+                // =========================================
                 // RESERVAS
+                // =========================================
 
                 case 1:
                     realizarReserva(hotel, usuario);
@@ -2137,7 +3305,9 @@ public class Menu {
                     mostrarReservas(hotel);
                     break;
 
+                // =========================================
                 // PASAJEROS
+                // =========================================
 
                 case 6:
                     agregarPasajero(hotel);
@@ -2155,29 +3325,45 @@ public class Menu {
                     mostrarPasajeros(hotel);
                     break;
 
-                // TECNICOS
+                // =========================================
+                // TÉCNICOS
+                // =========================================
 
                 case 10:
                     llamarTecnico(hotel);
                     break;
 
-                // HABITACIONES
+                // =========================================
+                // REPARACIONES
+                // =========================================
 
                 case 11:
+                    ponerHabitacionEnReparacion(hotel);
+                    break;
+
+                // =========================================
+                // HABITACIONES
+                // =========================================
+
+                case 12:
                     mostrarHabitacionesDisponibles(hotel);
                     break;
 
-                case 12:
+                case 13:
                     mostrarHabitacionesOcupadas(hotel);
                     break;
 
-                // HOTEL
+                // =========================================
+                // INFORMACIÓN DEL HOTEL
+                // =========================================
 
-                case 13:
+                case 14:
                     mostrarInformacionHotel(hotel);
                     break;
 
-                // SALIR
+                // =========================================
+                // CERRAR SESIÓN
+                // =========================================
 
                 case 0:
                     mostrarCierre();
@@ -2186,5 +3372,6 @@ public class Menu {
 
         } while (opcion != 0);
     }
+
 
 }
