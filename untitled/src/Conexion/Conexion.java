@@ -87,8 +87,9 @@ public class Conexion {
                 "dni VARCHAR(20) unique," +
                 "telefono VARCHAR(20), " +
                 "email VARCHAR(100), " +
-                "nombreUsuario INT, " +
+                "nombreUsuario varchar(30), " +
                 "sueldoPorVenta DOUBLE, " +
+                "legajo varchar(30), "+
                 "FOREIGN KEY (nombreUsuario) REFERENCES Usuarios(nombreUsuarios))";
 
         try {
@@ -101,6 +102,7 @@ public class Conexion {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, e);
         }
     }
+
 
     public void crearTablaHabitacion() {
         String sql = "CREATE TABLE IF NOT EXISTS Habitaciones(" +
@@ -210,14 +212,34 @@ public class Conexion {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+    public void crearTablaReparaciones() {
+        String sql = """
+            CREATE TABLE IF NOT EXISTS Reparaciones(
+                numero_habitacion INT NOT NULL PRIMARY KEY,
+                dniTecnico VARCHAR(15) NOT NULL,
+                FOREIGN KEY (numero_habitacion) REFERENCES Habitaciones(numero_habitacion),
+                FOREIGN KEY (dniTecnico) REFERENCES Tecnicos(DNI)
+            )
+            """;
+
+        try {
+            PreparedStatement ps = conn.prepareStatement(sql);
+
+            ps.executeUpdate();
+            ps.close();
+
+        } catch (SQLException e) {
+            Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, e);
+        }
+    }
 
 
     ///INSERTAR
 
     public void insertarConserje(Conserje c) {
         crearTablaConserje();
-        String sql = "INSERT INTO conserjes(nombre, apellido, dni, telefono, email, id_usuario, sueldoPorVenta) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO conserjes(nombre, apellido, dni, telefono, email, id_usuario, sueldoPorVenta,legajo) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?,?)";
 
         try {
             PreparedStatement ps = conn.prepareStatement(sql);
@@ -229,6 +251,7 @@ public class Conexion {
             ps.setString(5, c.getEmail());
             ps.setString(6, c.getUsuario().getNombreUsuario());
             ps.setDouble(7, c.getSueldoPorVenta());
+            ps.setString(8,c.getLegajo());
 
             ps.executeUpdate();
             ps.close();
@@ -400,6 +423,26 @@ public class Conexion {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+
+
+    public void insertarReparacion(Habitacion h, Tecnico t) {
+        String sql = "INSERT INTO Reparaciones(numero_habitacion, dniTecnico) VALUES (?, ?)";
+
+        try {
+            PreparedStatement ps = conn.prepareStatement(sql);
+
+            ps.setInt(1, h.getNumeroHabitacion());
+            ps.setString(2, t.getDNI());
+
+            ps.executeUpdate();
+            ps.close();
+
+        } catch (SQLException ex) {
+            Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+
 ///MODIFICAR
 
 ///LISTAR
