@@ -15,10 +15,7 @@ import static Menu.ConsolaHotel.*;
 import static Menu.Menu.*;
 import static Menu.ValidacionesMenu.*;
 
-/**
- * USUARIOS
- * Extraído del Menu.java original. No se alteraron los cuerpos de los métodos.
- */
+
 public class GestionUsuarios {
 
     // ============================================================

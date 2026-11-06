@@ -14,10 +14,7 @@ import java.util.*;
 import static Menu.ConsolaHotel.*;
 import static Menu.ValidacionesMenu.*;
 
-/**
- * HABITACIONES Y MANTENIMIENTO
- * Extraído del Menu.java original. No se alteraron los cuerpos de los métodos.
- */
+
 public class GestionHabitaciones {
 
     // ============================================================

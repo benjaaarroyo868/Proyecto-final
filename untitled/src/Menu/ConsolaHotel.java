@@ -12,10 +12,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 
-/**
- * RECURSOS COMPARTIDOS DE CONSOLA
- * Extraído del Menu.java original. No se alteraron los cuerpos de los métodos.
- */
+
 public class ConsolaHotel {
 
     // Misma instancia de Scanner compartida por todas las pantallas.

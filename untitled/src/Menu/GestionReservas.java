@@ -15,10 +15,7 @@ import static Menu.ConsolaHotel.*;
 import static Menu.GestionHabitaciones.*;
 import static Menu.ValidacionesMenu.*;
 
-/**
- * RESERVAS Y SUS VALIDACIONES DE DISPONIBILIDAD
- * Extraído del Menu.java original. No se alteraron los cuerpos de los métodos.
- */
+
 public class GestionReservas {
 
     // ============================================================

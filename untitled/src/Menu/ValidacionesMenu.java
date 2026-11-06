@@ -13,10 +13,7 @@ import java.util.*;
 
 import static Menu.ConsolaHotel.*;
 
-/**
- * VALIDACIÓN DE ENTRADAS DEL MENÚ
- * Extraído del Menu.java original. No se alteraron los cuerpos de los métodos.
- */
+
 public class ValidacionesMenu {
 
     // ============================================================
