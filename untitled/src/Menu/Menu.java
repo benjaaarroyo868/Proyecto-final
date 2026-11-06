@@ -4236,6 +4236,7 @@ public class Menu {
     // =========================================
 
 
+
     public static void IniciarMenu(Hotel hotel, Usuario usuario) {
 
         int opcion;
@@ -4266,57 +4267,59 @@ public class Menu {
             System.out.println(
                     "║    5. Buscar Reserva                      ║");
             System.out.println(
-                    "║    6. Eliminar Reserva                    ║");
+                    "║    6. Modificar Reserva                   ║");
             System.out.println(
-                    "║    7. Mostrar Reservas                    ║");
+                    "║    7. Eliminar Reserva                    ║");
+            System.out.println(
+                    "║    8. Mostrar Reservas                    ║");
             System.out.println(
                     "║                                           ║");
 
             // PASAJEROS
             System.out.println(
-                    "║    8. Agregar Pasajero                    ║");
+                    "║    9. Agregar Pasajero                    ║");
             System.out.println(
-                    "║    9. Buscar Pasajero                     ║");
+                    "║   10. Buscar Pasajero                     ║");
             System.out.println(
-                    "║   10. Eliminar Pasajero                   ║");
+                    "║   11. Eliminar Pasajero                   ║");
             System.out.println(
-                    "║   11. Mostrar Pasajeros                   ║");
+                    "║   12. Mostrar Pasajeros                   ║");
             System.out.println(
                     "║                                           ║");
 
             // EMPLEADOS
             System.out.println(
-                    "║   12. Agregar Empleado                    ║");
+                    "║   13. Agregar Empleado                    ║");
             System.out.println(
-                    "║   13. Buscar Empleado                     ║");
+                    "║   14. Buscar Empleado                     ║");
             System.out.println(
-                    "║   14. Eliminar Empleado                   ║");
+                    "║   15. Eliminar Empleado                   ║");
             System.out.println(
-                    "║   15. Mostrar Empleados                   ║");
+                    "║   16. Mostrar Empleados                   ║");
             System.out.println(
                     "║                                           ║");
 
             // PERMISOS
             System.out.println(
-                    "║   16. Dar Permiso                         ║");
+                    "║   17. Dar Permiso                         ║");
             System.out.println(
                     "║                                           ║");
 
             // HABITACIONES
             System.out.println(
-                    "║   17. Ver Habitaciones Disponibles        ║");
+                    "║   18. Ver Habitaciones Disponibles        ║");
             System.out.println(
-                    "║   18. Ver Habitaciones Ocupadas           ║");
+                    "║   19. Ver Habitaciones Ocupadas           ║");
             System.out.println(
-                    "║   19. Ver Información del Hotel           ║");
+                    "║   20. Ver Información del Hotel           ║");
             System.out.println(
                     "║                                           ║");
 
             // REPARACIONES
             System.out.println(
-                    "║   20. Gestionar Reparación de Habitación  ║");
+                    "║   21. Gestionar Reparación de Habitación  ║");
             System.out.println(
-                    "║   21. Finalizar Reparación                ║" + RESET);
+                    "║   22. Finalizar Reparación                ║" + RESET);
 
             System.out.println(CYAN +
                     "║                                           ║" + RESET);
@@ -4327,14 +4330,11 @@ public class Menu {
             System.out.println(CYAN +
                     "╚═══════════════════════════════════════════╝" + RESET);
 
-            opcion = pedirOpcion(0, 21);
+            opcion = pedirOpcion(0, 22);
 
             switch (opcion) {
 
-                // =========================================
                 // USUARIOS
-                // =========================================
-
                 case 1:
                     buscarUsuario(hotel);
                     break;
@@ -4347,10 +4347,7 @@ public class Menu {
                     mostrarUsuarios(hotel);
                     break;
 
-                // =========================================
                 // RESERVAS
-                // =========================================
-
                 case 4:
                     realizarReserva(hotel, usuario);
                     break;
@@ -4360,100 +4357,86 @@ public class Menu {
                     break;
 
                 case 6:
-                    eliminarReserva(hotel, usuario, true);
+                    modificarReserva(hotel, usuario, true);
                     break;
 
                 case 7:
+                    eliminarReserva(hotel, usuario, true);
+                    break;
+
+                case 8:
                     mostrarReservas(hotel);
                     break;
 
-                // =========================================
                 // PASAJEROS
-                // =========================================
-
-                case 8:
+                case 9:
                     agregarPasajero(hotel);
                     break;
 
-                case 9:
+                case 10:
                     buscarPasajero(hotel);
                     break;
 
-                case 10:
+                case 11:
                     eliminarPasajero(hotel);
                     break;
 
-                case 11:
+                case 12:
                     mostrarPasajeros(hotel);
                     break;
 
-                // =========================================
                 // EMPLEADOS
-                // =========================================
-
-                case 12:
+                case 13:
                     agregarEmpleado(hotel);
                     break;
 
-                case 13:
+                case 14:
                     buscarEmpleado(hotel);
                     break;
 
-                case 14:
+                case 15:
                     eliminarEmpleado(hotel);
                     break;
 
-                case 15:
+                case 16:
                     mostrarEmpleados(hotel);
                     break;
 
-                // =========================================
                 // PERMISOS
-                // =========================================
-
-                case 16:
+                case 17:
                     System.out.println(AMARILLO +
                             "Función de permisos pendiente" + RESET);
                     break;
 
-                // =========================================
                 // HABITACIONES
-                // =========================================
-
-                case 17:
+                case 18:
                     mostrarHabitacionesDisponibles(hotel);
                     break;
 
-                case 18:
+                case 19:
                     mostrarHabitacionesOcupadas(hotel);
                     break;
 
-                case 19:
+                case 20:
                     mostrarInformacionHotel(hotel);
                     break;
 
-                // =========================================
                 // REPARACIONES
-                // =========================================
-
-                case 20:
+                case 21:
                     ponerHabitacionEnReparacion(hotel);
                     break;
 
-                case 21:
+                case 22:
                     ponerHabitacionReparada(hotel);
                     break;
 
-                // =========================================
                 // CERRAR SESIÓN
-                // =========================================
-
                 case 0:
                     mostrarCierre();
                     break;
             }
 
-            // ESPERAR 2 SEGUNDOS ANTES DE VOLVER AL MENÚ
+            // ESPERAR 2 SEGUNDOS ANTES DE MOSTRAR EL MENÚ
             if (opcion != 0) {
                 esperar(2);
             }
