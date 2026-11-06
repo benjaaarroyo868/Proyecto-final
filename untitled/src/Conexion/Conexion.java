@@ -1,8 +1,5 @@
 package Conexion;
-import Clases.Administrador;
-import Clases.Conserje;
-import Clases.Habitacion;
-import Clases.Hotel;
+import Clases.*;
 import com.sun.tools.javac.Main;
 
 import java.sql.*;
@@ -168,13 +165,13 @@ public class Conexion {
         String sql = """
             CREATE TABLE IF NOT EXISTS Reserva(
                 idReserva VARCHAR(50) NOT NULL PRIMARY KEY,
-                idPasajero INT NOT NULL,
+                idPasajero VARCHAR(15) NOT NULL,
                 idHabitacion INT NOT NULL,
                 cantidadPasajeros INT NOT NULL,
                 fechaIngreso DATE NOT NULL,
                 fechaSalida DATE NOT NULL,
-                FOREIGN KEY (idPasajero) REFERENCES Pasajero(id),
-                FOREIGN KEY (idHabitacion) REFERENCES Habitacion(id)
+                FOREIGN KEY (idPasajero) REFERENCES Pasajero(DNI),
+                FOREIGN KEY (idHabitacion) REFERENCES Habitacion(numero_habitacion)
             )
             """;
 
@@ -308,6 +305,104 @@ public class Conexion {
         }
     }
 
+    public void insertarUsuario(Usuario u) {
+        String sql = "INSERT INTO Usuarios(nombreUsuario, contrasenia, TipoUsuario) " +
+                "VALUES (?, ?, ?)";
+
+        try {
+            PreparedStatement ps = conn.prepareStatement(sql);
+
+            ps.setString(1, u.getNombreUsuario());
+            ps.setString(2, u.getContrasenia());
+            ps.setString(3, u.getTipoDeUsuario().name()); // enum guardado como texto
+
+            ps.executeUpdate();
+            ps.close();
+
+        } catch (SQLException ex) {
+            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public void insertarPasajero(Pasajero p) {
+        String sql = "INSERT INTO Pasajeros(DNI, nombre, apellido, telefono, email, nombreUsuario, origen, destino_origen) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+
+        try {
+            // Si el usuario ya lo insertás por separado, borrá esta línea
+            insertarUsuario(p.getUsuario());
+
+            PreparedStatement ps = conn.prepareStatement(sql);
+
+            ps.setString(1, p.getDNI());
+            ps.setString(2, p.getNombre());
+            ps.setString(3, p.getApellido());
+            ps.setString(4, p.getTelefono());
+            ps.setString(5, p.getEmail());
+            ps.setString(6, p.getUsuario().getNombreUsuario());
+            ps.setString(7, p.getOrigen());
+            ps.setString(8, p.getDestino_origen());
+
+            ps.executeUpdate();
+            ps.close();
+
+        } catch (SQLException ex) {
+            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public void insertarTecnico(Tecnico t) {
+        String sql = "INSERT INTO Tecnicos(DNI, nombre, apellido, telefono, email, nombreUsuario, tipo_de_tecnico, formacion, disponible) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+        try {
+            // Si el usuario ya lo insertás por separado, borrá esta línea
+            insertarUsuario(t.getUsuario());
+
+            PreparedStatement ps = conn.prepareStatement(sql);
+
+            ps.setString(1, t.getDNI());
+            ps.setString(2, t.getNombre());
+            ps.setString(3, t.getApellido());
+            ps.setString(4, t.getTelefono());
+            ps.setString(5, t.getEmail());
+            ps.setString(6, t.getUsuario().getNombreUsuario());
+            ps.setString(7, t.getTipo_de_tecnico().name()); // enum guardado como texto
+            ps.setString(8, t.getFormacion());
+            ps.setBoolean(9, t.isDisponible());
+
+            ps.executeUpdate();
+            ps.close();
+
+        } catch (SQLException ex) {
+            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public void insertarReserva(Reserva r) {
+        String sql = "INSERT INTO Reserva(idReserva, idPasajero, idHabitacion, cantidadPasajeros, fechaIngreso, fechaSalida) " +
+                "VALUES (?, ?, ?, ?, ?, ?)";
+
+        try {
+            PreparedStatement ps = conn.prepareStatement(sql);
+
+            ps.setString(1, r.getIdReserva());
+            ps.setString(2, r.getPasajero().getDNI());                // el DNI es la clave de Pasajeros
+            ps.setInt(3, r.getHabitacion().getNumeroHabitacion());    // el número es la clave de Habitaciones
+            ps.setInt(4, r.getCantidadPasajeros());
+            ps.setDate(5, Date.valueOf(r.getFechaIngreso()));         // LocalDate -> java.sql.Date
+            ps.setDate(6, Date.valueOf(r.getFechaSalida()));
+
+            ps.executeUpdate();
+            ps.close();
+
+        } catch (SQLException ex) {
+            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+///MODIFICAR
+
+///LISTAR
 
 
     
