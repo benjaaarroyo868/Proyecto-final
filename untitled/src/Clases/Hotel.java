@@ -826,6 +826,7 @@ public class Hotel implements IValidarDatos {
 
 // FINALIZAR REPARACIÓN
 
+
     public void finalizarReparacion(Habitacion habitacion) {
 
         if (habitacion == null ||
@@ -836,34 +837,31 @@ public class Hotel implements IValidarDatos {
                     "La habitación no está en reparación");
         }
 
-        // BUSCAR TÉCNICO ASIGNADO
+        // OBTENER EL TÉCNICO ASIGNADO
         Tecnico tecnico = reparaciones.get(habitacion);
+
+        if (tecnico == null) {
+            throw new IllegalStateException(
+                    "No hay técnico asignado a esta habitación");
+        }
 
         // ELIMINAR LA ASIGNACIÓN
         try {
-
             reparaciones.eliminar(habitacion);
 
         } catch (DatoInvalidoException e) {
-
             throw new IllegalStateException(
                     "No se pudo finalizar la reparación: " +
                             e.getMessage());
         }
 
         // LIBERAR TÉCNICO
-        if (tecnico != null) {
-            tecnico.setDisponible(true);
-        }
+        tecnico.setDisponible(true);
 
-        // CAMBIAR HABITACIÓN A NORMAL
+        // CAMBIAR A REPARADA
         habitacion.setEstadoMantenimiento(
-                EEstadoMantenimiento.NORMAL);
+                EEstadoMantenimiento.REPARADA);
     }
-
-
-
-
 
     // AGREGAR HABITACIÓN
     public boolean agregarHabitacion(Habitacion habitacion) {
