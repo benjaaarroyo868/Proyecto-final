@@ -1063,10 +1063,9 @@ public class Menu {
     //             MODIFICAR RESERVA
     // =========================================
 
-    public static void modificarReserva(
-            Hotel hotel,
-            Usuario usuario,
-            boolean esEmpleado) {
+
+
+    public static void modificarReserva(Hotel hotel, Usuario usuario, boolean esEmpleado) {
 
         System.out.println();
         System.out.println(CYAN +
@@ -1074,36 +1073,712 @@ public class Menu {
         System.out.println("║             MODIFICAR RESERVA             ║");
         System.out.println("╠═══════════════════════════════════════════╣" + RESET);
 
-        System.out.print(AZUL +
-                "║  Código de reserva: " + RESET);
+        System.out.print(VERDE + "║  Código de reserva (0 para volver): " + RESET);
+        String codigo = sc.nextLine().trim();
 
-        String id = sc.nextLine().trim();
-
-        Reserva reserva = hotel.buscarReserva(id);
-
-        if (reserva == null) {
-
-            System.out.println(ROJO +
-                    "║  Reserva no encontrada" + RESET);
-
-        } else if (!puedeGestionarReserva(
-                reserva, usuario, esEmpleado)) {
-
-            System.out.println(ROJO +
-                    "║  No podés modificar esta reserva" + RESET);
-
-        } else {
-
-            imprimirReserva(reserva);
-
-            System.out.println(AMARILLO +
-                    "║  Falta implementar la modificación " +
-                    "y validar las nuevas fechas." + RESET);
+        if (codigo.equals("0")) {
+            return;
         }
 
-        System.out.println(CYAN +
-                "╚═══════════════════════════════════════════╝"
-                + RESET);
+        Reserva reserva = hotel.buscarReserva(codigo);
+
+        if (reserva == null) {
+            System.out.println(ROJO +
+                    "║  ERROR: No se encontró la reserva" + RESET);
+            return;
+        }
+
+        // VERIFICAR PERMISOS
+        if (!puedeGestionarReserva(reserva, usuario, esEmpleado)) {
+            System.out.println(ROJO +
+                    "║  No tenés permiso para modificar esta reserva" + RESET);
+            return;
+        }
+
+        java.time.format.DateTimeFormatter formato =
+                java.time.format.DateTimeFormatter
+                        .ofPattern("dd-MM-uuuu")
+                        .withResolverStyle(
+                                java.time.format.ResolverStyle.STRICT);
+
+        int opcion;
+
+        do {
+
+            System.out.println();
+            System.out.println(CYAN +
+                    "╔═══════════════════════════════════════════╗");
+            System.out.println("║             MODIFICAR RESERVA             ║");
+            System.out.println("╠═══════════════════════════════════════════╣" + RESET);
+
+            System.out.println(AZUL +
+                    "║  Reserva: " + reserva.getIdReserva());
+            System.out.println(
+                    "║  Habitación: " +
+                            reserva.getHabitacion().getNumeroHabitacion());
+            System.out.println(
+                    "║  Fecha entrada: " +
+                            reserva.getFechaIngreso().format(formato));
+            System.out.println(
+                    "║  Fecha salida: " +
+                            reserva.getFechaSalida().format(formato));
+            System.out.println(
+                    "║  Cantidad personas: " +
+                            reserva.getCantidadPasajeros() + RESET);
+
+            System.out.println(CYAN +
+                    "╠═══════════════════════════════════════════╣" + RESET);
+
+            System.out.println(AZUL +
+                    "║  1. Cambiar fecha de entrada              ║");
+            System.out.println(
+                    "║  2. Cambiar fecha de salida               ║");
+            System.out.println(
+                    "║  3. Cambiar ambas fechas                  ║");
+            System.out.println(
+                    "║  4. Cambiar cantidad de personas          ║");
+            System.out.println(
+                    "║  5. Cambiar habitación                    ║" + RESET);
+
+            System.out.println(CYAN +
+                    "║                                           ║" + RESET);
+
+            System.out.println(ROJO +
+                    "║  0. Salir del menú                        ║" + RESET);
+
+            System.out.println(CYAN +
+                    "╚═══════════════════════════════════════════╝" + RESET);
+
+            opcion = pedirOpcion(0, 5);
+
+            switch (opcion) {
+
+                // ============================================
+                // 1 - CAMBIAR FECHA DE ENTRADA
+                // ============================================
+
+                case 1: {
+
+                    java.time.LocalDate nuevaEntrada;
+
+                    while (true) {
+
+                        System.out.println(AMARILLO +
+                                "║  Fecha actual: " +
+                                reserva.getFechaIngreso().format(formato) + RESET);
+
+                        System.out.print(VERDE +
+                                "║  Nueva entrada (DD-MM-AAAA / 0 volver): " + RESET);
+
+                        String texto = sc.nextLine().trim();
+
+                        if (texto.equals("0")) {
+                            break;
+                        }
+
+                        try {
+
+                            nuevaEntrada =
+                                    java.time.LocalDate.parse(texto, formato);
+
+                            if (nuevaEntrada.isBefore(
+                                    reserva.getFechaIngreso())) {
+
+                                System.out.println(ROJO +
+                                        "║  La fecha no puede retroceder" + RESET);
+                                continue;
+                            }
+
+                            if (nuevaEntrada.isBefore(
+                                    java.time.LocalDate.now())) {
+
+                                System.out.println(ROJO +
+                                        "║  La fecha no puede ser anterior a hoy"
+                                        + RESET);
+                                continue;
+                            }
+
+                            if (!nuevaEntrada.isBefore(
+                                    reserva.getFechaSalida())) {
+
+                                System.out.println(ROJO +
+                                        "║  La entrada debe ser anterior a la salida"
+                                        + RESET);
+                                continue;
+                            }
+
+                            if (nuevaEntrada.equals(
+                                    reserva.getFechaIngreso())) {
+
+                                System.out.println(AMARILLO +
+                                        "║  La fecha ingresada es la misma" + RESET);
+                                break;
+                            }
+
+                            // VERIFICAR SUPERPOSICIÓN
+                            boolean ocupada = false;
+
+                            for (Reserva otra : hotel.mostrarReservas()) {
+
+                                if (otra.getIdReserva().equals(
+                                        reserva.getIdReserva())) {
+                                    continue;
+                                }
+
+                                if (otra.getHabitacion().getNumeroHabitacion()
+                                        == reserva.getHabitacion()
+                                        .getNumeroHabitacion()) {
+
+                                    if (nuevaEntrada.isBefore(
+                                            otra.getFechaSalida())
+                                            && reserva.getFechaSalida().isAfter(
+                                            otra.getFechaIngreso())) {
+
+                                        ocupada = true;
+                                        break;
+                                    }
+                                }
+                            }
+
+                            if (ocupada) {
+
+                                System.out.println(ROJO +
+                                        "║  Habitación ocupada en esas fechas"
+                                        + RESET);
+                                continue;
+                            }
+
+                            if (confirmarEliminacion()) {
+
+                                reserva.setFechaIngreso(nuevaEntrada);
+
+                                System.out.println(VERDE +
+                                        "║  Fecha de entrada modificada correctamente"
+                                        + RESET);
+                            } else {
+
+                                System.out.println(AMARILLO +
+                                        "║  Modificación cancelada" + RESET);
+                            }
+
+                            break;
+
+                        } catch (java.time.format.DateTimeParseException e) {
+
+                            System.out.println(ROJO +
+                                    "║  Fecha inválida. Ejemplo: 20-11-2026"
+                                    + RESET);
+                        }
+                    }
+
+                    break;
+                }
+
+                // ============================================
+                // 2 - CAMBIAR FECHA DE SALIDA
+                // ============================================
+
+                case 2: {
+
+                    while (true) {
+
+                        System.out.println(AMARILLO +
+                                "║  Fecha actual: " +
+                                reserva.getFechaSalida().format(formato) + RESET);
+
+                        System.out.print(VERDE +
+                                "║  Nueva salida (DD-MM-AAAA / 0 volver): " + RESET);
+
+                        String texto = sc.nextLine().trim();
+
+                        if (texto.equals("0")) {
+                            break;
+                        }
+
+                        try {
+
+                            java.time.LocalDate nuevaSalida =
+                                    java.time.LocalDate.parse(texto, formato);
+
+                            if (nuevaSalida.isBefore(
+                                    reserva.getFechaSalida())) {
+
+                                System.out.println(ROJO +
+                                        "║  La fecha no puede retroceder" + RESET);
+                                continue;
+                            }
+
+                            if (!nuevaSalida.isAfter(
+                                    reserva.getFechaIngreso())) {
+
+                                System.out.println(ROJO +
+                                        "║  La salida debe ser posterior a la entrada"
+                                        + RESET);
+                                continue;
+                            }
+
+                            if (nuevaSalida.equals(
+                                    reserva.getFechaSalida())) {
+
+                                System.out.println(AMARILLO +
+                                        "║  La fecha ingresada es la misma" + RESET);
+                                break;
+                            }
+
+                            boolean ocupada = false;
+
+                            for (Reserva otra : hotel.mostrarReservas()) {
+
+                                if (otra.getIdReserva().equals(
+                                        reserva.getIdReserva())) {
+                                    continue;
+                                }
+
+                                if (otra.getHabitacion().getNumeroHabitacion()
+                                        == reserva.getHabitacion()
+                                        .getNumeroHabitacion()) {
+
+                                    if (reserva.getFechaIngreso().isBefore(
+                                            otra.getFechaSalida())
+                                            && nuevaSalida.isAfter(
+                                            otra.getFechaIngreso())) {
+
+                                        ocupada = true;
+                                        break;
+                                    }
+                                }
+                            }
+
+                            if (ocupada) {
+
+                                System.out.println(ROJO +
+                                        "║  Habitación ocupada en esas fechas"
+                                        + RESET);
+                                continue;
+                            }
+
+                            if (confirmarEliminacion()) {
+
+                                reserva.setFechaSalida(nuevaSalida);
+
+                                System.out.println(VERDE +
+                                        "║  Fecha de salida modificada correctamente"
+                                        + RESET);
+
+                            } else {
+
+                                System.out.println(AMARILLO +
+                                        "║  Modificación cancelada" + RESET);
+                            }
+
+                            break;
+
+                        } catch (java.time.format.DateTimeParseException e) {
+
+                            System.out.println(ROJO +
+                                    "║  Fecha inválida. Ejemplo: 25-11-2026"
+                                    + RESET);
+                        }
+                    }
+
+                    break;
+                }
+
+                // ============================================
+                // 3 - CAMBIAR AMBAS FECHAS
+                // ============================================
+
+                case 3: {
+
+                    java.time.LocalDate nuevaEntrada = null;
+                    java.time.LocalDate nuevaSalida = null;
+
+                    while (true) {
+
+                        System.out.print(VERDE +
+                                "║  Nueva entrada (DD-MM-AAAA / 0 volver): "
+                                + RESET);
+
+                        String texto = sc.nextLine().trim();
+
+                        if (texto.equals("0")) {
+                            break;
+                        }
+
+                        try {
+
+                            nuevaEntrada =
+                                    java.time.LocalDate.parse(texto, formato);
+
+                            if (nuevaEntrada.isBefore(
+                                    reserva.getFechaIngreso())
+                                    || nuevaEntrada.isBefore(
+                                    java.time.LocalDate.now())) {
+
+                                System.out.println(ROJO +
+                                        "║  La fecha de entrada no puede retroceder"
+                                        + RESET);
+                                continue;
+                            }
+
+                            break;
+
+                        } catch (java.time.format.DateTimeParseException e) {
+
+                            System.out.println(ROJO +
+                                    "║  Fecha inválida" + RESET);
+                        }
+                    }
+
+                    if (nuevaEntrada == null) {
+                        break;
+                    }
+
+                    while (true) {
+
+                        System.out.print(VERDE +
+                                "║  Nueva salida (DD-MM-AAAA / 0 volver): "
+                                + RESET);
+
+                        String texto = sc.nextLine().trim();
+
+                        if (texto.equals("0")) {
+                            break;
+                        }
+
+                        try {
+
+                            nuevaSalida =
+                                    java.time.LocalDate.parse(texto, formato);
+
+                            if (nuevaSalida.isBefore(
+                                    reserva.getFechaSalida())) {
+
+                                System.out.println(ROJO +
+                                        "║  La fecha de salida no puede retroceder"
+                                        + RESET);
+                                continue;
+                            }
+
+                            if (!nuevaSalida.isAfter(nuevaEntrada)) {
+
+                                System.out.println(ROJO +
+                                        "║  La salida debe ser posterior a la entrada"
+                                        + RESET);
+                                continue;
+                            }
+
+                            break;
+
+                        } catch (java.time.format.DateTimeParseException e) {
+
+                            System.out.println(ROJO +
+                                    "║  Fecha inválida" + RESET);
+                        }
+                    }
+
+                    if (nuevaSalida == null) {
+                        break;
+                    }
+
+                    if (nuevaEntrada.equals(reserva.getFechaIngreso())
+                            && nuevaSalida.equals(reserva.getFechaSalida())) {
+
+                        System.out.println(AMARILLO +
+                                "║  No hay cambios en las fechas" + RESET);
+                        break;
+                    }
+
+                    boolean ocupada = false;
+
+                    for (Reserva otra : hotel.mostrarReservas()) {
+
+                        if (otra.getIdReserva().equals(
+                                reserva.getIdReserva())) {
+                            continue;
+                        }
+
+                        if (otra.getHabitacion().getNumeroHabitacion()
+                                == reserva.getHabitacion()
+                                .getNumeroHabitacion()) {
+
+                            if (nuevaEntrada.isBefore(
+                                    otra.getFechaSalida())
+                                    && nuevaSalida.isAfter(
+                                    otra.getFechaIngreso())) {
+
+                                ocupada = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (ocupada) {
+
+                        System.out.println(ROJO +
+                                "║  Habitación ocupada en esas fechas"
+                                + RESET);
+                        break;
+                    }
+
+                    System.out.println(AZUL +
+                            "║  Entrada: " + nuevaEntrada.format(formato));
+                    System.out.println(
+                            "║  Salida: " + nuevaSalida.format(formato)
+                                    + RESET);
+
+                    if (confirmarEliminacion()) {
+
+                        reserva.setFechaIngreso(nuevaEntrada);
+                        reserva.setFechaSalida(nuevaSalida);
+
+                        System.out.println(VERDE +
+                                "║  Ambas fechas modificadas correctamente"
+                                + RESET);
+
+                    } else {
+
+                        System.out.println(AMARILLO +
+                                "║  Modificación cancelada" + RESET);
+                    }
+
+                    break;
+                }
+
+                // ============================================
+                // 4 - CAMBIAR CANTIDAD DE PERSONAS
+                // ============================================
+
+                case 4: {
+
+                    int capacidadMaxima =
+                            reserva.getHabitacion()
+                                    .getCantidadMaximaPersonas();
+
+                    System.out.println();
+                    System.out.println(CYAN +
+                            "╔═══════════════════════════════════════════╗");
+                    System.out.println("║        MODIFICAR CANTIDAD PERSONAS        ║");
+                    System.out.println("╠═══════════════════════════════════════════╣"
+                            + RESET);
+
+                    System.out.println(AZUL +
+                            "║  Cantidad actual: " +
+                            reserva.getCantidadPasajeros());
+                    System.out.println(
+                            "║  Capacidad máxima: " + capacidadMaxima
+                                    + RESET);
+
+                    while (true) {
+
+                        System.out.print(VERDE +
+                                "║  Nueva cantidad (0 para volver): " + RESET);
+
+                        String texto = sc.nextLine().trim();
+
+                        if (texto.equals("0")) {
+                            break;
+                        }
+
+                        try {
+
+                            int cantidad = Integer.parseInt(texto);
+
+                            if (cantidad < 1 || cantidad > capacidadMaxima) {
+
+                                System.out.println(ROJO +
+                                        "║  La cantidad debe estar entre 1 y "
+                                        + capacidadMaxima + RESET);
+                                continue;
+                            }
+
+                            if (cantidad == reserva.getCantidadPasajeros()) {
+
+                                System.out.println(AMARILLO +
+                                        "║  La cantidad ingresada es la misma"
+                                        + RESET);
+                                break;
+                            }
+
+                            if (confirmarEliminacion()) {
+
+                                reserva.setCantidadPasajeros(cantidad);
+
+                                System.out.println(VERDE +
+                                        "║  Cantidad modificada correctamente"
+                                        + RESET);
+
+                            } else {
+
+                                System.out.println(AMARILLO +
+                                        "║  Modificación cancelada" + RESET);
+                            }
+
+                            break;
+
+                        } catch (NumberFormatException e) {
+
+                            System.out.println(ROJO +
+                                    "║  Ingresá un número válido" + RESET);
+                        }
+                    }
+
+                    break;
+                }
+
+                // ============================================
+                // 5 - CAMBIAR HABITACIÓN
+                // ============================================
+
+                case 5: {
+
+                    System.out.println();
+                    System.out.println(CYAN +
+                            "╔═══════════════════════════════════════════╗");
+                    System.out.println("║             CAMBIAR HABITACIÓN            ║");
+                    System.out.println("╠═══════════════════════════════════════════╣"
+                            + RESET);
+
+                    System.out.println(AZUL +
+                            "║  Habitación actual: " +
+                            reserva.getHabitacion().getNumeroHabitacion()
+                            + RESET);
+
+                    System.out.println(CYAN +
+                            "║                                           ║" + RESET);
+
+                    System.out.println(AZUL +
+                            "║  HABITACIONES APTAS PARA LA RESERVA       ║"
+                            + RESET);
+
+                    java.util.List<Habitacion> opciones =
+                            new java.util.ArrayList<>();
+
+                    for (Habitacion h :
+                            hotel.getHabitaciones().obtenerTodos()) {
+
+                        // NO MOSTRAR HABITACIÓN ACTUAL
+                        if (h.getNumeroHabitacion()
+                                == reserva.getHabitacion()
+                                .getNumeroHabitacion()) {
+                            continue;
+                        }
+
+                        // NO MOSTRAR HABITACIONES EN REPARACIÓN
+                        if (h.getEstadoMantenimiento()
+                                != EEstadoMantenimiento.NORMAL) {
+                            continue;
+                        }
+
+                        // VALIDAR CAPACIDAD
+                        if (h.getCantidadMaximaPersonas()
+                                < reserva.getCantidadPasajeros()) {
+                            continue;
+                        }
+
+                        // VALIDAR FECHAS
+                        if (!hotel.habitacionDisponible(
+                                h,
+                                reserva.getFechaIngreso(),
+                                reserva.getFechaSalida())) {
+                            continue;
+                        }
+
+                        opciones.add(h);
+
+                        System.out.println(VERDE +
+                                "║  Habitación: " +
+                                h.getNumeroHabitacion());
+
+                        System.out.println(
+                                "║  Capacidad: " +
+                                        h.getCantidadMaximaPersonas());
+
+                        System.out.println(CYAN +
+                                "║                                           ║" + RESET);
+                    }
+
+                    if (opciones.isEmpty()) {
+
+                        System.out.println(AMARILLO +
+                                "║  No hay otras habitaciones disponibles"
+                                + RESET);
+                        break;
+                    }
+
+                    Habitacion seleccionada = null;
+
+                    while (seleccionada == null) {
+
+                        System.out.print(VERDE +
+                                "║  Número de habitación (0 para volver): "
+                                + RESET);
+
+                        String numero = sc.nextLine().trim();
+
+                        if (numero.equals("0")) {
+                            break;
+                        }
+
+                        for (Habitacion h : opciones) {
+
+                            if (String.valueOf(h.getNumeroHabitacion())
+                                    .equals(numero)) {
+
+                                seleccionada = h;
+                                break;
+                            }
+                        }
+
+                        if (seleccionada == null) {
+
+                            System.out.println(ROJO +
+                                    "║  Habitación inválida o no disponible"
+                                    + RESET);
+                        }
+                    }
+
+                    if (seleccionada == null) {
+                        break;
+                    }
+
+                    System.out.println(AZUL +
+                            "║  Nueva habitación: " +
+                            seleccionada.getNumeroHabitacion() + RESET);
+
+                    if (confirmarEliminacion()) {
+
+                        reserva.setHabitacion(seleccionada);
+
+                        System.out.println(VERDE +
+                                "║  Habitación modificada correctamente"
+                                + RESET);
+
+                    } else {
+
+                        System.out.println(AMARILLO +
+                                "║  Modificación cancelada" + RESET);
+                    }
+
+                    break;
+                }
+
+                // ============================================
+                // 0 - SALIR DEL SUBMENÚ
+                // ============================================
+
+                case 0:
+
+                    System.out.println(AMARILLO +
+                            "║  Volviendo al menú anterior..." + RESET);
+                    break;
+            }
+
+            if (opcion != 0) {
+                esperar(2);
+            }
+
+        } while (opcion != 0);
     }
 
 
