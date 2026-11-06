@@ -1815,6 +1815,204 @@ public class Menu {
     }
 
 
+    public static void ponerHabitacionReparada(Hotel hotel) {
+
+        // OBTENER HABITACIONES EN REPARACIÓN
+        java.util.List<Habitacion> habitaciones =
+                hotel.verHabitacionesEnReparacion();
+
+        System.out.println();
+        System.out.println(CYAN +
+                "╔═══════════════════════════════════════════╗");
+        System.out.println("║          FINALIZAR REPARACIÓN             ║");
+        System.out.println("╠═══════════════════════════════════════════╣" + RESET);
+
+        // VERIFICAR SI HAY HABITACIONES EN REPARACIÓN
+        if (habitaciones.isEmpty()) {
+
+            System.out.println(AMARILLO +
+                    "║  No hay habitaciones en reparación       ║" + RESET);
+
+            System.out.println(CYAN +
+                    "╚═══════════════════════════════════════════╝" + RESET);
+
+            return;
+        }
+
+        // MOSTRAR SOLAMENTE HABITACIONES EN REPARACIÓN
+        for (Habitacion h : habitaciones) {
+
+            System.out.println(AZUL +
+                    "║  Habitación: " + h.getNumeroHabitacion() + RESET);
+
+            System.out.println(AMARILLO +
+                    "║  Estado: " + h.getEstadoMantenimiento() + RESET);
+
+            System.out.println(CYAN +
+                    "║                                           ║" + RESET);
+        }
+
+        System.out.println(CYAN +
+                "╚═══════════════════════════════════════════╝" + RESET);
+
+        Habitacion seleccionada = null;
+
+        // SELECCIONAR HABITACIÓN
+        while (seleccionada == null) {
+
+            System.out.println();
+            System.out.println(AMARILLO +
+                    "Ingresá el número de habitación o 0 para volver"
+                    + RESET);
+
+            System.out.print(VERDE +
+                    "➜ " + RESET);
+
+            String numero = sc.nextLine().trim();
+
+            // VOLVER AL MENÚ
+            if (numero.equals("0")) {
+
+                System.out.println(AMARILLO +
+                        "Operación cancelada" + RESET);
+
+                return;
+            }
+
+            // BUSCAR HABITACIÓN
+            for (Habitacion h : habitaciones) {
+
+                if (String.valueOf(h.getNumeroHabitacion())
+                        .equals(numero)) {
+
+                    seleccionada = h;
+                    break;
+                }
+            }
+
+            // NÚMERO INVÁLIDO
+            if (seleccionada == null) {
+
+                System.out.println(ROJO +
+                        "ERROR: La habitación no existe o no está en reparación"
+                        + RESET);
+            }
+        }
+
+        // CONFIRMAR FINALIZACIÓN
+        System.out.println();
+        System.out.println(CYAN +
+                "╔═══════════════════════════════════════════╗");
+        System.out.println("║           CONFIRMAR REPARACIÓN            ║");
+        System.out.println("╠═══════════════════════════════════════════╣" + RESET);
+
+        System.out.println(AZUL +
+                "║  Habitación: " +
+                seleccionada.getNumeroHabitacion() + RESET);
+
+        System.out.println(AMARILLO +
+                "║  Estado: " +
+                seleccionada.getEstadoMantenimiento() + RESET);
+
+        System.out.println(CYAN +
+                "║                                           ║" + RESET);
+
+        System.out.println(AMARILLO +
+                "║  ¿Finalizó la reparación? (Si/No)         ║" + RESET);
+
+        System.out.println(CYAN +
+                "╚═══════════════════════════════════════════╝" + RESET);
+
+        String respuesta;
+
+        // VALIDAR RESPUESTA
+        while (true) {
+
+            System.out.print(VERDE + "➜ " + RESET);
+
+            respuesta = sc.nextLine().trim();
+
+            if (respuesta.equalsIgnoreCase("Si") ||
+                    respuesta.equalsIgnoreCase("S") ||
+                    respuesta.equalsIgnoreCase("No") ||
+                    respuesta.equalsIgnoreCase("N")) {
+
+                break;
+            }
+
+            System.out.println(ROJO +
+                    "ERROR: Ingresá Si o No" + RESET);
+        }
+
+        // CANCELAR
+        if (respuesta.equalsIgnoreCase("No") ||
+                respuesta.equalsIgnoreCase("N")) {
+
+            System.out.println(AMARILLO +
+                    "La reparación no fue finalizada" + RESET);
+
+            return;
+        }
+
+        try {
+
+            // FINALIZAR REPARACIÓN
+            // LIBERA AL TÉCNICO Y CAMBIA A REPARADA
+            hotel.finalizarReparacion(seleccionada);
+
+            // MOSTRAR ESTADO REPARADA
+            System.out.println();
+            System.out.println(VERDE +
+                    "╔═══════════════════════════════════════════╗");
+            System.out.println("║          HABITACIÓN REPARADA              ║");
+            System.out.println("╠═══════════════════════════════════════════╣");
+
+            System.out.println("║  Habitación: " +
+                    seleccionada.getNumeroHabitacion());
+
+            System.out.println("║  Estado: " +
+                    seleccionada.getEstadoMantenimiento());
+
+            System.out.println("║  Técnico liberado correctamente");
+
+            System.out.println("╚═══════════════════════════════════════════╝"
+                    + RESET);
+
+            // MANTENER REPARADA DURANTE 2 SEGUNDOS
+            esperar(2);
+
+            // CAMBIAR AUTOMÁTICAMENTE A NORMAL
+            seleccionada.setEstadoMantenimiento(
+                    EEstadoMantenimiento.NORMAL);
+
+            // MOSTRAR ESTADO FINAL
+            System.out.println();
+            System.out.println(CYAN +
+                    "╔═══════════════════════════════════════════╗");
+            System.out.println("║         HABITACIÓN HABILITADA             ║");
+            System.out.println("╠═══════════════════════════════════════════╣" + RESET);
+
+            System.out.println(VERDE +
+                    "║  Habitación: " +
+                    seleccionada.getNumeroHabitacion());
+
+            System.out.println("║  Estado actual: " +
+                    seleccionada.getEstadoMantenimiento());
+
+            System.out.println("║  Habitación habilitada correctamente");
+
+            System.out.println("╚═══════════════════════════════════════════╝"
+                    + RESET);
+
+        } catch (IllegalStateException e) {
+
+            System.out.println(ROJO +
+                    "ERROR: " + e.getMessage() + RESET);
+        }
+    }
+
+
+
     // =========================================
     // 4. LLAMAR TÉCNICO
     // =========================================
@@ -3362,6 +3560,7 @@ public class Menu {
     // 4. MENÚ ADMINISTRADOR
     // =========================================
 
+
     public static void IniciarMenu(Hotel hotel, Usuario usuario) {
 
         int opcion;
@@ -3374,8 +3573,7 @@ public class Menu {
             System.out.println("║               GESTIÓN HOTEL               ║");
             System.out.println("╠═══════════════════════════════════════════╣");
             System.out.println("║                MENÚ ADMIN                 ║");
-            System.out.println("╠═══════════════════════════════════════════╣"
-                    + RESET);
+            System.out.println("╠═══════════════════════════════════════════╣" + RESET);
 
             // USUARIOS
             System.out.println(AZUL +
@@ -3423,30 +3621,45 @@ public class Menu {
             System.out.println(
                     "║                                           ║");
 
-            // PERMISOS Y HABITACIONES
+            // PERMISOS
             System.out.println(
                     "║   16. Dar Permiso                         ║");
+            System.out.println(
+                    "║                                           ║");
+
+            // HABITACIONES
             System.out.println(
                     "║   17. Ver Habitaciones Disponibles        ║");
             System.out.println(
                     "║   18. Ver Habitaciones Ocupadas           ║");
             System.out.println(
-                    "║   19. Ver Información del Hotel           ║"
-                            + RESET);
+                    "║   19. Ver Información del Hotel           ║");
+            System.out.println(
+                    "║                                           ║");
 
-            System.out.println(ROJO +
-                    "║    0. Cerrar Sesión                       ║"
-                    + RESET);
+            // REPARACIONES
+            System.out.println(
+                    "║   20. Gestionar Reparación de Habitación  ║");
+            System.out.println(
+                    "║   21. Finalizar Reparación                ║" + RESET);
 
             System.out.println(CYAN +
-                    "╚═══════════════════════════════════════════╝"
-                    + RESET);
+                    "║                                           ║" + RESET);
 
-            opcion = pedirOpcion(0, 19);
+            System.out.println(ROJO +
+                    "║    0. Cerrar Sesión                       ║" + RESET);
+
+            System.out.println(CYAN +
+                    "╚═══════════════════════════════════════════╝" + RESET);
+
+            opcion = pedirOpcion(0, 21);
 
             switch (opcion) {
 
+                // =========================================
                 // USUARIOS
+                // =========================================
+
                 case 1:
                     buscarUsuario(hotel);
                     break;
@@ -3459,7 +3672,10 @@ public class Menu {
                     mostrarUsuarios(hotel);
                     break;
 
+                // =========================================
                 // RESERVAS
+                // =========================================
+
                 case 4:
                     realizarReserva(hotel, usuario);
                     break;
@@ -3476,7 +3692,10 @@ public class Menu {
                     mostrarReservas(hotel);
                     break;
 
+                // =========================================
                 // PASAJEROS
+                // =========================================
+
                 case 8:
                     agregarPasajero(hotel);
                     break;
@@ -3493,7 +3712,10 @@ public class Menu {
                     mostrarPasajeros(hotel);
                     break;
 
+                // =========================================
                 // EMPLEADOS
+                // =========================================
+
                 case 12:
                     agregarEmpleado(hotel);
                     break;
@@ -3510,14 +3732,19 @@ public class Menu {
                     mostrarEmpleados(hotel);
                     break;
 
+                // =========================================
                 // PERMISOS
+                // =========================================
+
                 case 16:
                     System.out.println(AMARILLO +
-                            "Función de permisos pendiente"
-                            + RESET);
+                            "Función de permisos pendiente" + RESET);
                     break;
 
+                // =========================================
                 // HABITACIONES
+                // =========================================
+
                 case 17:
                     mostrarHabitacionesDisponibles(hotel);
                     break;
@@ -3526,18 +3753,32 @@ public class Menu {
                     mostrarHabitacionesOcupadas(hotel);
                     break;
 
-                // INFORMACIÓN DEL HOTEL
                 case 19:
                     mostrarInformacionHotel(hotel);
                     break;
 
+                // =========================================
+                // REPARACIONES
+                // =========================================
+
+                case 20:
+                    ponerHabitacionEnReparacion(hotel);
+                    break;
+
+                case 21:
+                    ponerHabitacionReparada(hotel);
+                    break;
+
+                // =========================================
                 // CERRAR SESIÓN
+                // =========================================
+
                 case 0:
                     mostrarCierre();
                     break;
             }
 
-            // ESPERAR 2 SEGUNDOS ANTES DE MOSTRAR EL MENÚ
+            // ESPERAR 2 SEGUNDOS ANTES DE VOLVER AL MENÚ
             if (opcion != 0) {
                 esperar(2);
             }
@@ -3549,6 +3790,7 @@ public class Menu {
     // =========================================
     // 5. MENÚ CONSERJE
     // =========================================
+
 
     public static void menuConserje(Hotel hotel, Usuario usuario) {
 
@@ -3562,8 +3804,7 @@ public class Menu {
             System.out.println("║               GESTIÓN HOTEL               ║");
             System.out.println("╠═══════════════════════════════════════════╣");
             System.out.println("║               MENÚ CONSERJE               ║");
-            System.out.println("╠═══════════════════════════════════════════╣"
-                    + RESET);
+            System.out.println("╠═══════════════════════════════════════════╣" + RESET);
 
             // RESERVAS
             System.out.println(AZUL +
@@ -3576,7 +3817,6 @@ public class Menu {
                     "║    4. Eliminar Reserva                    ║");
             System.out.println(
                     "║    5. Mostrar Reservas                    ║");
-
             System.out.println(
                     "║                                           ║");
 
@@ -3589,41 +3829,46 @@ public class Menu {
                     "║    8. Eliminar Pasajero                   ║");
             System.out.println(
                     "║    9. Mostrar Pasajeros                   ║");
-
             System.out.println(
                     "║                                           ║");
 
-            // TÉCNICOS Y REPARACIONES
+            // REPARACIONES
             System.out.println(
-                    "║   10. Llamar Técnico                      ║");
-            System.out.println(
-                    "║   11. Poner Habitación en Reparación      ║");
-
+                    "║   10. Gestionar Reparación de Habitación  ║");
             System.out.println(
                     "║                                           ║");
 
-            // HABITACIONES E INFORMACIÓN
+            // HABITACIONES
             System.out.println(
-                    "║   12. Ver Habitaciones Disponibles        ║");
+                    "║   11. Ver Habitaciones Disponibles        ║");
             System.out.println(
-                    "║   13. Ver Habitaciones Ocupadas           ║");
+                    "║   12. Ver Habitaciones Ocupadas           ║");
             System.out.println(
-                    "║   14. Ver Información del Hotel           ║"
-                            + RESET);
+                    "║   13. Ver Información del Hotel           ║");
+            System.out.println(
+                    "║                                           ║");
 
-            System.out.println(ROJO +
-                    "║    0. Cerrar Sesión                       ║"
-                    + RESET);
+            // FINALIZAR REPARACIÓN
+            System.out.println(
+                    "║   14. Finalizar Reparación                ║" + RESET);
 
             System.out.println(CYAN +
-                    "╚═══════════════════════════════════════════╝"
-                    + RESET);
+                    "║                                           ║" + RESET);
+
+            System.out.println(ROJO +
+                    "║    0. Cerrar Sesión                       ║" + RESET);
+
+            System.out.println(CYAN +
+                    "╚═══════════════════════════════════════════╝" + RESET);
 
             opcion = pedirOpcion(0, 14);
 
             switch (opcion) {
 
+                // =========================================
                 // RESERVAS
+                // =========================================
+
                 case 1:
                     realizarReserva(hotel, usuario);
                     break;
@@ -3644,7 +3889,10 @@ public class Menu {
                     mostrarReservas(hotel);
                     break;
 
+                // =========================================
                 // PASAJEROS
+                // =========================================
+
                 case 6:
                     agregarPasajero(hotel);
                     break;
@@ -3661,37 +3909,48 @@ public class Menu {
                     mostrarPasajeros(hotel);
                     break;
 
-                // TÉCNICOS
-                case 10:
-                    llamarTecnico(hotel);
-                    break;
-
+                // =========================================
                 // REPARACIONES
-                case 11:
+                // =========================================
+
+                case 10:
                     ponerHabitacionEnReparacion(hotel);
                     break;
 
+                // =========================================
                 // HABITACIONES
-                case 12:
+                // =========================================
+
+                case 11:
                     mostrarHabitacionesDisponibles(hotel);
                     break;
 
-                case 13:
+                case 12:
                     mostrarHabitacionesOcupadas(hotel);
                     break;
 
-                // INFORMACIÓN
-                case 14:
+                case 13:
                     mostrarInformacionHotel(hotel);
                     break;
 
+                // =========================================
+                // FINALIZAR REPARACIÓN
+                // =========================================
+
+                case 14:
+                    ponerHabitacionReparada(hotel);
+                    break;
+
+                // =========================================
                 // CERRAR SESIÓN
+                // =========================================
+
                 case 0:
                     mostrarCierre();
                     break;
             }
 
-            // ESPERAR 2 SEGUNDOS ANTES DE MOSTRAR EL MENÚ
+            // ESPERAR 2 SEGUNDOS ANTES DE VOLVER AL MENÚ
             if (opcion != 0) {
                 esperar(2);
             }
