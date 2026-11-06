@@ -84,12 +84,12 @@ public class Conexion {
                 "id INT AUTO_INCREMENT PRIMARY KEY, " +
                 "nombre VARCHAR(100), " +
                 "apellido VARCHAR(100), " +
-                "dni VARCHAR(20), " +
+                "dni VARCHAR(20) unique," +
                 "telefono VARCHAR(20), " +
                 "email VARCHAR(100), " +
                 "nombreUsuario INT, " +
                 "sueldoPorVenta DOUBLE, " +
-                "FOREIGN KEY (nombreUsuario) REFERENCES usuarios(id))";
+                "FOREIGN KEY (nombreUsuario) REFERENCES Usuarios(nombreUsuarios))";
 
         try {
             PreparedStatement ps = conn.prepareStatement(sql);
@@ -125,13 +125,13 @@ public class Conexion {
                 "id INT AUTO_INCREMENT PRIMARY KEY, " +
                 "nombre VARCHAR(100), " +
                 "apellido VARCHAR(100), " +
-                "dni VARCHAR(20), " +
+                "dni VARCHAR(20) unique, " +
                 "telefono VARCHAR(20), " +
                 "email VARCHAR(100), " +
-                "nombreUsuario INT, " +
+                "nombreUsuario varchar(30), " +
                 "legajo VARCHAR(50), " +
                 "sueldo DOUBLE, " +
-                "FOREIGN KEY (nombreUsuario) REFERENCES usuarios(id))";
+                "FOREIGN KEY (nombreUsuario) REFERENCES usuarios(nombreUsuario))";
 
         try {
             PreparedStatement ps = conn.prepareStatement(sql);
@@ -170,8 +170,8 @@ public class Conexion {
                 cantidadPasajeros INT NOT NULL,
                 fechaIngreso DATE NOT NULL,
                 fechaSalida DATE NOT NULL,
-                FOREIGN KEY (idPasajero) REFERENCES Pasajero(DNI),
-                FOREIGN KEY (idHabitacion) REFERENCES Habitacion(numero_habitacion)
+                FOREIGN KEY (idPasajero) REFERENCES Pasajeros(DNI),
+                FOREIGN KEY (idHabitacion) REFERENCES Habitaciones(numero_habitacion)
             )
             """;
 
