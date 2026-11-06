@@ -329,6 +329,7 @@ public class Conexion {
     }
 
     public void insertarUsuario(Usuario u) {
+        crearTablaUsuario();
         String sql = "INSERT INTO Usuarios(nombreUsuario, contrasenia, TipoUsuario) " +
                 "VALUES (?, ?, ?)";
 
@@ -375,6 +376,7 @@ public class Conexion {
     }
 
     public void insertarTecnico(Tecnico t) {
+        crearTablaTecnicos();
         String sql = "INSERT INTO Tecnicos(DNI, nombre, apellido, telefono, email, nombreUsuario, tipo_de_tecnico, formacion, disponible) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
@@ -403,6 +405,7 @@ public class Conexion {
     }
 
     public void insertarReserva(Reserva r) {
+        crearTablaReserva();
         String sql = "INSERT INTO Reserva(idReserva, idPasajero, idHabitacion, cantidadPasajeros, fechaIngreso, fechaSalida) " +
                 "VALUES (?, ?, ?, ?, ?, ?)";
 
@@ -426,6 +429,7 @@ public class Conexion {
 
 
     public void insertarReparacion(Habitacion h, Tecnico t) {
+        crearTablaReparaciones();
         String sql = "INSERT INTO Reparaciones(numero_habitacion, dniTecnico) VALUES (?, ?)";
 
         try {
@@ -444,6 +448,9 @@ public class Conexion {
 
 
 ///MODIFICAR
+
+
+    ///ELIMINAR
 
 ///LISTAR
 
