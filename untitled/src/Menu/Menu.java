@@ -10,7 +10,7 @@ import Interfaces.IEmpleado;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Scanner;
+import java.util.*;
 
 public class Menu {
 
@@ -635,22 +635,8 @@ public class Menu {
         System.out.println("║          HABITACIONES DISPONIBLES         ║");
         System.out.println("╠═══════════════════════════════════════════╣" + RESET);
 
-        for (int i = 0; i < habitaciones.size(); i++) {
-
-            Habitacion h = habitaciones.get(i);
-
-            System.out.println(AZUL +
-                    "║  " + (i + 1) + ". Habitación " +
-                    h.getNumeroHabitacion());
-
-            System.out.println(
-                    "║     Camas: " + h.getCantidadCamas() +
-                            " | Capacidad: " +
-                            h.getCantidadMaximaPersonas() + RESET);
-
-            System.out.println(CYAN +
-                    "║                                           ║" + RESET);
-        }
+        // MOSTRAR HABITACIONES POR PISO Y CON SU ESTADO
+        mostrarHabitacionesPorPiso(habitaciones);
 
         System.out.println(AMARILLO +
                 "║  0. Volver al menú" + RESET);
@@ -658,16 +644,36 @@ public class Menu {
         System.out.println(CYAN +
                 "╚═══════════════════════════════════════════╝" + RESET);
 
-        int opcion = pedirOpcion(0, habitaciones.size());
+        // AHORA SE SELECCIONA EL NÚMERO REAL: 101, 102, 201...
+        // Y NO EL ÍNDICE DE LA LISTA.
+        Habitacion habitacion = null;
 
-        if (opcion == 0) {
+        while (habitacion == null) {
 
-            System.out.println(AMARILLO +
-                    "Reserva cancelada. Volviendo al menú..." + RESET);
-            return;
+            System.out.print(VERDE +
+                    "║  Número de habitación (0 para volver): " + RESET);
+
+            String numeroIngresado = sc.nextLine().trim();
+
+            if (numeroIngresado.equals("0")) {
+                System.out.println(AMARILLO +
+                        "Reserva cancelada. Volviendo al menú..." + RESET);
+                return;
+            }
+
+            for (Habitacion h : habitaciones) {
+                if (String.valueOf(h.getNumeroHabitacion())
+                        .equals(numeroIngresado)) {
+                    habitacion = h;
+                    break;
+                }
+            }
+
+            if (habitacion == null) {
+                System.out.println(ROJO +
+                        "║  ERROR: Ingresá el número de una habitación mostrada" + RESET);
+            }
         }
-
-        Habitacion habitacion = habitaciones.get(opcion - 1);
 
         // =========================================
         // 4. CANTIDAD DE PERSONAS
@@ -1685,17 +1691,6 @@ public class Menu {
                         }
 
                         opciones.add(h);
-
-                        System.out.println(VERDE +
-                                "║  Habitación: " +
-                                h.getNumeroHabitacion());
-
-                        System.out.println(
-                                "║  Capacidad: " +
-                                        h.getCantidadMaximaPersonas());
-
-                        System.out.println(CYAN +
-                                "║                                           ║" + RESET);
                     }
 
                     if (opciones.isEmpty()) {
@@ -1705,6 +1700,9 @@ public class Menu {
                                 + RESET);
                         break;
                     }
+
+                    // MOSTRAR AL LADO Y AGRUPADAS POR PISO
+                    mostrarHabitacionesPorPiso(opciones);
 
                     Habitacion seleccionada = null;
 
@@ -1902,61 +1900,35 @@ public class Menu {
     // =========================================
 
 
+
     public static void mostrarHabitacionesDisponibles(Hotel hotel) {
+
+        List<Habitacion> disponibles = new ArrayList<>();
+
+        Collection<Habitacion> ocupadas =
+                hotel.verHabitacionesOcupadas();
+
+        // BUSCAR HABITACIONES DISPONIBLES
+        for (Habitacion h : hotel.getHabitaciones().obtenerTodos()) {
+
+            if (h.getEstadoMantenimiento() == EEstadoMantenimiento.NORMAL
+                    && !ocupadas.contains(h)) {
+
+                disponibles.add(h);
+            }
+        }
 
         System.out.println();
         System.out.println(CYAN +
                 "╔═══════════════════════════════════════════╗");
         System.out.println("║          HABITACIONES DISPONIBLES         ║");
-        System.out.println("╠═══════════════════════════════════════════╣" + RESET);
+        System.out.println("╚═══════════════════════════════════════════╝"
+                + RESET);
 
-        // OBTENER SOLAMENTE HABITACIONES EN ESTADO NORMAL
-        java.util.List<Habitacion> habitaciones =
-                new java.util.ArrayList<>();
-
-        for (Habitacion h : hotel.getHabitaciones().obtenerTodos()) {
-
-            if (h.getEstadoMantenimiento() ==
-                    EEstadoMantenimiento.NORMAL &&
-                    !hotel.verHabitacionesOcupadas().contains(h)) {
-
-                habitaciones.add(h);
-            }
-        }
-
-        // VERIFICAR SI HAY HABITACIONES DISPONIBLES
-        if (habitaciones.isEmpty()) {
-
-            System.out.println(ROJO +
-                    "║  No hay habitaciones disponibles" + RESET);
-
-        } else {
-
-            // MOSTRAR HABITACIONES
-            for (Habitacion h : habitaciones) {
-
-                System.out.println(CYAN +
-                        "║                                           ║" + RESET);
-
-                System.out.println(AZUL +
-                        "║  Habitación: " + h.getNumeroHabitacion());
-
-                System.out.println(
-                        "║  Camas: " + h.getCantidadCamas());
-
-                System.out.println(
-                        "║  Capacidad: " +
-                                h.getCantidadMaximaPersonas());
-
-                System.out.println(VERDE +
-                        "║  Estado: " +
-                        h.getEstadoMantenimiento() + RESET);
-            }
-        }
-
-        System.out.println(CYAN +
-                "╚═══════════════════════════════════════════╝" + RESET);
+        // MOSTRAR HABITACIONES AGRUPADAS POR PISO
+        mostrarHabitacionesPorPiso(disponibles);
     }
+
 
 
     // =========================================
@@ -1964,90 +1936,41 @@ public class Menu {
     // =========================================
 
 
+
     public static void mostrarHabitacionesOcupadas(Hotel hotel) {
 
-        System.out.println();
-        System.out.println(CYAN +
-                "╔═══════════════════════════════════════════╗");
-        System.out.println("║           HABITACIONES OCUPADAS           ║");
-        System.out.println("╠═══════════════════════════════════════════╣" + RESET);
+        // OBTENER HABITACIONES OCUPADAS
+        List<Habitacion> ocupadas = new ArrayList<>(
+                hotel.verHabitacionesOcupadas()
+        );
 
-        // EVITA MOSTRAR LA MISMA HABITACIÓN DOS VECES
-        java.util.Set<Habitacion> habitaciones =
-                new java.util.LinkedHashSet<>();
-
-        // HABITACIONES OCUPADAS POR RESERVAS
-        habitaciones.addAll(hotel.verHabitacionesOcupadas());
-
-        // HABITACIONES BLOQUEADAS POR MANTENIMIENTO
+        // INCLUIR HABITACIONES EN MANTENIMIENTO
         for (Habitacion h : hotel.getHabitaciones().obtenerTodos()) {
 
-            if (h.getEstadoMantenimiento() ==
-                    EEstadoMantenimiento.NECESITA_REPARACION ||
+            if (h.getEstadoMantenimiento()
+                    == EEstadoMantenimiento.EN_REPARACION
+                    || h.getEstadoMantenimiento()
+                    == EEstadoMantenimiento.NECESITA_REPARACION) {
 
-                    h.getEstadoMantenimiento() ==
-                            EEstadoMantenimiento.EN_REPARACION) {
-
-                habitaciones.add(h);
-            }
-        }
-
-        if (habitaciones.isEmpty()) {
-
-            System.out.println(VERDE +
-                    "║  No hay habitaciones ocupadas" + RESET);
-
-        } else {
-
-            for (Habitacion h : habitaciones) {
-
-                System.out.println(CYAN +
-                        "║                                           ║" + RESET);
-
-                System.out.println(AZUL +
-                        "║  Habitación: " + h.getNumeroHabitacion());
-
-                System.out.println(
-                        "║  Capacidad: " +
-                                h.getCantidadMaximaPersonas());
-
-                System.out.println(
-                        "║  Estado: " +
-                                h.getEstadoMantenimiento() + RESET);
-
-                if (h.getEstadoMantenimiento() ==
-                        EEstadoMantenimiento.NECESITA_REPARACION) {
-
-                    System.out.println(AMARILLO +
-                            "║  Motivo: Necesita reparación" + RESET);
-
-                } else if (h.getEstadoMantenimiento() ==
-                        EEstadoMantenimiento.EN_REPARACION) {
-
-                    System.out.println(ROJO +
-                            "║  Motivo: En reparación" + RESET);
-
-                    Tecnico tecnico =
-                            hotel.obtenerTecnicoAsignado(h);
-
-                    if (tecnico != null) {
-
-                        System.out.println(AZUL +
-                                "║  Técnico: " +
-                                tecnico.getNombre() + RESET);
-                    }
-
-                } else {
-
-                    System.out.println(ROJO +
-                            "║  Motivo: Ocupación registrada" + RESET);
+                // EVITAR HABITACIONES REPETIDAS
+                if (!ocupadas.contains(h)) {
+                    ocupadas.add(h);
                 }
             }
         }
 
+        // ENCABEZADO
+        System.out.println();
         System.out.println(CYAN +
-                "╚═══════════════════════════════════════════╝" + RESET);
+                "╔═══════════════════════════════════════════╗");
+        System.out.println("║       HABITACIONES NO DISPONIBLES         ║");
+        System.out.println("╚═══════════════════════════════════════════╝"
+                + RESET);
+
+        // MOSTRAR HABITACIONES AGRUPADAS POR PISO
+        mostrarHabitacionesPorPiso(ocupadas);
     }
+
 
 
     // =========================================
@@ -2077,25 +2000,12 @@ public class Menu {
             return;
         }
 
-        // MOSTRAR HABITACIONES
-
+        // MOSTRAR TODAS LAS HABITACIONES AGRUPADAS POR PISO
+        // CON EL ESTADO DE MANTENIMIENTO DE CADA UNA.
         System.out.println(AMARILLO +
                 "║  HABITACIONES REGISTRADAS" + RESET);
 
-        for (Habitacion h : habitaciones) {
-
-            System.out.println(CYAN +
-                    "║                                           ║" + RESET);
-
-            System.out.println(AZUL +
-                    "║  Habitación: " + h.getNumeroHabitacion());
-
-            System.out.println(
-                    "║  Capacidad: " + h.getCantidadMaximaPersonas());
-
-            System.out.println(
-                    "║  Estado: " + h.getEstadoMantenimiento() + RESET);
-        }
+        mostrarHabitacionesPorPiso(habitaciones);
 
         System.out.println(AMARILLO +
                 "║  0. Volver al menú" + RESET);
@@ -2488,6 +2398,9 @@ public class Menu {
             }
         }
     }
+    // =========================================
+    //  HABITACION REPARADA
+    // =========================================
 
 
     public static void ponerHabitacionReparada(Hotel hotel) {
@@ -2514,21 +2427,9 @@ public class Menu {
             return;
         }
 
-        // MOSTRAR SOLAMENTE HABITACIONES EN REPARACIÓN
-        for (Habitacion h : habitaciones) {
-
-            System.out.println(AZUL +
-                    "║  Habitación: " + h.getNumeroHabitacion() + RESET);
-
-            System.out.println(AMARILLO +
-                    "║  Estado: " + h.getEstadoMantenimiento() + RESET);
-
-            System.out.println(CYAN +
-                    "║                                           ║" + RESET);
-        }
-
-        System.out.println(CYAN +
-                "╚═══════════════════════════════════════════╝" + RESET);
+        // MOSTRAR SOLO LAS QUE ESTÁN EN REPARACIÓN,
+        // AGRUPADAS POR PISO Y CON EL ESTADO ACTUAL.
+        mostrarHabitacionesPorPiso(habitaciones);
 
         Habitacion seleccionada = null;
 
@@ -2686,6 +2587,84 @@ public class Menu {
         }
     }
 
+    // =========================================
+    //   MOSTRAR HABITACION POR PISO
+    // =========================================
+
+
+    public static void mostrarHabitacionesPorPiso(
+            Collection<Habitacion> habitaciones) {
+
+        Map<Integer, List<Habitacion>> pisos = new TreeMap<>();
+
+        // AGRUPAR HABITACIONES POR PISO
+        for (Habitacion h : habitaciones) {
+
+            int piso = h.getNumeroHabitacion() / 100;
+
+            if (!pisos.containsKey(piso)) {
+                pisos.put(piso, new ArrayList<>());
+            }
+
+            pisos.get(piso).add(h);
+        }
+
+        if (pisos.isEmpty()) {
+
+            System.out.println(AMARILLO +
+                    "No hay habitaciones para mostrar" + RESET);
+            return;
+        }
+
+        // RECORRER LOS PISOS
+        for (Map.Entry<Integer, List<Habitacion>> entrada
+                : pisos.entrySet()) {
+
+            int piso = entrada.getKey();
+            List<Habitacion> lista = entrada.getValue();
+
+            // ORDENAR HABITACIONES POR NÚMERO
+            lista.sort(Comparator.comparingInt(
+                    Habitacion::getNumeroHabitacion));
+
+            System.out.println();
+            System.out.println(CYAN +
+                    "══════════════════════════════════════════════════════");
+            System.out.println("  PISO " + piso + " | " +
+                    lista.size() + " habitaciones");
+            System.out.println(
+                    "══════════════════════════════════════════════════════"
+                            + RESET);
+
+            int contador = 0;
+
+            // MOSTRAR HABITACIONES Y SUS ESTADOS
+            for (Habitacion h : lista) {
+
+                System.out.printf(
+                        VERDE + "[ HAB. %d ] " + RESET +
+                                AMARILLO + "%-19s" + RESET + "  ",
+                        h.getNumeroHabitacion(),
+                        h.getEstadoMantenimiento()
+                );
+
+                contador++;
+
+                // CADA 2 HABITACIONES BAJAR DE RENGLÓN
+                if (contador % 2 == 0) {
+                    System.out.println();
+                }
+            }
+
+            if (contador % 2 != 0) {
+                System.out.println();
+            }
+        }
+
+        System.out.println();
+    }
+
+
 
 
     // =========================================
@@ -2705,24 +2684,26 @@ public class Menu {
         System.out.println(AMARILLO +
                 "HABITACIONES ACTUALMENTE EN REPARACIÓN:" + RESET);
 
-        if (hotel.verHabitacionesEnReparacion().isEmpty()) {
+        Collection<Habitacion> habitacionesEnReparacion =
+                hotel.verHabitacionesEnReparacion();
+
+        if (habitacionesEnReparacion.isEmpty()) {
 
             System.out.println(VERDE +
                     "No hay habitaciones en reparación" + RESET);
 
         } else {
 
-            for (Habitacion h : hotel.verHabitacionesEnReparacion()) {
+            mostrarHabitacionesPorPiso(habitacionesEnReparacion);
 
-                System.out.println(AZUL +
-                        "Habitación: " + h);
-
-                System.out.println(
-                        "Estado: EN REPARACIÓN");
-
-                System.out.println(
-                        "Técnico asignado: " +
-                                hotel.obtenerTecnicoAsignado(h) + RESET);
+            // MOSTRAR TAMBIÉN QUÉ TÉCNICO ESTÁ ASIGNADO
+            for (Habitacion h : habitacionesEnReparacion) {
+                Tecnico tecnico = hotel.obtenerTecnicoAsignado(h);
+                if (tecnico != null) {
+                    System.out.println(AZUL +
+                            "Técnico de habitación " + h.getNumeroHabitacion()
+                            + ": " + tecnico.getNombre() + RESET);
+                }
             }
         }
 
@@ -2742,24 +2723,37 @@ public class Menu {
             return;
         }
 
-        // MOSTRAR HABITACIONES
+        // MOSTRAR HABITACIONES POR PISO Y CON SU ESTADO
+        mostrarHabitacionesPorPiso(habitaciones);
 
-        for (int i = 0; i < habitaciones.size(); i++) {
+        // SELECCIONAR POR NÚMERO REAL (101, 102, 201...), NO ÍNDICE
+        Habitacion seleccionada = null;
 
-            Habitacion h = habitaciones.get(i);
+        while (seleccionada == null) {
+            System.out.print(VERDE +
+                    "Número de habitación (0 para volver): " + RESET);
 
-            System.out.println(AZUL +
-                    (i + 1) + ". " + h + RESET);
+            String numeroIngresado = sc.nextLine().trim();
+
+            if (numeroIngresado.equals("0")) {
+                System.out.println(AMARILLO +
+                        "Asignación cancelada" + RESET);
+                return;
+            }
+
+            for (Habitacion h : habitaciones) {
+                if (String.valueOf(h.getNumeroHabitacion())
+                        .equals(numeroIngresado)) {
+                    seleccionada = h;
+                    break;
+                }
+            }
+
+            if (seleccionada == null) {
+                System.out.println(ROJO +
+                        "ERROR: Elegí una habitación de las mostradas" + RESET);
+            }
         }
-
-        System.out.println(AMARILLO +
-                "\nSeleccioná la habitación:" + RESET);
-
-        int opcionHabitacion =
-                pedirOpcion(1, habitaciones.size());
-
-        Habitacion seleccionada =
-                habitaciones.get(opcionHabitacion - 1);
 
         // OBTENER TÉCNICOS DISPONIBLES
 
@@ -4770,6 +4764,7 @@ public class Menu {
     }
 
 } // FIN DE LA CLASE MENU
+
 
 
 

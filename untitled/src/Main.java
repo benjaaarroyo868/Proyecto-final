@@ -52,7 +52,6 @@ void main() {
 
         h1.agregarPasajero(pasajero);
 
-
         h1.agregarHabitacion(habitacion1);
         h1.agregarHabitacion(habitacion2);
         h1.agregarHabitacion(habitacion3);
