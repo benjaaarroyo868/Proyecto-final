@@ -1,18 +1,26 @@
 package Clases;
 
-public class Habitacion {
+import Enums.EEstadoMantenimiento;
+import Exepciones.AgenciaHotelException;
+import Exepciones.DatoInvalidoException;
+import Interfaces.IValidarDatos;
+
+public class Habitacion implements IValidarDatos {
     private int numeroHabitacion;
     private int cantidadCamas;
     private int cantidadMaximaPersonas;
-    private boolean estado;
+    private boolean disponible;
+    private EEstadoMantenimiento estado;
 
 
-    public Habitacion(int numeroHabitacion, int cantidadCamas, int cantidadMaximaPersonas, boolean estado) {
+    public Habitacion(int numeroHabitacion, int cantidadCamas, int cantidadMaximaPersonas) {
         this.numeroHabitacion = numeroHabitacion;
         this.cantidadCamas = cantidadCamas;
         this.cantidadMaximaPersonas = cantidadMaximaPersonas;
-        this.estado = estado;
+        this.disponible = false;
+        this.estado = EEstadoMantenimiento.NORMAL;
     }
+
 
     public int getNumeroHabitacion() {
         return numeroHabitacion;
@@ -38,11 +46,61 @@ public class Habitacion {
         this.cantidadMaximaPersonas = cantidadMaximaPersonas;
     }
 
-    public boolean isEstado() {
+    public boolean isDisponible() {
+        return disponible;
+    }
+
+    public void setDisponible(boolean disponible) {
+        this.disponible = disponible;
+    }
+
+
+    public void setEstado(EEstadoMantenimiento estado) {
+        this.estado = estado;
+    }
+
+    public EEstadoMantenimiento getEstadoMantenimiento() {
         return estado;
     }
 
-    public void setEstado(boolean estado) {
-        this.estado = estado;
+    public void setEstadoMantenimiento(
+            EEstadoMantenimiento estadoMantenimiento) {
+
+        if (estadoMantenimiento == null) {
+            throw new IllegalArgumentException(
+                    "El estado de mantenimiento no puede ser nulo");
+        }
+
+        this.estado = estadoMantenimiento;
+    }
+
+    public boolean necesitaReparacion() {
+        return estado ==
+                EEstadoMantenimiento.EN_REPARACION;
+    }
+
+
+    @Override
+    public void validarDatos() throws AgenciaHotelException {
+        if(cantidadCamas <= 0){
+            throw new DatoInvalidoException("La cantidad de camas no puede ser 0");
+        }
+        if(numeroHabitacion <= 0){
+            throw new DatoInvalidoException("El numero de la habitacion no puede ser 0");
+        }
+        if(cantidadMaximaPersonas <= 0){
+            throw new DatoInvalidoException("La cantidad maxima de personas no puede ser 0");
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "Habitacion{" +
+                "numeroHabitacion=" + numeroHabitacion +
+                ", cantidadCamas=" + cantidadCamas +
+                ", cantidadMaximaPersonas=" + cantidadMaximaPersonas +
+                ", disponible=" + disponible +
+                ", estado=" + estado +
+                '}';
     }
 }

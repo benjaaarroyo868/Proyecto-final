@@ -19,6 +19,12 @@ public class Administrador  extends Persona implements IEmpleado, IValidarDatos 
         return legajo;
     }
 
+    @Override
+    public String getDni() {
+        return getDNI();
+    }
+
+
     public void setLegajo(String legajo) {
         this.legajo = legajo;
     }
@@ -77,8 +83,4 @@ public class Administrador  extends Persona implements IEmpleado, IValidarDatos 
         }
     }
 
-    @Override
-    public String getDni() {
-        return getDNI();
-    }
 }

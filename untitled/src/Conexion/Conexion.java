@@ -153,7 +153,7 @@ public class Conexion {
             ps.setInt(1, h.getNumeroHabitacion());
             ps.setInt(2, h.getCantidadCamas());
             ps.setInt(3, h.getCantidadMaximaPersonas());
-            ps.setBoolean(4, h.isEstado());
+            ps.setBoolean(4, h.isDisponible());
 
             ps.executeUpdate();
             ps.close();

@@ -107,7 +107,7 @@ public class Reserva implements IValidarDatos {
         if(habitacion==null){
             throw new DatoInvalidoException("La reserva debe tener una habitacion");
         }
-        if(habitacion.isEstado()){
+        if(habitacion.isDisponible()){
             throw new ReservaNoDisponibleException("La habitacion esta ocupada");
         }
         if(cantidadPasajeros<0){

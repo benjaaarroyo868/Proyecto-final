@@ -38,7 +38,7 @@ void main() {
      Pasajero pasajero = new Pasajero(
              "Juan",
              "Perez",
-             "45678912",
+             "48033021",
              "2235678901",
              "juan@gmail.com",
              usuarioPasajero,
@@ -46,32 +46,61 @@ void main() {
              "Buenos Aires"
      );
 
-    Pasajero pasajero1 = new Pasajero(
-            "Sebastian",
-            "Perez",
-            "12345678",
-            "2235678901",
-            "juan@gmail.com",
-            usuarioPasajero,
-            "Mar del Plata",
-            "Buenos Aires"
+
+    Usuario usuarioConserje = new Usuario(
+            "MartinZalez1234",
+            "Martin1234@",
+            ETipoUsuario.CONSERJE);
+
+    Conserje conserje = new Conserje(
+            "Martin",
+            "Gonzalez",
+            "35123456",
+            "2234567890",
+            "martin.gonzalez@gmail.com",
+            usuarioConserje,
+            "CON001",
+            15000.0
     );
 
+    Usuario usuarioTecnico = new Usuario(
+            "carlos123",
+            "Hotel1234",
+            ETipoUsuario.TECNICO
+    );
 
-    RegistroGenericoMapas<String, Pasajero> pasa = new RegistroGenericoMapas<>();
-    RegistroGenericoMapas<String, Usuario> usu = new RegistroGenericoMapas<>();
-    RegistroGenericoMapas<String, ArrayList<IEmpleado>> empleado = new RegistroGenericoMapas<>();
+    Tecnico tecnico = new Tecnico(
+            "Carlos",
+            "Rodriguez",
+            "32145678",
+            "2234567890",
+            "carlos.rodriguez@gmail.com",
+            usuarioTecnico,
+            ETipoTecnico.TECNICO_ELECTRONICO,
+            "Técnico en instalaciones eléctricas",
+            true
+    );
 
+    Habitacion habitacion1 = new Habitacion(101, 2, 2);
+    Habitacion habitacion2 = new Habitacion(102, 3, 4);
 
 
     try {
-         usu.cargar(usuarioAdmin.getNombreUsuario(), usuarioAdmin);
-         usu.cargar(usuarioPasajero.getNombreUsuario(), usuarioPasajero);
+        h1.agregarTecnico(tecnico);
+        h1.agregarUsuario(usuarioAdmin);
+        h1.agregarUsuario(usuarioPasajero);
+        h1.agregarUsuario(usuarioConserje);
+        h1.agregarUsuario(usuarioTecnico);
+        h1.agregarEmpleado(administrador);
+        h1.agregarEmpleado(conserje);
+        h1.agregarPasajero(pasajero);
+        h1.agregarTecnico(tecnico);
+        h1.agregarHabitacion(habitacion1);
+        h1.agregarHabitacion(habitacion2);
+    } catch (AgenciaHotelException e) {
+        throw new RuntimeException(e);
+    }
 
-     } catch (AgenciaHotelException e) {
-         throw new RuntimeException(e);
-     }
 
-
-    m.menuPrincipal(h1, usu, pasa, empleado);
+    m.menuPrincipal(h1);
 }
