@@ -168,10 +168,12 @@ public class Conexion {
 
     public void crearTablaHotel() {
         String sql = "CREATE TABLE IF NOT EXISTS Hotel(" +
-                "id INT AUTO_INCREMENT PRIMARY KEY, " +
-                "nombre VARCHAR(100), " +
-                "direccion VARCHAR(200), " +
-                "cantidad_habitaciones INT)";
+                "id INT AUTO_INCREMENT PRIMARY KEY not null, " +
+                "nombre VARCHAR(100) not null, " +
+                "direccion VARCHAR(200)not null, " +
+                "cantidad_habitaciones INT not null,"+
+                "habitaciones_ocupadas INT not null";
+
 
         try {
             PreparedStatement ps = conn.prepareStatement(sql);
@@ -353,8 +355,8 @@ public class Conexion {
     }
 
     public void insertarHotel(Hotel h) {
-        String sql = "INSERT INTO Hotel(nombre, direccion, cantidad_habitaciones) " +
-                "VALUES (?, ?, ?)";
+        String sql = "INSERT INTO Hotel(nombre, direccion, cantidad_habitaciones,CantidadOcupadas) " +
+                "VALUES (?, ?, ?, ?)";
 
         try {
             PreparedStatement ps = conn.prepareStatement(sql);
@@ -362,6 +364,7 @@ public class Conexion {
             ps.setString(1, h.getNombre());
             ps.setString(2, h.getDireccion());
             ps.setInt(3, h.getCantidadHabitaciones());
+            ps.setInt(4,h.getCantidadOcupadas());
 
             ps.executeUpdate();
             ps.close();
@@ -758,7 +761,9 @@ public class Conexion {
                         rs.getString("nombre"),
                         rs.getString("direccion"),
                         rs.getInt("cantidad_habitaciones")
+
                 );
+                hotel.setCantidadOcupadas(rs.getInt(4));
             }
 
             rs.close();
