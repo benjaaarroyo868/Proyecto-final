@@ -1,6 +1,7 @@
 
 package Clases;
 
+import Conexion.Conexion;
 import Enums.EEstadoMantenimiento;
 import Exepciones.AgenciaHotelException;
 import Exepciones.DatoInvalidoException;
@@ -21,6 +22,8 @@ public class Hotel implements IValidarDatos {
     private String direccion;
     private int cantidadHabitaciones;
     private int cantidadOcupadas;
+
+    private Conexion conn;
 
     // REGISTROS DEL HOTEL
     private RegistroGenericoMapas<String, IEmpleado> empleados;

@@ -18,10 +18,12 @@ import java.util.logging.Logger;
 public class Conexion {
     Connection conn;
 
+
+ /// CONEXION Y BD
     public void createConnection() {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/BDHotelConte", "winterfa", "Mecortaronelfrenilloen2024");
+            conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/BDHotel", "winterfa", "Mecortaronelfrenilloen2024");
 
             System.out.println("Conexion establecida con exito");
         } catch (ClassNotFoundException e) {
@@ -30,6 +32,28 @@ public class Conexion {
             throw new RuntimeException("error al correr sql" + e);
         }
     }
+    public void crearBaseDeDatos() throws SQLException {
+
+        try {
+            PreparedStatement ps = conn.prepareStatement("CREATE DATABASE BDHotel");
+            ps.executeUpdate();
+            ps.close();
+        } catch (SQLException e) {
+            throw new RuntimeException("error al crear base de datos");
+        }
+    }
+    public void usarBaseDeDatos()throws SQLException{
+        try{
+            PreparedStatement ps=conn.prepareStatement("USE BDHotel");
+            ps.executeUpdate();
+            ps.close();
+        } catch (SQLException e) {
+            throw new RuntimeException("error al usar base de datos");
+        }
+
+        }
+
+
 
     public void closeConnection() {
         try {
