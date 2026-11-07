@@ -1,11 +1,17 @@
 package Conexion;
-import Clases.*;
-import com.sun.tools.javac.Main;
 
-import java.sql.*;
+import Clases.*;
+import Enums.EEstadoMantenimiento;
+import Enums.ETipoTecnico;
+import Enums.ETipoUsuario;
+
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -19,42 +25,56 @@ public class Conexion {
 
             System.out.println("Conexion establecida con exito");
         } catch (ClassNotFoundException e) {
-            throw new RuntimeException("error al correr"+e);
+            throw new RuntimeException("error al correr" + e);
         } catch (SQLException e) {
-            throw new RuntimeException("error al correr sql"+e);
+            throw new RuntimeException("error al correr sql" + e);
         }
     }
+
     public void closeConnection() {
         try {
             conn.close();
         } catch (SQLException ex) {
-            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
 
-//CREACION TABLAS
+    //CREACION TABLAS
 
-    public void crearTablaUsuario() throws SQLException {
+    // Llamar una sola vez despues de createConnection().
+    // El orden importa: las tablas con clave foranea van despues de las que referencian.
+    public void crearTablas() {
+        crearTablaUsuario();
+        crearTablaTecnicos();
+        crearTablaConserje();
+        crearTablaAdministrador();
+        crearTablaHabitacion();
+        crearTablaHotel();
+        crearTablaPasajeros();
+        crearTablaReserva();
+        crearTablaReparaciones();
+    }
 
-        String sql= """
-                    Create table if not exists Usuarios(
-                    nombreUsuario varchar(30) not null primary key,
-                    contrasenia varchar(30) not null,
-                   TipoUsuario varchar(30) 
+    public void crearTablaUsuario() {
+
+        String sql = """
+                    CREATE TABLE IF NOT EXISTS Usuarios(
+                        nombreUsuario VARCHAR(30) NOT NULL PRIMARY KEY,
+                        contrasenia VARCHAR(30) NOT NULL,
+                        TipoUsuario VARCHAR(30)
                     )
-                   
                     """;
-        try{
-            PreparedStatement ps=conn.prepareStatement(sql);
+        try {
+            PreparedStatement ps = conn.prepareStatement(sql);
             ps.executeUpdate();
             ps.close();
         } catch (SQLException ex) {
-            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, ex);
         }
-
     }
-    public void crearTablaTecnicos() throws SQLException {
+
+    public void crearTablaTecnicos() {
 
         String sql = """
             CREATE TABLE IF NOT EXISTS Tecnicos (
@@ -76,21 +96,22 @@ public class Conexion {
             ps.executeUpdate();
             ps.close();
         } catch (SQLException ex) {
-            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+
     public void crearTablaConserje() {
         String sql = "CREATE TABLE IF NOT EXISTS Conserjes(" +
                 "id INT AUTO_INCREMENT PRIMARY KEY, " +
                 "nombre VARCHAR(100), " +
                 "apellido VARCHAR(100), " +
-                "dni VARCHAR(20) unique," +
+                "dni VARCHAR(20) UNIQUE, " +
                 "telefono VARCHAR(20), " +
                 "email VARCHAR(100), " +
-                "nombreUsuario varchar(30), " +
+                "nombreUsuario VARCHAR(30), " +
                 "sueldoPorVenta DOUBLE, " +
-                "legajo varchar(30), "+
-                "FOREIGN KEY (nombreUsuario) REFERENCES Usuarios(nombreUsuarios))";
+                "legajo VARCHAR(30), " +
+                "FOREIGN KEY (nombreUsuario) REFERENCES Usuarios(nombreUsuario))";
 
         try {
             PreparedStatement ps = conn.prepareStatement(sql);
@@ -99,17 +120,17 @@ public class Conexion {
             ps.close();
 
         } catch (SQLException e) {
-            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, e);
+            Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, e);
         }
     }
-
 
     public void crearTablaHabitacion() {
         String sql = "CREATE TABLE IF NOT EXISTS Habitaciones(" +
                 "numero_habitacion INT PRIMARY KEY, " +
                 "cantidad_camas INT, " +
                 "cantidad_maxima_personas INT, " +
-                "estado BOOLEAN)";
+                "estado BOOLEAN, " +
+                "estadoMantenimiento VARCHAR(30))";
 
         try {
             PreparedStatement ps = conn.prepareStatement(sql);
@@ -118,7 +139,7 @@ public class Conexion {
             ps.close();
 
         } catch (SQLException e) {
-            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, e);
+            Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, e);
         }
     }
 
@@ -127,13 +148,13 @@ public class Conexion {
                 "id INT AUTO_INCREMENT PRIMARY KEY, " +
                 "nombre VARCHAR(100), " +
                 "apellido VARCHAR(100), " +
-                "dni VARCHAR(20) unique, " +
+                "dni VARCHAR(20) UNIQUE, " +
                 "telefono VARCHAR(20), " +
                 "email VARCHAR(100), " +
-                "nombreUsuario varchar(30), " +
+                "nombreUsuario VARCHAR(30), " +
                 "legajo VARCHAR(50), " +
                 "sueldo DOUBLE, " +
-                "FOREIGN KEY (nombreUsuario) REFERENCES usuarios(nombreUsuario))";
+                "FOREIGN KEY (nombreUsuario) REFERENCES Usuarios(nombreUsuario))";
 
         try {
             PreparedStatement ps = conn.prepareStatement(sql);
@@ -141,7 +162,7 @@ public class Conexion {
             ps.close();
 
         } catch (SQLException e) {
-            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, e);
+            Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, e);
         }
     }
 
@@ -159,7 +180,32 @@ public class Conexion {
             ps.close();
 
         } catch (SQLException e) {
-            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, e);
+            Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, e);
+        }
+    }
+
+    public void crearTablaPasajeros() {
+
+        String sql = """
+            CREATE TABLE IF NOT EXISTS Pasajeros (
+                DNI VARCHAR(15) NOT NULL PRIMARY KEY,
+                nombre VARCHAR(50) NOT NULL,
+                apellido VARCHAR(50) NOT NULL,
+                telefono VARCHAR(20) NOT NULL,
+                email VARCHAR(100) NOT NULL,
+                nombreUsuario VARCHAR(30) NOT NULL,
+                origen VARCHAR(100) NOT NULL,
+                destino_origen VARCHAR(100) NOT NULL,
+                FOREIGN KEY (nombreUsuario) REFERENCES Usuarios(nombreUsuario)
+            )
+            """;
+
+        try {
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.executeUpdate();
+            ps.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -184,34 +230,10 @@ public class Conexion {
             ps.close();
 
         } catch (SQLException e) {
-            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, e);
+            Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, e);
         }
     }
 
-    public void crearTablaPasajeros() throws SQLException {
-
-        String sql = """
-            CREATE TABLE IF NOT EXISTS Pasajeros (
-                DNI VARCHAR(15) NOT NULL PRIMARY KEY,
-                nombre VARCHAR(50) NOT NULL,
-                apellido VARCHAR(50) NOT NULL,
-                telefono VARCHAR(20) NOT NULL,
-                email VARCHAR(100) NOT NULL,
-                nombreUsuario VARCHAR(30) NOT NULL,
-                origen VARCHAR(100) NOT NULL,
-                destino_origen VARCHAR(100) NOT NULL,
-                FOREIGN KEY (nombreUsuario) REFERENCES Usuarios(nombreUsuario)
-            )
-            """;
-
-        try {
-            PreparedStatement ps = conn.prepareStatement(sql);
-            ps.executeUpdate();
-            ps.close();
-        } catch (SQLException ex) {
-            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
     public void crearTablaReparaciones() {
         String sql = """
             CREATE TABLE IF NOT EXISTS Reparaciones(
@@ -236,12 +258,33 @@ public class Conexion {
 
     ///INSERTAR
 
-    public void insertarConserje(Conserje c) {
-        crearTablaConserje();
-        String sql = "INSERT INTO conserjes(nombre, apellido, dni, telefono, email, id_usuario, sueldoPorVenta,legajo) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?,?)";
+    public void insertarUsuario(Usuario u) {
+        String sql = "INSERT INTO Usuarios(nombreUsuario, contrasenia, TipoUsuario) " +
+                "VALUES (?, ?, ?)";
 
         try {
+            PreparedStatement ps = conn.prepareStatement(sql);
+
+            ps.setString(1, u.getNombreUsuario());
+            ps.setString(2, u.getContrasenia());
+            ps.setString(3, u.getTipoDeUsuario().name()); // enum guardado como texto
+
+            ps.executeUpdate();
+            ps.close();
+
+        } catch (SQLException ex) {
+            Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public void insertarConserje(Conserje c) {
+        String sql = "INSERT INTO Conserjes(nombre, apellido, dni, telefono, email, nombreUsuario, sueldoPorVenta, legajo) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+
+        try {
+            // Si el usuario ya lo insertas por separado, borra esta linea
+            insertarUsuario(c.getUsuario());
+
             PreparedStatement ps = conn.prepareStatement(sql);
 
             ps.setString(1, c.getNombre());
@@ -251,22 +294,24 @@ public class Conexion {
             ps.setString(5, c.getEmail());
             ps.setString(6, c.getUsuario().getNombreUsuario());
             ps.setDouble(7, c.getSueldoPorVenta());
-            ps.setString(8,c.getLegajo());
+            ps.setString(8, c.getLegajo());
 
             ps.executeUpdate();
             ps.close();
 
         } catch (SQLException ex) {
-            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
     public void insertarAdministrador(Administrador administrador) {
-        crearTablaAdministrador();
-        String sql = "INSERT INTO administradores(nombre, apellido, dni, telefono, email, id_usuario, legajo, sueldo) " +
+        String sql = "INSERT INTO Administradores(nombre, apellido, dni, telefono, email, nombreUsuario, legajo, sueldo) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
         try {
+            // Si el usuario ya lo insertas por separado, borra esta linea
+            insertarUsuario(administrador.getUsuario());
+
             PreparedStatement ps = conn.prepareStatement(sql);
 
             ps.setString(1, administrador.getNombre());
@@ -282,15 +327,13 @@ public class Conexion {
             ps.close();
 
         } catch (SQLException e) {
-            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, e);
+            Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, e);
         }
     }
 
-
     public void insertarHabitacion(Habitacion h) {
-        crearTablaHabitacion();
-        String sql = "INSERT INTO habitaciones(numero_habitacion, cantidad_camas, cantidad_maxima_personas, estado) " +
-                "VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO Habitaciones(numero_habitacion, cantidad_camas, cantidad_maxima_personas, estado, estadoMantenimiento) " +
+                "VALUES (?, ?, ?, ?, ?)";
 
         try {
             PreparedStatement ps = conn.prepareStatement(sql);
@@ -299,18 +342,18 @@ public class Conexion {
             ps.setInt(2, h.getCantidadCamas());
             ps.setInt(3, h.getCantidadMaximaPersonas());
             ps.setBoolean(4, h.isDisponible());
+            ps.setString(5, h.getEstadoMantenimiento().name()); // enum guardado como texto
 
             ps.executeUpdate();
             ps.close();
 
         } catch (SQLException ex) {
-            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
     public void insertarHotel(Hotel h) {
-        crearTablaHotel();
-        String sql = "INSERT INTO hoteles(nombre, direccion, cantidad_habitaciones) " +
+        String sql = "INSERT INTO Hotel(nombre, direccion, cantidad_habitaciones) " +
                 "VALUES (?, ?, ?)";
 
         try {
@@ -324,27 +367,7 @@ public class Conexion {
             ps.close();
 
         } catch (SQLException ex) {
-            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
-    public void insertarUsuario(Usuario u) {
-        crearTablaUsuario();
-        String sql = "INSERT INTO Usuarios(nombreUsuario, contrasenia, TipoUsuario) " +
-                "VALUES (?, ?, ?)";
-
-        try {
-            PreparedStatement ps = conn.prepareStatement(sql);
-
-            ps.setString(1, u.getNombreUsuario());
-            ps.setString(2, u.getContrasenia());
-            ps.setString(3, u.getTipoDeUsuario().name()); // enum guardado como texto
-
-            ps.executeUpdate();
-            ps.close();
-
-        } catch (SQLException ex) {
-            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -353,7 +376,7 @@ public class Conexion {
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
         try {
-            // Si el usuario ya lo insertás por separado, borrá esta línea
+            // Si el usuario ya lo insertas por separado, borra esta linea
             insertarUsuario(p.getUsuario());
 
             PreparedStatement ps = conn.prepareStatement(sql);
@@ -371,17 +394,16 @@ public class Conexion {
             ps.close();
 
         } catch (SQLException ex) {
-            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
     public void insertarTecnico(Tecnico t) {
-        crearTablaTecnicos();
         String sql = "INSERT INTO Tecnicos(DNI, nombre, apellido, telefono, email, nombreUsuario, tipo_de_tecnico, formacion, disponible) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try {
-            // Si el usuario ya lo insertás por separado, borrá esta línea
+            // Si el usuario ya lo insertas por separado, borra esta linea
             insertarUsuario(t.getUsuario());
 
             PreparedStatement ps = conn.prepareStatement(sql);
@@ -400,12 +422,11 @@ public class Conexion {
             ps.close();
 
         } catch (SQLException ex) {
-            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
     public void insertarReserva(Reserva r) {
-        crearTablaReserva();
         String sql = "INSERT INTO Reserva(idReserva, idPasajero, idHabitacion, cantidadPasajeros, fechaIngreso, fechaSalida) " +
                 "VALUES (?, ?, ?, ?, ?, ?)";
 
@@ -414,7 +435,7 @@ public class Conexion {
 
             ps.setString(1, r.getIdReserva());
             ps.setString(2, r.getPasajero().getDNI());                // el DNI es la clave de Pasajeros
-            ps.setInt(3, r.getHabitacion().getNumeroHabitacion());    // el número es la clave de Habitaciones
+            ps.setInt(3, r.getHabitacion().getNumeroHabitacion());    // el numero es la clave de Habitaciones
             ps.setInt(4, r.getCantidadPasajeros());
             ps.setDate(5, Date.valueOf(r.getFechaIngreso()));         // LocalDate -> java.sql.Date
             ps.setDate(6, Date.valueOf(r.getFechaSalida()));
@@ -423,13 +444,11 @@ public class Conexion {
             ps.close();
 
         } catch (SQLException ex) {
-            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
-
     public void insertarReparacion(Habitacion h, Tecnico t) {
-        crearTablaReparaciones();
         String sql = "INSERT INTO Reparaciones(numero_habitacion, dniTecnico) VALUES (?, ?)";
 
         try {
@@ -447,14 +466,308 @@ public class Conexion {
     }
 
 
-///MODIFICAR
+    ///MODIFICAR
 
 
     ///ELIMINAR
 
-///LISTAR
+    // Cuando se termina una reparacion hay que sacarla de la tabla
+    public void eliminarReparacion(Habitacion h) {
+        String sql = "DELETE FROM Reparaciones WHERE numero_habitacion = ?";
+
+        try {
+            PreparedStatement ps = conn.prepareStatement(sql);
+
+            ps.setInt(1, h.getNumeroHabitacion());
+
+            ps.executeUpdate();
+            ps.close();
+
+        } catch (SQLException ex) {
+            Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
 
 
-    
+    ///LISTAR
+
+    // Orden para cargar (unos dependen de otros):
+    //   HashMap<String, Usuario> usuarios = listarUsuarios();
+    //   HashMap<String, Pasajero> pasajeros = listarPasajeros(usuarios);
+    //   HashMap<String, Tecnico> tecnicos = listarTecnicos(usuarios);
+    //   HashMap<String, Conserje> conserjes = listarConserjes(usuarios);
+    //   HashMap<String, Administrador> administradores = listarAdministradores(usuarios);
+    //   HashMap<String, Habitacion> habitaciones = listarHabitaciones();
+    //   HashMap<String, Reserva> reservas = listarReservas(pasajeros, habitaciones);
+    //   HashMap<Habitacion, Tecnico> reparaciones = listarReparaciones(habitaciones, tecnicos);
+    //   Hotel hotel = listarHotel();
+
+    public HashMap<String, Usuario> listarUsuarios() {
+        HashMap<String, Usuario> mapa = new HashMap<>();
+        String sql = "SELECT nombreUsuario, contrasenia, TipoUsuario FROM Usuarios";
+
+        try {
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Usuario u = new Usuario(
+                        rs.getString("nombreUsuario"),
+                        rs.getString("contrasenia"),
+                        ETipoUsuario.valueOf(rs.getString("TipoUsuario")) // varchar -> enum
+                );
+                mapa.put(u.getNombreUsuario(), u);
+            }
+
+            rs.close();
+            ps.close();
+
+        } catch (SQLException ex) {
+            Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return mapa;
+    }
+
+    public HashMap<String, Pasajero> listarPasajeros(HashMap<String, Usuario> usuarios) {
+        HashMap<String, Pasajero> mapa = new HashMap<>();
+        String sql = "SELECT DNI, nombre, apellido, telefono, email, nombreUsuario, origen, destino_origen FROM Pasajeros";
+
+        try {
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Pasajero p = new Pasajero(
+                        rs.getString("nombre"),
+                        rs.getString("apellido"),
+                        rs.getString("DNI"),
+                        rs.getString("telefono"),
+                        rs.getString("email"),
+                        usuarios.get(rs.getString("nombreUsuario")),
+                        rs.getString("origen"),
+                        rs.getString("destino_origen")
+                );
+                mapa.put(p.getDNI(), p);
+            }
+
+            rs.close();
+            ps.close();
+
+        } catch (SQLException ex) {
+            Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return mapa;
+    }
+
+    public HashMap<String, Tecnico> listarTecnicos(HashMap<String, Usuario> usuarios) {
+        HashMap<String, Tecnico> mapa = new HashMap<>();
+        String sql = "SELECT DNI, nombre, apellido, telefono, email, nombreUsuario, tipo_de_tecnico, formacion, disponible FROM Tecnicos";
+
+        try {
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Tecnico t = new Tecnico(
+                        rs.getString("nombre"),
+                        rs.getString("apellido"),
+                        rs.getString("DNI"),
+                        rs.getString("telefono"),
+                        rs.getString("email"),
+                        usuarios.get(rs.getString("nombreUsuario")),
+                        ETipoTecnico.valueOf(rs.getString("tipo_de_tecnico")), // varchar -> enum
+                        rs.getString("formacion"),
+                        rs.getBoolean("disponible")
+                );
+                mapa.put(t.getDNI(), t);
+            }
+
+            rs.close();
+            ps.close();
+
+        } catch (SQLException ex) {
+            Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return mapa;
+    }
+
+    public HashMap<String, Conserje> listarConserjes(HashMap<String, Usuario> usuarios) {
+        HashMap<String, Conserje> mapa = new HashMap<>();
+        String sql = "SELECT nombre, apellido, dni, telefono, email, nombreUsuario, legajo, sueldoPorVenta FROM Conserjes";
+
+        try {
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Conserje c = new Conserje(
+                        rs.getString("nombre"),
+                        rs.getString("apellido"),
+                        rs.getString("dni"),
+                        rs.getString("telefono"),
+                        rs.getString("email"),
+                        usuarios.get(rs.getString("nombreUsuario")),
+                        rs.getString("legajo"),
+                        rs.getDouble("sueldoPorVenta")
+                );
+                mapa.put(c.getDNI(), c);
+            }
+
+            rs.close();
+            ps.close();
+
+        } catch (SQLException ex) {
+            Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return mapa;
+    }
+
+    public HashMap<String, Administrador> listarAdministradores(HashMap<String, Usuario> usuarios) {
+        HashMap<String, Administrador> mapa = new HashMap<>();
+        String sql = "SELECT nombre, apellido, dni, telefono, email, nombreUsuario, legajo, sueldo FROM Administradores";
+
+        try {
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Administrador a = new Administrador(
+                        rs.getString("nombre"),
+                        rs.getString("apellido"),
+                        rs.getString("dni"),
+                        rs.getString("telefono"),
+                        rs.getString("email"),
+                        usuarios.get(rs.getString("nombreUsuario")),
+                        rs.getString("legajo"),
+                        rs.getDouble("sueldo")
+                );
+                mapa.put(a.getDNI(), a);
+            }
+
+            rs.close();
+            ps.close();
+
+        } catch (SQLException ex) {
+            Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return mapa;
+    }
+
+    public HashMap<String, Habitacion> listarHabitaciones() {
+        HashMap<String, Habitacion> mapa = new HashMap<>();
+        String sql = "SELECT numero_habitacion, cantidad_camas, cantidad_maxima_personas, estado, estadoMantenimiento FROM Habitaciones";
+
+        try {
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Habitacion h = new Habitacion(
+                        rs.getInt("numero_habitacion"),
+                        rs.getInt("cantidad_camas"),
+                        rs.getInt("cantidad_maxima_personas")
+                );
+                h.setDisponible(rs.getBoolean("estado"));
+                h.setEstadoMantenimiento(EEstadoMantenimiento.valueOf(rs.getString("estadoMantenimiento"))); // varchar -> enum
+                mapa.put(String.valueOf(h.getNumeroHabitacion()), h);
+            }
+
+            rs.close();
+            ps.close();
+
+        } catch (SQLException ex) {
+            Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return mapa;
+    }
+
+    public HashMap<String, Reserva> listarReservas(HashMap<String, Pasajero> pasajeros,
+                                                   HashMap<String, Habitacion> habitaciones) {
+        HashMap<String, Reserva> mapa = new HashMap<>();
+        String sql = "SELECT idReserva, idPasajero, idHabitacion, cantidadPasajeros, fechaIngreso, fechaSalida FROM Reserva";
+
+        try {
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Pasajero p = pasajeros.get(rs.getString("idPasajero"));
+                Habitacion h = habitaciones.get(String.valueOf(rs.getInt("idHabitacion")));
+
+                if (p == null || h == null) {
+                    continue; // reserva sin pasajero o habitacion cargados: se omite
+                }
+
+                Reserva r = new Reserva(
+                        p,
+                        h,
+                        rs.getInt("cantidadPasajeros"),
+                        rs.getDate("fechaIngreso").toLocalDate(),  // java.sql.Date -> LocalDate
+                        rs.getDate("fechaSalida").toLocalDate()
+                );
+                r.setIdReserva(rs.getString("idReserva")); // el constructor genera un id nuevo, hay que pisarlo
+                mapa.put(r.getIdReserva(), r);
+            }
+
+            rs.close();
+            ps.close();
+
+        } catch (SQLException ex) {
+            Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return mapa;
+    }
+
+    public HashMap<Habitacion, Tecnico> listarReparaciones(HashMap<String, Habitacion> habitaciones,
+                                                           HashMap<String, Tecnico> tecnicos) {
+        HashMap<Habitacion, Tecnico> mapa = new HashMap<>();
+        String sql = "SELECT numero_habitacion, dniTecnico FROM Reparaciones";
+
+        try {
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Habitacion h = habitaciones.get(String.valueOf(rs.getInt("numero_habitacion")));
+                Tecnico t = tecnicos.get(rs.getString("dniTecnico"));
+
+                if (h != null && t != null) {
+                    mapa.put(h, t);
+                }
+            }
+
+            rs.close();
+            ps.close();
+
+        } catch (SQLException ex) {
+            Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return mapa;
+    }
+
+    public Hotel listarHotel() {
+        Hotel hotel = null;
+        String sql = "SELECT nombre, direccion, cantidad_habitaciones FROM Hotel LIMIT 1";
+
+        try {
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                hotel = new Hotel(
+                        rs.getString("nombre"),
+                        rs.getString("direccion"),
+                        rs.getInt("cantidad_habitaciones")
+                );
+            }
+
+            rs.close();
+            ps.close();
+
+        } catch (SQLException ex) {
+            Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return hotel;
+    }
 
 }
