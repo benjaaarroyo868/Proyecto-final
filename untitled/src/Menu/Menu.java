@@ -19,13 +19,25 @@ import static Menu.GestionReservas.*;
 import static Menu.GestionUsuarios.*;
 import static Menu.ValidacionesMenu.*;
 
-
+/**
+ * MENÚS, INICIO DE SESIÓN Y PANTALLAS GENERALES
+ * Extraído del Menu.java original. No se alteraron los cuerpos de los métodos.
+ */
 public class Menu {
 
     // ============================================================
     // menuPrincipal
     // ============================================================
     public static void menuPrincipal(Hotel hotel) {
+
+        try {
+            GestionBaseDatos.iniciar(hotel);
+        } catch (IllegalStateException e) {
+            System.out.println(ROJO + "No se puede iniciar el hotel con MySQL: "
+                    + e.getMessage() + RESET);
+            GestionBaseDatos.cerrar();
+            return;
+        }
 
         int opcion;
 
@@ -70,6 +82,7 @@ public class Menu {
 
                 case 0:
                     mostrarCierre();
+                    GestionBaseDatos.cerrar();
                     break;
             }
 
@@ -167,7 +180,8 @@ public class Menu {
             System.out.println(
                     "║   21. Gestionar Reparación de Habitación  ║");
             System.out.println(
-                    "║   22. Finalizar Reparación                ║" + RESET);
+                    "║   22. Finalizar Reparación                ║");
+
 
             System.out.println(CYAN +
                     "║                                           ║" + RESET);
@@ -277,6 +291,7 @@ public class Menu {
                 case 22:
                     ponerHabitacionReparada(hotel);
                     break;
+
 
                 // CERRAR SESIÓN
                 case 0:

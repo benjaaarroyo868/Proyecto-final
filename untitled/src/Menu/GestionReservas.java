@@ -15,7 +15,10 @@ import static Menu.ConsolaHotel.*;
 import static Menu.GestionHabitaciones.*;
 import static Menu.ValidacionesMenu.*;
 
-
+/**
+ * RESERVAS Y SUS VALIDACIONES DE DISPONIBILIDAD
+ * Extraído del Menu.java original. No se alteraron los cuerpos de los métodos.
+ */
 public class GestionReservas {
 
     // ============================================================
@@ -326,6 +329,14 @@ public class GestionReservas {
                 nuevoPasajero.validarDatos();
 
                 hotel.agregarPasajero(nuevoPasajero);
+                try {
+                    GestionBaseDatos.guardarPasajero(nuevoPasajero);
+                } catch (IllegalStateException e) {
+                    hotel.getPasajeros().eliminar(nuevoPasajero.getDNI());
+                    System.out.println(ROJO + "No se pudo guardar el pasajero en MySQL: "
+                            + e.getMessage() + RESET);
+                    return null;
+                }
 
                 System.out.println();
                 System.out.println(VERDE +
@@ -487,6 +498,16 @@ public class GestionReservas {
 
                 hotel.eliminarPasajero(dni);
                 throw e;
+            }
+
+            try {
+                GestionBaseDatos.guardarPasajero(nuevoPasajero);
+            } catch (IllegalStateException e) {
+                hotel.getPasajeros().eliminar(dni);
+                hotel.getUsuarios().eliminar(usuarioPasajero.getNombreUsuario());
+                System.out.println(ROJO + "No se pudo guardar el pasajero en MySQL: "
+                        + e.getMessage() + RESET);
+                return null;
             }
 
             System.out.println();
@@ -977,6 +998,15 @@ public class GestionReservas {
 
         if (hotel.agregarReserva(reserva)) {
 
+            try {
+                GestionBaseDatos.guardarReserva(reserva);
+            } catch (IllegalStateException e) {
+                hotel.getReservas().eliminar(reserva.getIdReserva());
+                System.out.println(ROJO + "No se guardó la reserva en MySQL. Reserva cancelada: "
+                        + e.getMessage() + RESET);
+                return;
+            }
+
             System.out.println(VERDE +
                     "║  Reserva realizada correctamente" + RESET);
 
@@ -1232,7 +1262,15 @@ public class GestionReservas {
 
                             if (confirmarEliminacion()) {
 
+                                java.time.LocalDate anterior = reserva.getFechaIngreso();
                                 reserva.setFechaIngreso(nuevaEntrada);
+                                try {
+                                    GestionBaseDatos.modificarFechaIngreso(reserva.getIdReserva(), nuevaEntrada);
+                                } catch (IllegalStateException e) {
+                                    reserva.setFechaIngreso(anterior);
+                                    System.out.println(ROJO + "MySQL rechazó el cambio: " + e.getMessage() + RESET);
+                                    break;
+                                }
 
                                 System.out.println(VERDE +
                                         "║  Fecha de entrada modificada correctamente"
@@ -1341,7 +1379,15 @@ public class GestionReservas {
 
                             if (confirmarEliminacion()) {
 
+                                java.time.LocalDate anterior = reserva.getFechaSalida();
                                 reserva.setFechaSalida(nuevaSalida);
+                                try {
+                                    GestionBaseDatos.modificarFechaSalida(reserva.getIdReserva(), nuevaSalida);
+                                } catch (IllegalStateException e) {
+                                    reserva.setFechaSalida(anterior);
+                                    System.out.println(ROJO + "MySQL rechazó el cambio: " + e.getMessage() + RESET);
+                                    break;
+                                }
 
                                 System.out.println(VERDE +
                                         "║  Fecha de salida modificada correctamente"
@@ -1511,8 +1557,18 @@ public class GestionReservas {
 
                     if (confirmarEliminacion()) {
 
+                        java.time.LocalDate entradaAnterior = reserva.getFechaIngreso();
+                        java.time.LocalDate salidaAnterior = reserva.getFechaSalida();
                         reserva.setFechaIngreso(nuevaEntrada);
                         reserva.setFechaSalida(nuevaSalida);
+                        try {
+                            GestionBaseDatos.modificarFechasReserva(reserva.getIdReserva(), nuevaEntrada, nuevaSalida);
+                        } catch (IllegalStateException e) {
+                            reserva.setFechaIngreso(entradaAnterior);
+                            reserva.setFechaSalida(salidaAnterior);
+                            System.out.println(ROJO + "MySQL rechazó el cambio: " + e.getMessage() + RESET);
+                            break;
+                        }
 
                         System.out.println(VERDE +
                                 "║  Ambas fechas modificadas correctamente"
@@ -1584,7 +1640,15 @@ public class GestionReservas {
 
                             if (confirmarEliminacion()) {
 
+                                int anterior = reserva.getCantidadPasajeros();
                                 reserva.setCantidadPasajeros(cantidad);
+                                try {
+                                    GestionBaseDatos.modificarCantidadPersonas(reserva.getIdReserva(), cantidad);
+                                } catch (IllegalStateException e) {
+                                    reserva.setCantidadPasajeros(anterior);
+                                    System.out.println(ROJO + "MySQL rechazó el cambio: " + e.getMessage() + RESET);
+                                    break;
+                                }
 
                                 System.out.println(VERDE +
                                         "║  Cantidad modificada correctamente"
@@ -1722,7 +1786,15 @@ public class GestionReservas {
 
                     if (confirmarEliminacion()) {
 
+                        Habitacion anterior = reserva.getHabitacion();
                         reserva.setHabitacion(seleccionada);
+                        try {
+                            GestionBaseDatos.modificarNumeroHabitacion(reserva.getIdReserva(), seleccionada.getNumeroHabitacion());
+                        } catch (IllegalStateException e) {
+                            reserva.setHabitacion(anterior);
+                            System.out.println(ROJO + "MySQL rechazó el cambio: " + e.getMessage() + RESET);
+                            break;
+                        }
 
                         System.out.println(VERDE +
                                 "║  Habitación modificada correctamente"
@@ -1804,6 +1876,14 @@ public class GestionReservas {
 
         // CONFIRMAR ELIMINACIÓN
         if (confirmarEliminacion()) {
+
+            try {
+                GestionBaseDatos.eliminarReserva(id);
+            } catch (IllegalStateException e) {
+                System.out.println(ROJO + "No se eliminó la reserva en MySQL: "
+                        + e.getMessage() + RESET);
+                return;
+            }
 
             if (hotel.eliminarReserva(id)) {
 

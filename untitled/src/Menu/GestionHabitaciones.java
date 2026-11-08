@@ -14,7 +14,10 @@ import java.util.*;
 import static Menu.ConsolaHotel.*;
 import static Menu.ValidacionesMenu.*;
 
-
+/**
+ * HABITACIONES Y MANTENIMIENTO
+ * Extraído del Menu.java original. No se alteraron los cuerpos de los métodos.
+ */
 public class GestionHabitaciones {
 
     // ============================================================
@@ -228,16 +231,26 @@ public class GestionHabitaciones {
 
             try {
 
-                if (estadoActual ==
-                        EEstadoMantenimiento.EN_REPARACION) {
-
-                    // FINALIZAR REPARACIÓN Y LIBERAR TÉCNICO
+                if (estadoActual == EEstadoMantenimiento.EN_REPARACION) {
+                    Tecnico tecnico = hotel.obtenerTecnicoAsignado(habitacion);
                     hotel.finalizarReparacion(habitacion);
-
+                    // Como el usuario eligió NORMAL, ese debe ser el estado
+                    // tanto en el mapa como en MySQL (sin dejar REPARADA).
+                    habitacion.setEstadoMantenimiento(EEstadoMantenimiento.NORMAL);
+                    try {
+                        GestionBaseDatos.finalizarReparacion(habitacion, tecnico);
+                    } catch (IllegalStateException e) {
+                        hotel.reponerReparacion(habitacion, tecnico);
+                        throw e;
+                    }
                 } else {
-
-                    habitacion.setEstadoMantenimiento(
-                            EEstadoMantenimiento.NORMAL);
+                    habitacion.setEstadoMantenimiento(EEstadoMantenimiento.NORMAL);
+                    try {
+                        GestionBaseDatos.guardarEstadoHabitacion(habitacion);
+                    } catch (IllegalStateException e) {
+                        habitacion.setEstadoMantenimiento(estadoActual);
+                        throw e;
+                    }
                 }
 
                 System.out.println();
@@ -293,6 +306,12 @@ public class GestionHabitaciones {
             try {
 
                 hotel.registrarNecesidadReparacion(habitacion);
+                try {
+                    GestionBaseDatos.guardarEstadoHabitacion(habitacion);
+                } catch (IllegalStateException e) {
+                    habitacion.setEstadoMantenimiento(estadoActual);
+                    throw e;
+                }
 
                 System.out.println(VERDE +
                         "╔═══════════════════════════════════════════╗");
@@ -476,7 +495,14 @@ public class GestionHabitaciones {
                             "El técnico no está disponible");
                 }
 
+                EEstadoMantenimiento estadoAntesDeAsignar = habitacion.getEstadoMantenimiento();
                 hotel.asignarTecnico(habitacion, seleccionado);
+                try {
+                    GestionBaseDatos.guardarReparacion(habitacion, seleccionado);
+                } catch (IllegalStateException e) {
+                    hotel.deshacerAsignacion(habitacion, seleccionado, estadoAntesDeAsignar);
+                    throw e;
+                }
 
                 System.out.println();
                 System.out.println(VERDE +
@@ -647,6 +673,7 @@ public class GestionHabitaciones {
 
             // FINALIZAR REPARACIÓN
             // LIBERA AL TÉCNICO Y CAMBIA A REPARADA
+            Tecnico tecnicoLiberado = hotel.obtenerTecnicoAsignado(seleccionada);
             hotel.finalizarReparacion(seleccionada);
 
             // MOSTRAR ESTADO REPARADA
@@ -673,6 +700,12 @@ public class GestionHabitaciones {
             // CAMBIAR AUTOMÁTICAMENTE A NORMAL
             seleccionada.setEstadoMantenimiento(
                     EEstadoMantenimiento.NORMAL);
+            try {
+                GestionBaseDatos.finalizarReparacion(seleccionada, tecnicoLiberado);
+            } catch (IllegalStateException e) {
+                hotel.reponerReparacion(seleccionada, tecnicoLiberado);
+                throw e;
+            }
 
             // MOSTRAR ESTADO FINAL
             System.out.println();
@@ -918,10 +951,14 @@ public class GestionHabitaciones {
 
         try {
 
-            hotel.asignarTecnico(
-                    seleccionada,
-                    tecnicoSeleccionado
-            );
+            EEstadoMantenimiento estadoPrevio = seleccionada.getEstadoMantenimiento();
+            hotel.asignarTecnico(seleccionada, tecnicoSeleccionado);
+            try {
+                GestionBaseDatos.guardarReparacion(seleccionada, tecnicoSeleccionado);
+            } catch (IllegalStateException e) {
+                hotel.deshacerAsignacion(seleccionada, tecnicoSeleccionado, estadoPrevio);
+                throw e;
+            }
 
             System.out.println(VERDE +
                     "╔═══════════════════════════════════════════╗");

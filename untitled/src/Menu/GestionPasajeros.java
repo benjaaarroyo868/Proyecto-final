@@ -14,6 +14,10 @@ import java.util.*;
 import static Menu.ConsolaHotel.*;
 import static Menu.ValidacionesMenu.*;
 
+/**
+ * PASAJEROS
+ * Extraído del Menu.java original. No se alteraron los cuerpos de los métodos.
+ */
 public class GestionPasajeros {
 
     // ============================================================
@@ -105,6 +109,16 @@ public class GestionPasajeros {
                 // SI FALLA EL USUARIO, DESHACER EL REGISTRO
                 hotel.eliminarPasajero(dni);
                 throw e;
+            }
+
+            try {
+                GestionBaseDatos.guardarPasajero(pasajero);
+            } catch (IllegalStateException e) {
+                hotel.getPasajeros().eliminar(dni);
+                hotel.getUsuarios().eliminar(usuario.getNombreUsuario());
+                System.out.println(ROJO + "No se guardó el pasajero en MySQL. Registro cancelado: "
+                        + e.getMessage() + RESET);
+                return;
             }
 
             System.out.println();
@@ -232,8 +246,12 @@ public class GestionPasajeros {
             // CONFIRMAR ELIMINACIÓN
             if (confirmarEliminacion()) {
 
-                System.out.println(VERDE +
-                        hotel.eliminarPasajero(dni) + RESET);
+                try {
+                    GestionBaseDatos.eliminarPasajero(dni);
+                    System.out.println(VERDE + hotel.eliminarPasajero(dni) + RESET);
+                } catch (IllegalStateException e) {
+                    System.out.println(ROJO + "No se eliminó el pasajero: " + e.getMessage() + RESET);
+                }
 
             } else {
 
