@@ -21,19 +21,14 @@ public class Conexion {
     public void createConnection() {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            String url = System.getenv().getOrDefault("HOTEL_DB_URL", "jdbc:mysql://localhost:3306/");
-            String usuario = System.getenv("HOTEL_DB_USER");
-            String contrasenia = System.getenv("HOTEL_DB_PASSWORD");
-            if (usuario == null || usuario.isBlank() || contrasenia == null) {
-                throw new IllegalStateException("Configurá HOTEL_DB_USER y HOTEL_DB_PASSWORD en IntelliJ");
-            }
-            conn = DriverManager.getConnection(url, usuario, contrasenia);
+            conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/", "root", "Scrfiat868877");
 
             System.out.println("Conexion establecida con exito");
         } catch (ClassNotFoundException e) {
-            throw new RuntimeException("error al correr" + e);
+            System.out.println("Error al conectar el driver");
         } catch (SQLException e) {
-            throw new RuntimeException("error al correr sql" + e);
+
+            System.out.println("Error al conectar con la base de datos");
         }
     }
 
@@ -55,8 +50,11 @@ public class Conexion {
     public void crearBaseDatos(String nombre) {
         validarNombreBaseDatos(nombre);
         String sql = "CREATE DATABASE IF NOT EXISTS `" + nombre + "`";
-        try (java.sql.Statement st = conn.createStatement()) {
-            st.executeUpdate(sql);
+        try {
+            PreparedStatement ps = conn.prepareStatement(sql);
+           ps.executeUpdate();
+           ps.close();
+
         } catch (SQLException e) {
             throw new IllegalStateException("Error al crear la base de datos: " + e.getMessage(), e);
         }

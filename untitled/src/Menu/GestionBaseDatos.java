@@ -19,8 +19,8 @@ public class GestionBaseDatos {
         try {
             Conexion nueva = new Conexion();
             nueva.createConnection();
-            nueva.crearBaseDatos("BDHotelConte");
-            nueva.usarBaseDatos("BDHotelConte");
+            nueva.crearBaseDatos("HotelConte");
+            nueva.usarBaseDatos("HotelConte");
             nueva.crearTablas();
             conexion = nueva;
             return true;

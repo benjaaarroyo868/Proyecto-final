@@ -233,8 +233,7 @@ public class ValidacionesMenu {
         while (true) {
 
             System.out.println(AMARILLO +
-                    "║  ¿Desea eliminarlo? (Si/No)" + RESET);
-
+                    "¿Desea realizar el cambio? (Si/No)" + RESET);
             System.out.print(VERDE +
                     "║  ➜ " + RESET);
 

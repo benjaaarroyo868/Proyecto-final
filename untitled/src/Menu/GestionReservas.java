@@ -998,12 +998,29 @@ public class GestionReservas {
 
         if (hotel.agregarReserva(reserva)) {
 
+
             try {
+
                 GestionBaseDatos.guardarReserva(reserva);
+
             } catch (IllegalStateException e) {
-                hotel.getReservas().eliminar(reserva.getIdReserva());
-                System.out.println(ROJO + "No se guardó la reserva en MySQL. Reserva cancelada: "
-                        + e.getMessage() + RESET);
+
+                try {
+
+                    hotel.getReservas().eliminar(reserva.getIdReserva());
+
+                } catch (DatoInvalidoException ex) {
+
+                    System.out.println(ROJO +
+                            "ERROR al eliminar la reserva del mapa: " +
+                            ex.getMessage() + RESET);
+
+                }
+
+                System.out.println(ROJO +
+                        "No se guardó la reserva en MySQL: " +
+                        e.getMessage() + RESET);
+
                 return;
             }
 
