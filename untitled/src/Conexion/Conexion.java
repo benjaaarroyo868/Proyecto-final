@@ -21,7 +21,7 @@ public class Conexion {
     public void createConnection() {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/BDHotelConte", "winterfa", "Mecortaronelfrenilloen2024");
+            conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/", "winterfa", "Mecortaronelfrenilloen2024");
 
             System.out.println("Conexion establecida con exito");
         } catch (ClassNotFoundException e) {
@@ -36,6 +36,30 @@ public class Conexion {
             conn.close();
         } catch (SQLException ex) {
             Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public void crearBaseDatos (String nombre){
+        String sql = "CREATE DATABASE IF NOT EXISTS "+nombre;
+
+        try {
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.executeUpdate();
+            ps.close();
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al crear la base de datos" +e);
+        }
+    }
+
+    public void usarBaseDatos (String nombre){
+        String sql = "USE "+nombre;
+
+        try {
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.executeUpdate();
+            ps.close();
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al usar la base de datos"+e);
         }
     }
 
