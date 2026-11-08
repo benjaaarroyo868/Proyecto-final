@@ -472,6 +472,134 @@ public class Conexion {
     ///MODIFICAR
 
 
+    // MODIFICAR ESTADO DE HABITACION
+    public void modificarEstadoHabitacion(int numeroHabitacion, boolean disponible, EEstadoMantenimiento estadoMantenimiento) {
+        String sql = "UPDATE Habitaciones SET estado = ?, estadoMantenimiento = ? WHERE numero_habitacion = ?";
+
+        try {
+            PreparedStatement ps = conn.prepareStatement(sql);
+
+            ps.setBoolean(1, disponible);
+            ps.setString(2, estadoMantenimiento.name());
+            ps.setInt(3, numeroHabitacion);
+
+            ps.executeUpdate();
+            ps.close();
+
+        } catch (SQLException ex) {
+            Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    // MODIFICAR USUARIO
+    public void modificarUsuario(String nombreUsuario, String nuevoNombreUsuario, String nuevaContrasenia) {
+        String sql = "UPDATE Usuarios SET nombreUsuario = ?, contrasenia = ? WHERE nombreUsuario = ?";
+
+        try {
+            PreparedStatement ps = conn.prepareStatement(sql);
+
+            ps.setString(1, nuevoNombreUsuario);
+            ps.setString(2, nuevaContrasenia);
+            ps.setString(3, nombreUsuario);
+
+            ps.executeUpdate();
+            ps.close();
+
+        } catch (SQLException ex) {
+            Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    // MODIFICAR FECHA DE INGRESO
+    public void modificarFechaIngreso(String idReserva, java.time.LocalDate nuevaFechaIngreso) {
+        String sql = "UPDATE Reserva SET fechaIngreso = ? WHERE idReserva = ?";
+
+        try {
+            PreparedStatement ps = conn.prepareStatement(sql);
+
+            ps.setDate(1, Date.valueOf(nuevaFechaIngreso));
+            ps.setString(2, idReserva);
+
+            ps.executeUpdate();
+            ps.close();
+
+        } catch (SQLException ex) {
+            Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    // MODIFICAR FECHA DE SALIDA
+    public void modificarFechaSalida(String idReserva, java.time.LocalDate nuevaFechaSalida) {
+        String sql = "UPDATE Reserva SET fechaSalida = ? WHERE idReserva = ?";
+
+        try {
+            PreparedStatement ps = conn.prepareStatement(sql);
+
+            ps.setDate(1, Date.valueOf(nuevaFechaSalida));
+            ps.setString(2, idReserva);
+
+            ps.executeUpdate();
+            ps.close();
+
+        } catch (SQLException ex) {
+            Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    // MODIFICAR AMBAS FECHAS
+    public void modificarFechasReserva(String idReserva, java.time.LocalDate nuevaFechaIngreso, java.time.LocalDate nuevaFechaSalida) {
+        String sql = "UPDATE Reserva SET fechaIngreso = ?, fechaSalida = ? WHERE idReserva = ?";
+
+        try {
+            PreparedStatement ps = conn.prepareStatement(sql);
+
+            ps.setDate(1, Date.valueOf(nuevaFechaIngreso));
+            ps.setDate(2, Date.valueOf(nuevaFechaSalida));
+            ps.setString(3, idReserva);
+
+            ps.executeUpdate();
+            ps.close();
+
+        } catch (SQLException ex) {
+            Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    // MODIFICAR NUMERO DE HABITACION
+    public void modificarNumeroHabitacion(String idReserva, int nuevoNumeroHabitacion) {
+        String sql = "UPDATE Reserva SET idHabitacion = ? WHERE idReserva = ?";
+
+        try {
+            PreparedStatement ps = conn.prepareStatement(sql);
+
+            ps.setInt(1, nuevoNumeroHabitacion);
+            ps.setString(2, idReserva);
+
+            ps.executeUpdate();
+            ps.close();
+
+        } catch (SQLException ex) {
+            Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    // MODIFICAR CANTIDAD DE PERSONAS
+    public void modificarCantidadPersonas(String idReserva, int nuevaCantidadPersonas) {
+        String sql = "UPDATE Reserva SET cantidadPasajeros = ? WHERE idReserva = ?";
+
+        try {
+            PreparedStatement ps = conn.prepareStatement(sql);
+
+            ps.setInt(1, nuevaCantidadPersonas);
+            ps.setString(2, idReserva);
+
+            ps.executeUpdate();
+            ps.close();
+
+        } catch (SQLException ex) {
+            Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
     ///ELIMINAR
 
     // Cuando se termina una reparacion hay que sacarla de la tabla
