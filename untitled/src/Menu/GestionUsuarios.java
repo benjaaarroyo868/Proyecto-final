@@ -24,46 +24,125 @@ public class GestionUsuarios {
     // ============================================================
     // registrarUsuario
     // ============================================================
+    /**
+     * REGISTRARSE: crea la cuenta de usuario y su ficha de pasajero.
+     * Si falla una operación, revierte los cambios realizados en los mapas.
+     * GestionBaseDatos.guardarPasajero() inserta ambos registros en MySQL
+     * dentro de una transacción (Usuario y Pasajero).
+     */
     public static void registrarUsuario(Hotel hotel) {
 
         System.out.println();
         System.out.println(CYAN +
                 "╔═══════════════════════════════════════════╗");
-        System.out.println("║             REGISTRAR USUARIO             ║");
+        System.out.println("║         REGISTRARSE COMO PASAJERO         ║");
         System.out.println("╠═══════════════════════════════════════════╣" + RESET);
 
-        // PEDIR DATOS DEL USUARIO
-        String nombre = pedirNombreUsuario(hotel);
-        String contrasenia = pedirContrasenia();
+        // 1. DATOS PERSONALES
+        String nombre = pedirSoloLetras("Nombre", sc);
+        String apellido = pedirSoloLetras("Apellido", sc);
 
-        // CREAR USUARIO DE TIPO PASAJERO
-        Usuario nuevo = new Usuario(
-                nombre,
-                contrasenia,
-                ETipoUsuario.PASAJERO
-        );
+        String dni;
+        while (true) {
+            dni = pedirDni();
 
-        // GUARDAR USUARIO
-        try {
-
-            String resultado = hotel.agregarUsuario(nuevo);
-            try {
-                GestionBaseDatos.guardarUsuario(nuevo);
-                System.out.println(VERDE + resultado + RESET);
-            } catch (IllegalStateException e) {
-                hotel.getUsuarios().eliminar(nuevo.getNombreUsuario());
-                System.out.println(ROJO + "No se guardó el usuario en MySQL. Se canceló el registro: "
-                        + e.getMessage() + RESET);
+            // La validación de Pasajero exige exactamente ocho dígitos.
+            if (!dni.matches("[0-9]{8}")) {
+                System.out.println(ROJO +
+                        "║  ERROR: El DNI debe tener 8 números" + RESET);
+                continue;
             }
-
-        } catch (AgenciaHotelException e) {
-
-            System.out.println(ROJO +
-                    "ERROR: " + e.getMessage() + RESET);
+            if (hotel.getPasajeros().containsKey(dni)) {
+                System.out.println(ROJO +
+                        "║  ERROR: Ya existe un pasajero con ese DNI" + RESET);
+                continue;
+            }
+            break;
         }
 
+        String telefono;
+        while (true) {
+            telefono = pedirTelefono();
+            // La clase Pasajero valida que tenga diez dígitos.
+            if (telefono.matches("[0-9]{10}")) break;
+            System.out.println(ROJO +
+                    "║  ERROR: El teléfono debe tener 10 números" + RESET);
+        }
+
+        String email = pedirEmail();
+
+        // 2. CUENTA DEL PASAJERO
         System.out.println(CYAN +
-                "╚═══════════════════════════════════════════╝" + RESET);
+                "╠═══════════════════════════════════════════╣");
+        System.out.println("║            DATOS DE LA CUENTA             ║");
+        System.out.println("╠═══════════════════════════════════════════╣" + RESET);
+
+        String nombreUsuario = pedirNombreUsuario(hotel);
+        String contrasenia = pedirContrasenia();
+
+        Usuario usuario = new Usuario(
+                nombreUsuario, contrasenia, ETipoUsuario.PASAJERO);
+
+        // 3. DATOS NECESARIOS PARA CONSTRUIR EL PASAJERO
+        String origen = pedirSoloLetras("Origen", sc);
+        String destino = pedirSoloLetras("Destino", sc);
+
+        Pasajero pasajero = new Pasajero(
+                nombre, apellido, dni, telefono, email,
+                usuario, origen, destino);
+
+        boolean usuarioAgregado = false;
+        boolean pasajeroAgregado = false;
+
+        try {
+            usuario.validarDatos();
+            pasajero.validarDatos();
+
+            // 4. GUARDAR EN LOS MAPAS DE JAVA
+            hotel.agregarUsuario(usuario);
+            usuarioAgregado = true;
+            hotel.agregarPasajero(pasajero);
+            pasajeroAgregado = true;
+
+            // 5. GUARDAR AMBOS REGISTROS EN MYSQL EN UNA TRANSACCIÓN
+            // No llamar también a guardarUsuario(): guardarPasajero() ya
+            // asegura e inserta la cuenta antes de insertar el pasajero.
+            GestionBaseDatos.guardarPasajero(pasajero);
+
+            System.out.println(VERDE +
+                    "╔═══════════════════════════════════════════╗");
+            System.out.println("║        REGISTRO REALIZADO CON ÉXITO       ║");
+            System.out.println("╠═══════════════════════════════════════════╣");
+            System.out.println("║  Pasajero: " + nombre + " " + apellido);
+            System.out.println("║  DNI: " + dni);
+            System.out.println("║  Usuario: " + nombreUsuario);
+            System.out.println("║  Guardado en Java y MySQL");
+            System.out.println("╚═══════════════════════════════════════════╝" + RESET);
+
+        } catch (AgenciaHotelException | IllegalStateException e) {
+
+            // Si falla la validación o el INSERT SQL, quitar de Java
+            // únicamente lo que se agregó durante este registro.
+            if (pasajeroAgregado) {
+                try {
+                    hotel.eliminarPasajero(dni);
+                } catch (DatoInvalidoException ex) {
+                    System.out.println(ROJO +
+                            "║  No se pudo revertir el pasajero: " + ex.getMessage() + RESET);
+                }
+            }
+            if (usuarioAgregado) {
+                try {
+                    hotel.eliminarUsuario(nombreUsuario);
+                } catch (DatoInvalidoException ex) {
+                    System.out.println(ROJO +
+                            "║  No se pudo revertir el usuario: " + ex.getMessage() + RESET);
+                }
+            }
+
+            System.out.println(ROJO +
+                    "║  Registro cancelado: " + e.getMessage() + RESET);
+        }
     }
 
 
