@@ -98,6 +98,7 @@ public class Menu {
     // ============================================================
     // IniciarMenu
     // ============================================================
+
     public static void IniciarMenu(Hotel hotel, Usuario usuario) {
 
         int opcion;
@@ -160,28 +161,21 @@ public class Menu {
             System.out.println(
                     "║                                           ║");
 
-            // PERMISOS
-            System.out.println(
-                    "║   17. Dar Permiso                         ║");
-            System.out.println(
-                    "║                                           ║");
-
             // HABITACIONES
             System.out.println(
-                    "║   18. Ver Habitaciones Disponibles        ║");
+                    "║   17. Ver Habitaciones Disponibles        ║");
             System.out.println(
-                    "║   19. Ver Habitaciones Ocupadas           ║");
+                    "║   18. Ver Habitaciones Ocupadas           ║");
             System.out.println(
-                    "║   20. Ver Información del Hotel           ║");
+                    "║   19. Ver Información del Hotel           ║");
             System.out.println(
                     "║                                           ║");
 
             // REPARACIONES
             System.out.println(
-                    "║   21. Gestionar Reparación de Habitación  ║");
+                    "║   20. Gestionar Reparación de Habitación  ║");
             System.out.println(
-                    "║   22. Finalizar Reparación                ║");
-
+                    "║   21. Finalizar Reparación                ║");
 
             System.out.println(CYAN +
                     "║                                           ║" + RESET);
@@ -192,7 +186,7 @@ public class Menu {
             System.out.println(CYAN +
                     "╚═══════════════════════════════════════════╝" + RESET);
 
-            opcion = pedirOpcion(0, 22);
+            opcion = pedirOpcion(0, 21);
 
             switch (opcion) {
 
@@ -264,34 +258,27 @@ public class Menu {
                     mostrarEmpleados(hotel);
                     break;
 
-                // PERMISOS
-                case 17:
-                    System.out.println(AMARILLO +
-                            "Función de permisos pendiente" + RESET);
-                    break;
-
                 // HABITACIONES
-                case 18:
+                case 17:
                     mostrarHabitacionesDisponibles(hotel);
                     break;
 
-                case 19:
+                case 18:
                     mostrarHabitacionesOcupadas(hotel);
                     break;
 
-                case 20:
+                case 19:
                     mostrarInformacionHotel(hotel);
                     break;
 
                 // REPARACIONES
-                case 21:
+                case 20:
                     ponerHabitacionEnReparacion(hotel);
                     break;
 
-                case 22:
+                case 21:
                     ponerHabitacionReparada(hotel);
                     break;
-
 
                 // CERRAR SESIÓN
                 case 0:
@@ -306,6 +293,7 @@ public class Menu {
 
         } while (opcion != 0);
     }
+
 
 
     // ============================================================
