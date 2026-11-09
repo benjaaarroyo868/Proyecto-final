@@ -162,6 +162,9 @@ public class Main {
         // INICIAR MENÚ CON BASE DE DATOS
         // =========================================
 
+
+        Menu.menuPrincipal(h1);
+
         System.out.println(CYAN +
                 "╔═══════════════════════════════════════════╗");
         System.out.println("║                  USUARIOS                 ║");
@@ -180,6 +183,5 @@ public class Main {
         System.out.println("║                                           ║");
         System.out.println("╠═══════════════════════════════════════════╣"
                 + RESET);
-        Menu.menuPrincipal(h1);
     }
 }
