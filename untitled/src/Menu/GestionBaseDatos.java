@@ -29,7 +29,7 @@ public class GestionBaseDatos {
         }
     }
 
-    /** Se ejecuta antes de mostrar el primer menú; no reemplaza los datos ya cargados. */
+    /** Se ejecuta antes de mostrar el primer menú; */
     public static void iniciar(Hotel hotel) {
         if (cargaInicial) return;
         conectar();
