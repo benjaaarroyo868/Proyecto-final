@@ -43,6 +43,11 @@ public class MainPruebaHotel {
         Reserva seguida = new Reserva(pasajero, habitacion, 1, salida, salida.plusDays(2));
         comprobar("Permitir reserva seguida", hotel.agregarReserva(seguida));
 
+        // PRUEBA 7: RECHAZAR RESERVA QUE SUPERA LA CAPACIDAD
+        Reserva demasiados = new Reserva(
+                pasajero, habitacion, 3, salida.plusDays(3), salida.plusDays(4));
+        comprobar("Rechazar exceso de pasajeros", !hotel.agregarReserva(demasiados));
+
     }
         private static void comprobar(String prueba, boolean resultado) {
             if (!resultado) throw new AssertionError("FALLO - " + prueba);
