@@ -34,6 +34,11 @@ public class MainPrueba {
         Reserva primera = new Reserva(pasajero, habitacion, 2, ingreso, salida);
         comprobar("Agregar reserva valida", hotel.agregarReserva(primera));
 
+        // PRUEBA 5: RECHAZAR RESERVA SUPERPUESTA
+        Reserva superpuesta = new Reserva(
+                pasajero, habitacion, 1, ingreso.plusDays(1), salida.plusDays(1));
+        comprobar("Evitar fechas superpuestas", !hotel.agregarReserva(superpuesta));
+
     }
         private static void comprobar(String prueba, boolean resultado) {
             if (!resultado) throw new AssertionError("FALLO - " + prueba);
