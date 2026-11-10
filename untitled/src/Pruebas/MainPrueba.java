@@ -1,9 +1,6 @@
 package Pruebas;
 
-import Clases.Habitacion;
-import Clases.Hotel;
-import Clases.Pasajero;
-import Clases.Usuario;
+import Clases.*;
 import Enums.ETipoUsuario;
 
 import java.time.LocalDate;
@@ -32,6 +29,10 @@ public class MainPrueba {
 
         LocalDate ingreso = LocalDate.now().plusDays(10);
         LocalDate salida = ingreso.plusDays(3);
+
+        // PRUEBA 4: RESERVA VALIDA
+        Reserva primera = new Reserva(pasajero, habitacion, 2, ingreso, salida);
+        comprobar("Agregar reserva valida", hotel.agregarReserva(primera));
 
     }
         private static void comprobar(String prueba, boolean resultado) {
