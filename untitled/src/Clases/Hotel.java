@@ -122,9 +122,6 @@ public class Hotel implements IValidarDatos {
                     "El técnico no puede ser nulo");
         }
 
-        // VALIDAR LOS DATOS DEL TÉCNICO
-
-
         // GUARDAR EN EL REGISTRO DEL HOTEL
         tecnicos.put(tecnico.getDNI(), tecnico);
 
@@ -185,7 +182,6 @@ public class Hotel implements IValidarDatos {
     // ========================================
 
     public Collection<Tecnico> mostrarTecnicos() {
-
         return tecnicos.obtenerTodos();
     }
 
@@ -560,7 +556,6 @@ public class Hotel implements IValidarDatos {
 
 
     public Collection<IEmpleado> mostrarEmpleados() {
-
         return empleados.obtenerTodos();
     }
 
@@ -800,7 +795,7 @@ public class Hotel implements IValidarDatos {
         }
 
         // LA HABITACIÓN DEBE ESTAR LIBRE
-        // Se mantiene la lógica actual de tu clase Hotel
+
         if (habitacion.isDisponible()) {
             throw new IllegalStateException(
                     "La habitación está ocupada. Debe liberarse primero");
@@ -860,8 +855,6 @@ public class Hotel implements IValidarDatos {
         habitacion.setEstadoMantenimiento(
                 EEstadoMantenimiento.NORMAL);
     }
-
-
 
 
 
