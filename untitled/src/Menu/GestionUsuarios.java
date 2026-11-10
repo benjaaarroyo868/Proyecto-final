@@ -194,6 +194,126 @@ public class GestionUsuarios {
 
 
     // ============================================================
+    // modificarUsuario: busca la cuenta y muestra un submenú de cambios
+    // ============================================================
+    public static void modificarUsuario(Hotel hotel) {
+        System.out.println();
+        System.out.println(CYAN +
+                "╔═══════════════════════════════════════════╗");
+        System.out.println("║              MODIFICAR USUARIO            ║");
+        System.out.println("╠═══════════════════════════════════════════╣" + RESET);
+
+        System.out.print(AZUL + "║  Nombre de usuario actual: " + RESET);
+        String nombreActual = sc.nextLine().trim();
+
+        Usuario usuario;
+        try {
+            usuario = hotel.buscarUsuario(nombreActual);
+        } catch (DatoInvalidoException e) {
+            System.out.println(ROJO + "║  Usuario no encontrado" + RESET);
+            return;
+        }
+
+        while (true) {
+            System.out.println();
+            System.out.println(CYAN +
+                    "╔═══════════════════════════════════════════╗");
+            System.out.println("║         ¿QUÉ DESEÁS MODIFICAR?            ║");
+            System.out.println("╠═══════════════════════════════════════════╣" + RESET);
+            System.out.println(AZUL + "║  Usuario: " + usuario.getNombreUsuario());
+            System.out.println("║                                           ║");
+            System.out.println("║    1. Solo nombre de usuario              ║");
+            System.out.println("║    2. Solo contraseña                     ║");
+            System.out.println("║    3. Nombre de usuario y contraseña      ║" + RESET);
+            System.out.println(ROJO + "║    0. Volver al menú de administrador     ║" + RESET);
+            System.out.println(CYAN +
+                    "╚═══════════════════════════════════════════╝" + RESET);
+
+            int opcion = pedirOpcion(0, 3);
+            if (opcion == 0) {
+                System.out.println(AMARILLO + "║  Volviendo al menú de administrador" + RESET);
+                return;
+            }
+
+            // Se conservan los datos que la opción elegida no va a modificar.
+            String nuevoNombre = nombreActual;
+            String nuevaContrasenia = usuario.getContrasenia();
+
+            if (opcion == 1 || opcion == 3) {
+                while (true) {
+                    System.out.print(AZUL + "║  Nuevo nombre de usuario: " + RESET);
+                    nuevoNombre = sc.nextLine().trim();
+
+                    if (nuevoNombre.length() > 30 ||
+                            !nuevoNombre.matches("^(?=.*[A-Z])(?=.*[0-9])[a-zA-Z0-9]{8,}$")) {
+                        System.out.println(ROJO +
+                                "║  Mínimo 8 caracteres, mayúscula y número; máximo 30" + RESET);
+                        continue;
+                    }
+                    if (!nuevoNombre.equals(nombreActual) &&
+                            hotel.getUsuarios().containsKey(nuevoNombre)) {
+                        System.out.println(ROJO + "║  Ese nombre de usuario ya existe" + RESET);
+                        continue;
+                    }
+                    break;
+                }
+            }
+
+            if (opcion == 2 || opcion == 3) {
+                while (true) {
+                    System.out.print(AZUL + "║  Nueva contraseña: " + RESET);
+                    nuevaContrasenia = sc.nextLine();
+
+                    if (nuevaContrasenia.length() > 30 ||
+                            !nuevaContrasenia.matches("^(?=.*[A-Z])(?=.*[0-9])(?=.*[^a-zA-Z0-9\\s])\\S{8,}$")) {
+                        System.out.println(ROJO +
+                                "║  Mínimo 8 caracteres, mayúscula, número y símbolo; máximo 30" + RESET);
+                        continue;
+                    }
+                    break;
+                }
+            }
+
+            if (nombreActual.equals(nuevoNombre) &&
+                    usuario.getContrasenia().equals(nuevaContrasenia)) {
+                System.out.println(AMARILLO + "║  No hay cambios para guardar" + RESET);
+                continue;
+            }
+
+            System.out.print(AMARILLO + "║  ¿Confirmás el cambio? (Si/No): " + RESET);
+            String confirmacion = sc.nextLine().trim();
+            if (!confirmacion.equalsIgnoreCase("si") &&
+                    !confirmacion.equalsIgnoreCase("sí") &&
+                    !confirmacion.equalsIgnoreCase("s")) {
+                System.out.println(AMARILLO + "║  Modificación cancelada" + RESET);
+                continue;
+            }
+
+            try {
+                // Primero guardar en MySQL (con transacción para el cambio de nombre).
+                GestionBaseDatos.modificarUsuario(nombreActual, nuevoNombre, nuevaContrasenia);
+
+                // Persona comparte la misma referencia al objeto Usuario.
+                if (!nombreActual.equals(nuevoNombre)) {
+                    hotel.getUsuarios().eliminar(nombreActual);
+                    usuario.setNombreUsuario(nuevoNombre);
+                    hotel.getUsuarios().put(nuevoNombre, usuario);
+                    nombreActual = nuevoNombre; // permite seguir editando la misma cuenta
+                }
+                usuario.setContrasenia(nuevaContrasenia);
+
+                System.out.println(VERDE +
+                        "║  Usuario modificado correctamente en Java y MySQL" + RESET);
+            } catch (IllegalStateException e) {
+                System.out.println(ROJO + "║  No se modificó el usuario: " + e.getMessage() + RESET);
+            } catch (DatoInvalidoException e) {
+                System.out.println(ROJO + "║  Error al actualizar el mapa: " + e.getMessage() + RESET);
+            }
+        }
+    }
+
+
+    // ============================================================
     // eliminarUsuario
     // ============================================================
     public static void eliminarUsuario(Hotel hotel) {
