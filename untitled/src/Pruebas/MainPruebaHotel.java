@@ -5,7 +5,7 @@ import Enums.ETipoUsuario;
 
 import java.time.LocalDate;
 
-public class MainPrueba {
+public class MainPruebaHotel {
     public static void main(String[] args) throws Exception {
         Hotel hotel = new Hotel("Conte", "Mar del Plata", 10);
         Habitacion habitacion = new Habitacion(101, 2, 2);
