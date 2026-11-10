@@ -21,14 +21,19 @@ public class Conexion {
     public void createConnection() {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/", "root", "Scrfiat868877");
+            String usuarioMySQL = System.getenv("HOTEL_DB_USER");
+            String claveMySQL = System.getenv("HOTEL_DB_PASSWORD");
+            if (usuarioMySQL == null || claveMySQL == null) {
+                throw new IllegalStateException("Configurar HOTEL_DB_USER y HOTEL_DB_PASSWORD en IntelliJ");
+            }
+            conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/", usuarioMySQL, claveMySQL);
 
             System.out.println("Conexion establecida con exito");
         } catch (ClassNotFoundException e) {
-            System.out.println("Error al conectar el driver");
+            throw new IllegalStateException("No se encontró el driver de MySQL", e);
         } catch (SQLException e) {
 
-            System.out.println("Error al conectar con la base de datos");
+            throw new IllegalStateException("No se pudo conectar a MySQL", e);
         }
     }
 
@@ -301,7 +306,9 @@ public class Conexion {
             ps.setString(2, u.getContrasenia());
             ps.setString(3, u.getTipoDeUsuario().name()); // enum guardado como texto
 
-            ps.executeUpdate();
+            if (ps.executeUpdate() != 1) {
+                throw new IllegalStateException("MySQL no confirmó la inserción en insertarUsuario");
+            }
             ps.close();
 
         } catch (SQLException ex) {
@@ -328,7 +335,9 @@ public class Conexion {
             ps.setDouble(7, c.getSueldoPorVenta());
             ps.setString(8, c.getLegajo());
 
-            ps.executeUpdate();
+            if (ps.executeUpdate() != 1) {
+                throw new IllegalStateException("MySQL no confirmó la inserción en insertarConserje");
+            }
             ps.close();
 
         } catch (SQLException ex) {
@@ -355,7 +364,9 @@ public class Conexion {
             ps.setString(7, administrador.getLegajo());
             ps.setDouble(8, administrador.getSueldo());
 
-            ps.executeUpdate();
+            if (ps.executeUpdate() != 1) {
+                throw new IllegalStateException("MySQL no confirmó la inserción en insertarAdministrador");
+            }
             ps.close();
 
         } catch (SQLException e) {
@@ -376,7 +387,9 @@ public class Conexion {
             ps.setBoolean(4, h.isDisponible());
             ps.setString(5, h.getEstadoMantenimiento().name()); // enum guardado como texto
 
-            ps.executeUpdate();
+            if (ps.executeUpdate() != 1) {
+                throw new IllegalStateException("MySQL no confirmó la inserción en insertarHabitacion");
+            }
             ps.close();
 
         } catch (SQLException ex) {
@@ -396,7 +409,9 @@ public class Conexion {
             ps.setInt(3, h.getCantidadHabitaciones());
             ps.setInt(4,h.getCantidadOcupadas());
 
-            ps.executeUpdate();
+            if (ps.executeUpdate() != 1) {
+                throw new IllegalStateException("MySQL no confirmó la inserción en insertarHotel");
+            }
             ps.close();
 
         } catch (SQLException ex) {
@@ -423,7 +438,9 @@ public class Conexion {
             ps.setString(7, p.getOrigen());
             ps.setString(8, p.getDestino_origen());
 
-            ps.executeUpdate();
+            if (ps.executeUpdate() != 1) {
+                throw new IllegalStateException("MySQL no confirmó la inserción en insertarPasajero");
+            }
             ps.close();
 
         } catch (SQLException ex) {
@@ -451,7 +468,9 @@ public class Conexion {
             ps.setString(8, t.getFormacion());
             ps.setBoolean(9, t.isDisponible());
 
-            ps.executeUpdate();
+            if (ps.executeUpdate() != 1) {
+                throw new IllegalStateException("MySQL no confirmó la inserción en insertarTecnico");
+            }
             ps.close();
 
         } catch (SQLException ex) {
@@ -473,7 +492,9 @@ public class Conexion {
             ps.setDate(5, Date.valueOf(r.getFechaIngreso()));         // LocalDate -> java.sql.Date
             ps.setDate(6, Date.valueOf(r.getFechaSalida()));
 
-            ps.executeUpdate();
+            if (ps.executeUpdate() != 1) {
+                throw new IllegalStateException("MySQL no confirmó la inserción en insertarReserva");
+            }
             ps.close();
 
         } catch (SQLException ex) {
@@ -968,7 +989,7 @@ public class Conexion {
     /** Conserva la misma cuenta si ya existe; no intenta insertarla de nuevo. */
     private void asegurarUsuario(Usuario usuario) {
         if (!existe("SELECT 1 FROM Usuarios WHERE nombreUsuario=?", usuario.getNombreUsuario())) {
-            insertarUsuarioNuevo(usuario);
+            insertarUsuario(usuario);
         }
     }
 
@@ -982,7 +1003,7 @@ public class Conexion {
     public void asegurarPasajero(Pasajero pasajero) {
         asegurarUsuario(pasajero.getUsuario());
         if (!existe("SELECT 1 FROM Pasajeros WHERE DNI=?", pasajero.getDNI())) {
-            insertarPasajeroNuevo(pasajero);
+            insertarPasajero(pasajero);
         }
     }
 
@@ -1004,65 +1025,6 @@ public class Conexion {
             throw new IllegalStateException("No se pudo revisar el contenido de MySQL", e);
         }
     }
-
-    private void insertarEstricto(String sql, Object... valores) {
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            for (int i = 0; i < valores.length; i++) {
-                Object valor = valores[i];
-                if (valor instanceof java.time.LocalDate) {
-                    ps.setDate(i + 1, Date.valueOf((java.time.LocalDate) valor));
-                } else {
-                    ps.setObject(i + 1, valor);
-                }
-            }
-            if (ps.executeUpdate() != 1) {
-                throw new IllegalStateException("MySQL no confirmó la inserción del registro");
-            }
-        } catch (SQLException e) {
-            throw new IllegalStateException("No se pudo insertar el registro en MySQL: " + e.getMessage(), e);
-        }
-    }
-
-    public void insertarUsuarioNuevo(Usuario u) {
-        insertarEstricto("INSERT INTO Usuarios(nombreUsuario, contrasenia, TipoUsuario) VALUES (?,?,?)",
-                u.getNombreUsuario(), u.getContrasenia(), u.getTipoDeUsuario().name());
-    }
-
-    public void insertarPasajeroNuevo(Pasajero p) {
-        asegurarUsuario(p.getUsuario());
-        insertarEstricto("INSERT INTO Pasajeros(DNI,nombre,apellido,telefono,email,nombreUsuario,origen,destino_origen) "
-                        + "VALUES (?,?,?,?,?,?,?,?)",
-                p.getDNI(), p.getNombre(), p.getApellido(), p.getTelefono(), p.getEmail(),
-                p.getUsuario().getNombreUsuario(), p.getOrigen(), p.getDestino_origen());
-    }
-
-    public void insertarEmpleadoNuevo(Interfaces.IEmpleado e) {
-        if (e instanceof Administrador) {
-            Administrador a = (Administrador) e;
-            asegurarUsuario(a.getUsuario());
-            insertarEstricto("INSERT INTO Administradores(nombre,apellido,dni,telefono,email,nombreUsuario,legajo,sueldo) "
-                            + "VALUES (?,?,?,?,?,?,?,?)",
-                    a.getNombre(), a.getApellido(), a.getDNI(), a.getTelefono(), a.getEmail(),
-                    a.getUsuario().getNombreUsuario(), a.getLegajo(), a.getSueldo());
-        } else if (e instanceof Conserje) {
-            Conserje c = (Conserje) e;
-            asegurarUsuario(c.getUsuario());
-            insertarEstricto("INSERT INTO Conserjes(nombre,apellido,dni,telefono,email,nombreUsuario,sueldoPorVenta,legajo) "
-                            + "VALUES (?,?,?,?,?,?,?,?)",
-                    c.getNombre(), c.getApellido(), c.getDNI(), c.getTelefono(), c.getEmail(),
-                    c.getUsuario().getNombreUsuario(), c.getSueldoPorVenta(), c.getLegajo());
-        } else {
-            throw new IllegalArgumentException("Tipo de empleado no soportado por MySQL");
-        }
-    }
-
-    public void insertarReservaNueva(Reserva r) {
-        insertarEstricto("INSERT INTO Reserva(idReserva,idPasajero,idHabitacion,cantidadPasajeros,fechaIngreso,fechaSalida) "
-                        + "VALUES (?,?,?,?,?,?)",
-                r.getIdReserva(), r.getPasajero().getDNI(), r.getHabitacion().getNumeroHabitacion(),
-                r.getCantidadPasajeros(), r.getFechaIngreso(), r.getFechaSalida());
-    }
-
 
     private void eliminarEstricto(String sql, Object clave) {
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -1146,3 +1108,4 @@ public class Conexion {
         }
     }
 }
+

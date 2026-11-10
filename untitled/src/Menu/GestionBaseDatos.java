@@ -29,7 +29,7 @@ public class GestionBaseDatos {
         }
     }
 
-    /** Se ejecuta antes de mostrar el primer menú; */
+    /** Se ejecuta antes de mostrar el primer menú; no reemplaza los datos ya cargados. */
     public static void iniciar(Hotel hotel) {
         if (cargaInicial) return;
         conectar();
@@ -58,18 +58,24 @@ public class GestionBaseDatos {
     // Guardado automático después de que el objeto pasa las validaciones originales.
     public static void guardarUsuario(Usuario u) {
         conectar();
-        conexion.insertarUsuarioNuevo(u);
+        conexion.insertarUsuario(u);
     }
 
     public static void guardarPasajero(Pasajero p) {
         conectar();
-        conexion.ejecutarTransaccion(() -> conexion.insertarPasajeroNuevo(p));
+        conexion.ejecutarTransaccion(() -> conexion.insertarPasajero(p));
     }
 
     public static void guardarEmpleado(IEmpleado e) {
         conectar();
         conexion.ejecutarTransaccion(() -> {
-            conexion.insertarEmpleadoNuevo(e);
+            if (e instanceof Administrador) {
+                conexion.insertarAdministrador((Administrador) e);
+            } else if (e instanceof Conserje) {
+                conexion.insertarConserje((Conserje) e);
+            } else {
+                throw new IllegalArgumentException("Tipo de empleado no soportado por MySQL");
+            }
         });
     }
 
@@ -91,7 +97,7 @@ public class GestionBaseDatos {
             // Las claves foráneas deben existir; no volver a insertar las ya guardadas.
             conexion.asegurarHabitacion(r.getHabitacion());
             conexion.asegurarPasajero(r.getPasajero());
-            conexion.insertarReservaNueva(r);
+            conexion.insertarReserva(r);
         });
     }
 
@@ -173,7 +179,7 @@ public class GestionBaseDatos {
     public static void insertarTodos(Hotel hotel) {
         conectar();
         conexion.ejecutarTransaccion(() -> {
-            for (Usuario u : hotel.mostrarUsuarios()) conexion.insertarUsuarioNuevo(u);
+            for (Usuario u : hotel.mostrarUsuarios()) conexion.insertarUsuario(u);
             for (Habitacion h : hotel.getHabitaciones().obtenerTodos()) conexion.insertarHabitacion(h);
             for (Tecnico t : hotel.verTecnicos()) conexion.insertarTecnico(t);
             for (IEmpleado e : hotel.mostrarEmpleados()) {
