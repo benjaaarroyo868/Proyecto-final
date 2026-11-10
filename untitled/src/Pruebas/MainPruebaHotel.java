@@ -48,6 +48,11 @@ public class MainPruebaHotel {
                 pasajero, habitacion, 3, salida.plusDays(3), salida.plusDays(4));
         comprobar("Rechazar exceso de pasajeros", !hotel.agregarReserva(demasiados));
 
+        // PRUEBA 8: FECHA DE SALIDA NO POSTERIOR A INGRESO
+        Reserva fechaInvalida = new Reserva(
+                pasajero, habitacion, 1, salida.plusDays(5), salida.plusDays(5));
+        comprobar("Rechazar fechas iguales", !hotel.agregarReserva(fechaInvalida));
+
     }
         private static void comprobar(String prueba, boolean resultado) {
             if (!resultado) throw new AssertionError("FALLO - " + prueba);
