@@ -4,6 +4,7 @@ import Clases.*;
 import Enums.EEstadoMantenimiento;
 import Enums.ETipoTecnico;
 import Enums.ETipoUsuario;
+import com.sun.tools.javac.Main;
 
 import java.sql.Connection;
 import java.sql.Date;
@@ -21,19 +22,15 @@ public class Conexion {
     public void createConnection() {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            String usuarioMySQL = System.getenv("HOTEL_DB_USER");
-            String claveMySQL = System.getenv("HOTEL_DB_PASSWORD");
-            if (usuarioMySQL == null || claveMySQL == null) {
-                throw new IllegalStateException("Configurar HOTEL_DB_USER y HOTEL_DB_PASSWORD en IntelliJ");
-            }
-            conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/", usuarioMySQL, claveMySQL);
+            conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/", "root", "Scrfiat868877");
 
             System.out.println("Conexion establecida con exito");
         } catch (ClassNotFoundException e) {
-            throw new IllegalStateException("No se encontró el driver de MySQL", e);
+            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, e);
+            System.out.println("Error al conectar con el driver");
         } catch (SQLException e) {
-
-            throw new IllegalStateException("No se pudo conectar a MySQL", e);
+            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, e);
+            System.out.println("Error al conectar con la base de datos");
         }
     }
 
@@ -54,7 +51,7 @@ public class Conexion {
 
     public void crearBaseDatos(String nombre) {
         validarNombreBaseDatos(nombre);
-        String sql = "CREATE DATABASE IF NOT EXISTS `" + nombre + "`";
+        String sql = "CREATE DATABASE IF NOT EXISTS `" + nombre;
         try {
             PreparedStatement ps = conn.prepareStatement(sql);
            ps.executeUpdate();
