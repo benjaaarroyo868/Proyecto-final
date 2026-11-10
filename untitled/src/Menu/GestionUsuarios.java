@@ -244,10 +244,10 @@ public class GestionUsuarios {
                     System.out.print(AZUL + "║  Nuevo nombre de usuario: " + RESET);
                     nuevoNombre = sc.nextLine().trim();
 
-                    if (nuevoNombre.length() > 30 ||
+                    if (nuevoNombre.length() > 15 ||
                             !nuevoNombre.matches("^(?=.*[A-Z])(?=.*[0-9])[a-zA-Z0-9]{8,}$")) {
                         System.out.println(ROJO +
-                                "║  Mínimo 8 caracteres, mayúscula y número; máximo 30" + RESET);
+                                "║  Mínimo 8 caracteres, mayúscula y número; máximo 15" + RESET);
                         continue;
                     }
                     if (!nuevoNombre.equals(nombreActual) &&
