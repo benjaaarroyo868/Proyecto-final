@@ -4,6 +4,7 @@ import Clases.*;
 import Enums.EEstadoMantenimiento;
 import Enums.ETipoTecnico;
 import Enums.ETipoUsuario;
+import com.sun.tools.javac.Main;
 
 import java.sql.Connection;
 import java.sql.Date;
@@ -21,19 +22,14 @@ public class Conexion {
     public void createConnection() {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            String usuarioMySQL = System.getenv("HOTEL_DB_USER");
-            String claveMySQL = System.getenv("HOTEL_DB_PASSWORD");
-            if (usuarioMySQL == null || claveMySQL == null) {
-                throw new IllegalStateException("Configurar HOTEL_DB_USER y HOTEL_DB_PASSWORD en IntelliJ");
-            }
-            conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/", usuarioMySQL, claveMySQL);
+            conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/", "root", "Scrfiat868877");
 
             System.out.println("Conexion establecida con exito");
         } catch (ClassNotFoundException e) {
-            throw new IllegalStateException("No se encontró el driver de MySQL", e);
+            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, e);
         } catch (SQLException e) {
-
-            throw new IllegalStateException("No se pudo conectar a MySQL", e);
+            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, e);
+            System.out.println("Error al conectar con la base de datos");
         }
     }
 
@@ -321,7 +317,7 @@ public class Conexion {
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
         try {
-            // Si el usuario ya lo insertas por separado, borra esta linea
+            // Verifica si el usuario ya existe para respetar la clave foranea.
             asegurarUsuario(c.getUsuario());
 
             PreparedStatement ps = conn.prepareStatement(sql);
@@ -350,7 +346,7 @@ public class Conexion {
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
         try {
-            // Si el usuario ya lo insertas por separado, borra esta linea
+            // Verifica si el usuario ya existe para respetar la clave foranea.
             asegurarUsuario(administrador.getUsuario());
 
             PreparedStatement ps = conn.prepareStatement(sql);
@@ -424,7 +420,7 @@ public class Conexion {
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
         try {
-            // Si el usuario ya lo insertas por separado, borra esta linea
+            // Verifica si el usuario ya existe para respetar la clave foranea.
             asegurarUsuario(p.getUsuario());
 
             PreparedStatement ps = conn.prepareStatement(sql);
@@ -453,7 +449,7 @@ public class Conexion {
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try {
-            // Si el usuario ya lo insertas por separado, borra esta linea
+            // Verifica si el usuario ya existe para respetar la clave foranea.
             asegurarUsuario(t.getUsuario());
 
             PreparedStatement ps = conn.prepareStatement(sql);
@@ -547,23 +543,70 @@ public class Conexion {
     }
 
     // MODIFICAR USUARIO
+    // Reutiliza insertarUsuario() original si cambia el nombre de usuario.
+    // GestionBaseDatos ejecuta esto dentro de una transaccion.
     public void modificarUsuario(String nombreUsuario, String nuevoNombreUsuario, String nuevaContrasenia) {
-        String sql = "UPDATE Usuarios SET nombreUsuario = ?, contrasenia = ? WHERE nombreUsuario = ?";
-
         try {
-            PreparedStatement ps = conn.prepareStatement(sql);
-
-            ps.setString(1, nuevoNombreUsuario);
-            ps.setString(2, nuevaContrasenia);
-            ps.setString(3, nombreUsuario);
-
-            if (ps.executeUpdate() != 1) {
-                throw new IllegalStateException("MySQL no encontró el registro para actualizar: " + "modificarUsuario");
+            if (nombreUsuario.equals(nuevoNombreUsuario)) {
+                // Si solo cambia la contrasenia, basta con un UPDATE.
+                try (PreparedStatement ps = conn.prepareStatement(
+                        "UPDATE Usuarios SET contrasenia = ? WHERE nombreUsuario = ?")) {
+                    ps.setString(1, nuevaContrasenia);
+                    ps.setString(2, nombreUsuario);
+                    if (ps.executeUpdate() != 1) {
+                        throw new IllegalStateException("El usuario no existe en MySQL");
+                    }
+                }
+                return;
             }
-            ps.close();
 
-        } catch (SQLException ex) {
-            throw new IllegalStateException("Error en MySQL: " + ex.getMessage(), ex);
+            // Recuperar el tipo de usuario de la cuenta original.
+            ETipoUsuario tipo;
+            try (PreparedStatement ps = conn.prepareStatement(
+                    "SELECT TipoUsuario FROM Usuarios WHERE nombreUsuario = ?")) {
+                ps.setString(1, nombreUsuario);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (!rs.next()) {
+                        throw new IllegalStateException("El usuario no existe en MySQL");
+                    }
+                    tipo = ETipoUsuario.valueOf(rs.getString("TipoUsuario"));
+                }
+            }
+
+            // Reutilizar el INSERT de tu companero. No creamos otro metodo insertar.
+            // Como nombreUsuario es PK referenciada por otras tablas, primero
+            // se crea la nueva cuenta, se actualizan las referencias y despues
+            // se elimina la cuenta vieja. Si hay error, la transaccion deshace todo.
+            insertarUsuario(new Usuario(nuevoNombreUsuario, nuevaContrasenia, tipo));
+
+            // Sin String[]: actualizar las cuatro tablas de forma explicita.
+            actualizarReferenciaUsuario("Pasajeros", nombreUsuario, nuevoNombreUsuario);
+            actualizarReferenciaUsuario("Tecnicos", nombreUsuario, nuevoNombreUsuario);
+            actualizarReferenciaUsuario("Administradores", nombreUsuario, nuevoNombreUsuario);
+            actualizarReferenciaUsuario("Conserjes", nombreUsuario, nuevoNombreUsuario);
+
+            try (PreparedStatement ps = conn.prepareStatement(
+                    "DELETE FROM Usuarios WHERE nombreUsuario = ?")) {
+                ps.setString(1, nombreUsuario);
+                if (ps.executeUpdate() != 1) {
+                    throw new IllegalStateException("No se pudo eliminar el usuario anterior");
+                }
+            }
+        } catch (SQLException e) {
+            throw new IllegalStateException("No se pudo modificar el usuario en MySQL: "
+                    + e.getMessage(), e);
+        }
+    }
+
+    // Solo se llama con nombres de tabla escritos en este archivo.
+    // Un UPDATE puede afectar 0 filas si el usuario no tiene ese tipo de perfil.
+    private void actualizarReferenciaUsuario(String tabla, String anterior, String nuevo)
+            throws SQLException {
+        String sql = "UPDATE " + tabla + " SET nombreUsuario = ? WHERE nombreUsuario = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, nuevo);
+            ps.setString(2, anterior);
+            ps.executeUpdate();
         }
     }
 

@@ -13,7 +13,10 @@ import java.util.*;
 
 import static Menu.ConsolaHotel.*;
 
-
+/**
+ * VALIDACIÓN DE ENTRADAS DEL MENÚ
+ * Extraído del Menu.java original. No se alteraron los cuerpos de los métodos.
+ */
 public class ValidacionesMenu {
 
     // ============================================================
@@ -230,8 +233,7 @@ public class ValidacionesMenu {
         while (true) {
 
             System.out.println(AMARILLO +
-                    "║  ¿Desea eliminarlo? (Si/No)" + RESET);
-
+                    "¿Desea realizar el cambio? (Si/No)" + RESET);
             System.out.print(VERDE +
                     "║  ➜ " + RESET);
 

@@ -1,7 +1,5 @@
-
 package Clases;
 
-import Conexion.Conexion;
 import Enums.EEstadoMantenimiento;
 import Exepciones.AgenciaHotelException;
 import Exepciones.DatoInvalidoException;
@@ -23,8 +21,6 @@ public class Hotel implements IValidarDatos {
     private String direccion;
     private int cantidadHabitaciones;
     private int cantidadOcupadas;
-
-    private Conexion conn;
 
     // REGISTROS DEL HOTEL
     private RegistroGenericoMapas<String, IEmpleado> empleados;
@@ -830,7 +826,6 @@ public class Hotel implements IValidarDatos {
 
 // FINALIZAR REPARACIÓN
 
-
     public void finalizarReparacion(Habitacion habitacion) {
 
         if (habitacion == null ||
@@ -841,31 +836,34 @@ public class Hotel implements IValidarDatos {
                     "La habitación no está en reparación");
         }
 
-        // OBTENER EL TÉCNICO ASIGNADO
+        // BUSCAR TÉCNICO ASIGNADO
         Tecnico tecnico = reparaciones.get(habitacion);
-
-        if (tecnico == null) {
-            throw new IllegalStateException(
-                    "No hay técnico asignado a esta habitación");
-        }
 
         // ELIMINAR LA ASIGNACIÓN
         try {
+
             reparaciones.eliminar(habitacion);
 
         } catch (DatoInvalidoException e) {
+
             throw new IllegalStateException(
                     "No se pudo finalizar la reparación: " +
                             e.getMessage());
         }
 
         // LIBERAR TÉCNICO
-        tecnico.setDisponible(true);
+        if (tecnico != null) {
+            tecnico.setDisponible(true);
+        }
 
-        // CAMBIAR A REPARADA
+        // CAMBIAR HABITACIÓN A NORMAL
         habitacion.setEstadoMantenimiento(
-                EEstadoMantenimiento.REPARADA);
+                EEstadoMantenimiento.NORMAL);
     }
+
+
+
+
 
     // AGREGAR HABITACIÓN
     public boolean agregarHabitacion(Habitacion habitacion) {
@@ -954,10 +952,7 @@ public class Hotel implements IValidarDatos {
                     "La cantidad de habitaciones ocupadas es inválida");
         }
     }
-
-    //Vacía los registros que están en memoria para volver a cargarlos con los datos de MySQL.
-    // No elimina los registros de la base de datos.
-
+    /** Únicamente para la recuperación inicial de la base de datos. */
     public void limpiarRegistrosParaRecarga() {
         empleados = new RegistroGenericoMapas<>();
         tecnicos = new RegistroGenericoMapas<>();
@@ -968,44 +963,56 @@ public class Hotel implements IValidarDatos {
         reparaciones = new RegistroGenericoMapas<>();
     }
 
-    // Cuando se abre nuevamente el programa, recupera las reparaciones guardadas en MySQL,
-    // deja las habitaciones en reparación y marca a sus técnicos como no disponibles.
+    /** Restituye una asignación en memoria si MySQL falla al finalizar. */
+    public void reponerReparacion(Habitacion habitacion, Tecnico tecnico) {
+        if (habitacion == null || tecnico == null) {
+            throw new IllegalArgumentException("Se necesita habitación y técnico");
+        }
+        reparaciones.put(habitacion, tecnico);
+        habitacion.setEstadoMantenimiento(EEstadoMantenimiento.EN_REPARACION);
+        tecnico.setDisponible(false);
+    }
 
-    public void restaurarReparaciones(
-            Map<Habitacion, Tecnico> asignaciones) {
+    /** Deshace en memoria una asignación si falla su escritura en MySQL. */
+    public void deshacerAsignacion(Habitacion habitacion, Tecnico tecnico,
+                                  EEstadoMantenimiento estadoAnterior) {
+        try {
+            reparaciones.eliminar(habitacion);
+        } catch (DatoInvalidoException e) {
+            throw new IllegalStateException("No se pudo deshacer la asignación", e);
+        }
+        habitacion.setEstadoMantenimiento(estadoAnterior);
+        tecnico.setDisponible(true);
+    }
 
+    /**
+     * Reconstruye las asignaciones que estaban guardadas en MySQL.
+     * Se usa exclusivamente al arrancar: evita llamar a asignarTecnico(),
+     * que validaría al técnico como disponible aunque ya está trabajando.
+     */
+    public void restaurarReparaciones(Map<Habitacion, Tecnico> asignaciones) {
         if (asignaciones == null) {
-            throw new IllegalArgumentException(
-                    "Las reparaciones no pueden ser nulas");
+            throw new IllegalArgumentException("Las reparaciones no pueden ser nulas");
         }
 
+        // El mapa anterior puede contener referencias de la ejecución previa.
         this.reparaciones = new RegistroGenericoMapas<>();
 
-        for (Map.Entry<Habitacion, Tecnico> entrada
-                : asignaciones.entrySet()) {
-
+        for (Map.Entry<Habitacion, Tecnico> entrada : asignaciones.entrySet()) {
             Habitacion habBd = entrada.getKey();
             Tecnico tecBd = entrada.getValue();
+            if (habBd == null || tecBd == null) continue;
 
-            if (habBd == null || tecBd == null) {
-                continue;
-            }
-
+            // Obtener las instancias que YA están en los registros del hotel.
             Habitacion habitacion = habitaciones.get(
                     String.valueOf(habBd.getNumeroHabitacion()));
-
             Tecnico tecnico = tecnicos.get(tecBd.getDNI());
-
-            if (habitacion == null || tecnico == null) {
-                continue;
-            }
+            if (habitacion == null || tecnico == null) continue;
 
             reparaciones.put(habitacion, tecnico);
-
-            habitacion.setEstadoMantenimiento(
-                    EEstadoMantenimiento.EN_REPARACION);
-
+            habitacion.setEstadoMantenimiento(EEstadoMantenimiento.EN_REPARACION);
             tecnico.setDisponible(false);
         }
     }
+
 }

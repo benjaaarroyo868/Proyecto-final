@@ -15,7 +15,10 @@ import static Menu.ConsolaHotel.*;
 import static Menu.Menu.*;
 import static Menu.ValidacionesMenu.*;
 
-
+/**
+ * USUARIOS
+ * Extraído del Menu.java original. No se alteraron los cuerpos de los métodos.
+ */
 public class GestionUsuarios {
 
     // ============================================================
@@ -43,8 +46,15 @@ public class GestionUsuarios {
         // GUARDAR USUARIO
         try {
 
-            System.out.println(VERDE +
-                    hotel.agregarUsuario(nuevo) + RESET);
+            String resultado = hotel.agregarUsuario(nuevo);
+            try {
+                GestionBaseDatos.guardarUsuario(nuevo);
+                System.out.println(VERDE + resultado + RESET);
+            } catch (IllegalStateException e) {
+                hotel.getUsuarios().eliminar(nuevo.getNombreUsuario());
+                System.out.println(ROJO + "No se guardó el usuario en MySQL. Se canceló el registro: "
+                        + e.getMessage() + RESET);
+            }
 
         } catch (AgenciaHotelException e) {
 
@@ -135,8 +145,12 @@ public class GestionUsuarios {
             // CONFIRMAR ELIMINACIÓN
             if (confirmarEliminacion()) {
 
-                System.out.println(VERDE +
-                        hotel.eliminarUsuario(nombre) + RESET);
+                try {
+                    GestionBaseDatos.eliminarUsuario(nombre);
+                    System.out.println(VERDE + hotel.eliminarUsuario(nombre) + RESET);
+                } catch (IllegalStateException e) {
+                    System.out.println(ROJO + "No se eliminó el usuario: " + e.getMessage() + RESET);
+                }
 
             } else {
 

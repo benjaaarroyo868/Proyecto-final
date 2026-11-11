@@ -17,7 +17,7 @@ public class GestionBaseDatos {
     private static boolean conectar() {
         if (conexion != null) return true;
         try {
-            Conexion nueva = new Conexion();
+           Conexion nueva = new Conexion();
             nueva.createConnection();
             nueva.crearBaseDatos("HotelConte");
             nueva.usarBaseDatos("HotelConte");
@@ -127,6 +127,13 @@ public class GestionBaseDatos {
     public static void modificarNumeroHabitacion(String id, int numeroHabitacion) {
         conectar();
         conexion.modificarNumeroHabitacion(id, numeroHabitacion);
+    }
+
+    /** Modifica una cuenta; el cambio de clave primaria se hace en una transacción. */
+    public static void modificarUsuario(String nombreActual, String nuevoNombre, String nuevaContrasenia) {
+        conectar();
+        conexion.ejecutarTransaccion(() ->
+                conexion.modificarUsuario(nombreActual, nuevoNombre, nuevaContrasenia));
     }
 
     public static void eliminarUsuario(String nombre) {

@@ -14,7 +14,10 @@ import java.util.*;
 import static Menu.ConsolaHotel.*;
 import static Menu.ValidacionesMenu.*;
 
-
+/**
+ * EMPLEADOS
+ * Extraído del Menu.java original. No se alteraron los cuerpos de los métodos.
+ */
 public class GestionEmpleados {
 
     // ============================================================
@@ -214,6 +217,16 @@ public class GestionEmpleados {
                 throw e;
             }
 
+            try {
+                GestionBaseDatos.guardarEmpleado(nuevoEmpleado);
+            } catch (IllegalStateException e) {
+                hotel.getEmpleados().eliminar(legajo);
+                hotel.getUsuarios().eliminar(nuevoUsuario.getNombreUsuario());
+                System.out.println(ROJO + "No se guardó el empleado en MySQL. Registro cancelado: "
+                        + e.getMessage() + RESET);
+                return;
+            }
+
             System.out.println();
             System.out.println(VERDE +
                     "╔═══════════════════════════════════════════╗");
@@ -368,8 +381,12 @@ public class GestionEmpleados {
             // CONFIRMAR ELIMINACIÓN
             if (confirmarEliminacion()) {
 
-                System.out.println(VERDE +
-                        hotel.eliminarEmpleado(legajo) + RESET);
+                try {
+                    GestionBaseDatos.eliminarEmpleado(empleado);
+                    System.out.println(VERDE + hotel.eliminarEmpleado(legajo) + RESET);
+                } catch (IllegalStateException e) {
+                    System.out.println(ROJO + "No se eliminó el empleado: " + e.getMessage() + RESET);
+                }
 
             } else {
 
