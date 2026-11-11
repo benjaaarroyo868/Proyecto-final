@@ -18,51 +18,62 @@ import java.util.logging.Logger;
 public class Conexion {
     Connection conn;
 
-
- /// CONEXION Y BD
     public void createConnection() {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/BDHotel", "winterfa", "Mecortaronelfrenilloen2024");
+            String usuarioMySQL = System.getenv("HOTEL_DB_USER");
+            String claveMySQL = System.getenv("HOTEL_DB_PASSWORD");
+            if (usuarioMySQL == null || claveMySQL == null) {
+                throw new IllegalStateException("Configurar HOTEL_DB_USER y HOTEL_DB_PASSWORD en IntelliJ");
+            }
+            conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/", usuarioMySQL, claveMySQL);
 
             System.out.println("Conexion establecida con exito");
         } catch (ClassNotFoundException e) {
-            throw new RuntimeException("error al correr" + e);
+            throw new IllegalStateException("No se encontró el driver de MySQL", e);
         } catch (SQLException e) {
-            throw new RuntimeException("error al correr sql" + e);
+
+            throw new IllegalStateException("No se pudo conectar a MySQL", e);
         }
     }
-    public void crearBaseDeDatos() throws SQLException {
-
-        try {
-            PreparedStatement ps = conn.prepareStatement("CREATE DATABASE BDHotel");
-            ps.executeUpdate();
-            ps.close();
-        } catch (SQLException e) {
-            throw new RuntimeException("error al crear base de datos");
-        }
-    }
-    public void usarBaseDeDatos()throws SQLException{
-        try{
-            PreparedStatement ps=conn.prepareStatement("USE BDHotel");
-            ps.executeUpdate();
-            ps.close();
-        } catch (SQLException e) {
-            throw new RuntimeException("error al usar base de datos");
-        }
-
-        }
-
-
 
     public void closeConnection() {
         try {
-            conn.close();
+            if (conn != null && !conn.isClosed()) conn.close();
         } catch (SQLException ex) {
-            Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, ex);
+            throw new IllegalStateException("Error en MySQL: " + ex.getMessage(), ex);
         }
     }
 
+    // Primero se crea la BD y después se selecciona para las operaciones JDBC.
+    private static void validarNombreBaseDatos(String nombre) {
+        if (nombre == null || !nombre.matches("[A-Za-z][A-Za-z0-9_]*")) {
+            throw new IllegalArgumentException("Nombre de base de datos inválido");
+        }
+    }
+
+    public void crearBaseDatos(String nombre) {
+        validarNombreBaseDatos(nombre);
+        String sql = "CREATE DATABASE IF NOT EXISTS `" + nombre + "`";
+        try {
+            PreparedStatement ps = conn.prepareStatement(sql);
+           ps.executeUpdate();
+           ps.close();
+
+        } catch (SQLException e) {
+            throw new IllegalStateException("Error al crear la base de datos: " + e.getMessage(), e);
+        }
+    }
+
+    public void usarBaseDatos(String nombre) {
+        validarNombreBaseDatos(nombre);
+        try {
+            // setCatalog selecciona la BD activa usando la API JDBC.
+            conn.setCatalog(nombre);
+        } catch (SQLException e) {
+            throw new IllegalStateException("Error al usar la base de datos: " + e.getMessage(), e);
+        }
+    }
 
     //CREACION TABLAS
 
@@ -94,7 +105,7 @@ public class Conexion {
             ps.executeUpdate();
             ps.close();
         } catch (SQLException ex) {
-            Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, ex);
+            throw new IllegalStateException("Error en MySQL: " + ex.getMessage(), ex);
         }
     }
 
@@ -120,7 +131,7 @@ public class Conexion {
             ps.executeUpdate();
             ps.close();
         } catch (SQLException ex) {
-            Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, ex);
+            throw new IllegalStateException("Error en MySQL: " + ex.getMessage(), ex);
         }
     }
 
@@ -144,7 +155,7 @@ public class Conexion {
             ps.close();
 
         } catch (SQLException e) {
-            Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, e);
+            throw new IllegalStateException("Error en MySQL: " + e.getMessage(), e);
         }
     }
 
@@ -163,7 +174,7 @@ public class Conexion {
             ps.close();
 
         } catch (SQLException e) {
-            Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, e);
+            throw new IllegalStateException("Error en MySQL: " + e.getMessage(), e);
         }
     }
 
@@ -186,7 +197,7 @@ public class Conexion {
             ps.close();
 
         } catch (SQLException e) {
-            Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, e);
+            throw new IllegalStateException("Error en MySQL: " + e.getMessage(), e);
         }
     }
 
@@ -196,7 +207,7 @@ public class Conexion {
                 "nombre VARCHAR(100) not null, " +
                 "direccion VARCHAR(200)not null, " +
                 "cantidad_habitaciones INT not null,"+
-                "habitaciones_ocupadas INT not null";
+                "habitaciones_ocupadas INT not null)";
 
 
         try {
@@ -206,7 +217,7 @@ public class Conexion {
             ps.close();
 
         } catch (SQLException e) {
-            Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, e);
+            throw new IllegalStateException("Error en MySQL: " + e.getMessage(), e);
         }
     }
 
@@ -231,7 +242,7 @@ public class Conexion {
             ps.executeUpdate();
             ps.close();
         } catch (SQLException ex) {
-            Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, ex);
+            throw new IllegalStateException("Error en MySQL: " + ex.getMessage(), ex);
         }
     }
 
@@ -256,7 +267,7 @@ public class Conexion {
             ps.close();
 
         } catch (SQLException e) {
-            Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, e);
+            throw new IllegalStateException("Error en MySQL: " + e.getMessage(), e);
         }
     }
 
@@ -277,7 +288,7 @@ public class Conexion {
             ps.close();
 
         } catch (SQLException e) {
-            Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, e);
+            throw new IllegalStateException("Error en MySQL: " + e.getMessage(), e);
         }
     }
 
@@ -295,11 +306,13 @@ public class Conexion {
             ps.setString(2, u.getContrasenia());
             ps.setString(3, u.getTipoDeUsuario().name()); // enum guardado como texto
 
-            ps.executeUpdate();
+            if (ps.executeUpdate() != 1) {
+                throw new IllegalStateException("MySQL no confirmó la inserción en insertarUsuario");
+            }
             ps.close();
 
         } catch (SQLException ex) {
-            Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, ex);
+            throw new IllegalStateException("Error en MySQL: " + ex.getMessage(), ex);
         }
     }
 
@@ -309,7 +322,7 @@ public class Conexion {
 
         try {
             // Si el usuario ya lo insertas por separado, borra esta linea
-            insertarUsuario(c.getUsuario());
+            asegurarUsuario(c.getUsuario());
 
             PreparedStatement ps = conn.prepareStatement(sql);
 
@@ -322,11 +335,13 @@ public class Conexion {
             ps.setDouble(7, c.getSueldoPorVenta());
             ps.setString(8, c.getLegajo());
 
-            ps.executeUpdate();
+            if (ps.executeUpdate() != 1) {
+                throw new IllegalStateException("MySQL no confirmó la inserción en insertarConserje");
+            }
             ps.close();
 
         } catch (SQLException ex) {
-            Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, ex);
+            throw new IllegalStateException("Error en MySQL: " + ex.getMessage(), ex);
         }
     }
 
@@ -336,7 +351,7 @@ public class Conexion {
 
         try {
             // Si el usuario ya lo insertas por separado, borra esta linea
-            insertarUsuario(administrador.getUsuario());
+            asegurarUsuario(administrador.getUsuario());
 
             PreparedStatement ps = conn.prepareStatement(sql);
 
@@ -349,11 +364,13 @@ public class Conexion {
             ps.setString(7, administrador.getLegajo());
             ps.setDouble(8, administrador.getSueldo());
 
-            ps.executeUpdate();
+            if (ps.executeUpdate() != 1) {
+                throw new IllegalStateException("MySQL no confirmó la inserción en insertarAdministrador");
+            }
             ps.close();
 
         } catch (SQLException e) {
-            Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, e);
+            throw new IllegalStateException("Error en MySQL: " + e.getMessage(), e);
         }
     }
 
@@ -370,16 +387,18 @@ public class Conexion {
             ps.setBoolean(4, h.isDisponible());
             ps.setString(5, h.getEstadoMantenimiento().name()); // enum guardado como texto
 
-            ps.executeUpdate();
+            if (ps.executeUpdate() != 1) {
+                throw new IllegalStateException("MySQL no confirmó la inserción en insertarHabitacion");
+            }
             ps.close();
 
         } catch (SQLException ex) {
-            Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, ex);
+            throw new IllegalStateException("Error en MySQL: " + ex.getMessage(), ex);
         }
     }
 
     public void insertarHotel(Hotel h) {
-        String sql = "INSERT INTO Hotel(nombre, direccion, cantidad_habitaciones,CantidadOcupadas) " +
+        String sql = "INSERT INTO Hotel(nombre, direccion, cantidad_habitaciones,habitaciones_ocupadas) " +
                 "VALUES (?, ?, ?, ?)";
 
         try {
@@ -390,11 +409,13 @@ public class Conexion {
             ps.setInt(3, h.getCantidadHabitaciones());
             ps.setInt(4,h.getCantidadOcupadas());
 
-            ps.executeUpdate();
+            if (ps.executeUpdate() != 1) {
+                throw new IllegalStateException("MySQL no confirmó la inserción en insertarHotel");
+            }
             ps.close();
 
         } catch (SQLException ex) {
-            Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, ex);
+            throw new IllegalStateException("Error en MySQL: " + ex.getMessage(), ex);
         }
     }
 
@@ -404,7 +425,7 @@ public class Conexion {
 
         try {
             // Si el usuario ya lo insertas por separado, borra esta linea
-            insertarUsuario(p.getUsuario());
+            asegurarUsuario(p.getUsuario());
 
             PreparedStatement ps = conn.prepareStatement(sql);
 
@@ -417,11 +438,13 @@ public class Conexion {
             ps.setString(7, p.getOrigen());
             ps.setString(8, p.getDestino_origen());
 
-            ps.executeUpdate();
+            if (ps.executeUpdate() != 1) {
+                throw new IllegalStateException("MySQL no confirmó la inserción en insertarPasajero");
+            }
             ps.close();
 
         } catch (SQLException ex) {
-            Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, ex);
+            throw new IllegalStateException("Error en MySQL: " + ex.getMessage(), ex);
         }
     }
 
@@ -431,7 +454,7 @@ public class Conexion {
 
         try {
             // Si el usuario ya lo insertas por separado, borra esta linea
-            insertarUsuario(t.getUsuario());
+            asegurarUsuario(t.getUsuario());
 
             PreparedStatement ps = conn.prepareStatement(sql);
 
@@ -445,11 +468,13 @@ public class Conexion {
             ps.setString(8, t.getFormacion());
             ps.setBoolean(9, t.isDisponible());
 
-            ps.executeUpdate();
+            if (ps.executeUpdate() != 1) {
+                throw new IllegalStateException("MySQL no confirmó la inserción en insertarTecnico");
+            }
             ps.close();
 
         } catch (SQLException ex) {
-            Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, ex);
+            throw new IllegalStateException("Error en MySQL: " + ex.getMessage(), ex);
         }
     }
 
@@ -467,11 +492,13 @@ public class Conexion {
             ps.setDate(5, Date.valueOf(r.getFechaIngreso()));         // LocalDate -> java.sql.Date
             ps.setDate(6, Date.valueOf(r.getFechaSalida()));
 
-            ps.executeUpdate();
+            if (ps.executeUpdate() != 1) {
+                throw new IllegalStateException("MySQL no confirmó la inserción en insertarReserva");
+            }
             ps.close();
 
         } catch (SQLException ex) {
-            Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, ex);
+            throw new IllegalStateException("Error en MySQL: " + ex.getMessage(), ex);
         }
     }
 
@@ -484,11 +511,13 @@ public class Conexion {
             ps.setInt(1, h.getNumeroHabitacion());
             ps.setString(2, t.getDNI());
 
-            ps.executeUpdate();
+            if (ps.executeUpdate() != 1) {
+                throw new IllegalStateException("MySQL no encontró el registro para actualizar: " + "insertarReparacion");
+            }
             ps.close();
 
         } catch (SQLException ex) {
-            Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, ex);
+            throw new IllegalStateException("Error en MySQL: " + ex.getMessage(), ex);
         }
     }
 
@@ -496,6 +525,148 @@ public class Conexion {
     ///MODIFICAR
 
 
+    // MODIFICAR ESTADO DE HABITACION
+    public void modificarEstadoHabitacion(int numeroHabitacion, boolean disponible, EEstadoMantenimiento estadoMantenimiento) {
+        String sql = "UPDATE Habitaciones SET estado = ?, estadoMantenimiento = ? WHERE numero_habitacion = ?";
+
+        try {
+            PreparedStatement ps = conn.prepareStatement(sql);
+
+            ps.setBoolean(1, disponible);
+            ps.setString(2, estadoMantenimiento.name());
+            ps.setInt(3, numeroHabitacion);
+
+            if (ps.executeUpdate() != 1) {
+                throw new IllegalStateException("MySQL no encontró el registro para actualizar: " + "modificarEstadoHabitacion");
+            }
+            ps.close();
+
+        } catch (SQLException ex) {
+            throw new IllegalStateException("Error en MySQL: " + ex.getMessage(), ex);
+        }
+    }
+
+    // MODIFICAR USUARIO
+    public void modificarUsuario(String nombreUsuario, String nuevoNombreUsuario, String nuevaContrasenia) {
+        String sql = "UPDATE Usuarios SET nombreUsuario = ?, contrasenia = ? WHERE nombreUsuario = ?";
+
+        try {
+            PreparedStatement ps = conn.prepareStatement(sql);
+
+            ps.setString(1, nuevoNombreUsuario);
+            ps.setString(2, nuevaContrasenia);
+            ps.setString(3, nombreUsuario);
+
+            if (ps.executeUpdate() != 1) {
+                throw new IllegalStateException("MySQL no encontró el registro para actualizar: " + "modificarUsuario");
+            }
+            ps.close();
+
+        } catch (SQLException ex) {
+            throw new IllegalStateException("Error en MySQL: " + ex.getMessage(), ex);
+        }
+    }
+
+    // MODIFICAR FECHA DE INGRESO
+    public void modificarFechaIngreso(String idReserva, java.time.LocalDate nuevaFechaIngreso) {
+        String sql = "UPDATE Reserva SET fechaIngreso = ? WHERE idReserva = ?";
+
+        try {
+            PreparedStatement ps = conn.prepareStatement(sql);
+
+            ps.setDate(1, Date.valueOf(nuevaFechaIngreso));
+            ps.setString(2, idReserva);
+
+            if (ps.executeUpdate() != 1) {
+                throw new IllegalStateException("MySQL no encontró el registro para actualizar: " + "modificarFechaIngreso");
+            }
+            ps.close();
+
+        } catch (SQLException ex) {
+            throw new IllegalStateException("Error en MySQL: " + ex.getMessage(), ex);
+        }
+    }
+
+    // MODIFICAR FECHA DE SALIDA
+    public void modificarFechaSalida(String idReserva, java.time.LocalDate nuevaFechaSalida) {
+        String sql = "UPDATE Reserva SET fechaSalida = ? WHERE idReserva = ?";
+
+        try {
+            PreparedStatement ps = conn.prepareStatement(sql);
+
+            ps.setDate(1, Date.valueOf(nuevaFechaSalida));
+            ps.setString(2, idReserva);
+
+            if (ps.executeUpdate() != 1) {
+                throw new IllegalStateException("MySQL no encontró el registro para actualizar: " + "modificarFechaSalida");
+            }
+            ps.close();
+
+        } catch (SQLException ex) {
+            throw new IllegalStateException("Error en MySQL: " + ex.getMessage(), ex);
+        }
+    }
+
+    // MODIFICAR AMBAS FECHAS
+    public void modificarFechasReserva(String idReserva, java.time.LocalDate nuevaFechaIngreso, java.time.LocalDate nuevaFechaSalida) {
+        String sql = "UPDATE Reserva SET fechaIngreso = ?, fechaSalida = ? WHERE idReserva = ?";
+
+        try {
+            PreparedStatement ps = conn.prepareStatement(sql);
+
+            ps.setDate(1, Date.valueOf(nuevaFechaIngreso));
+            ps.setDate(2, Date.valueOf(nuevaFechaSalida));
+            ps.setString(3, idReserva);
+
+            if (ps.executeUpdate() != 1) {
+                throw new IllegalStateException("MySQL no encontró el registro para actualizar: " + "modificarFechasReserva");
+            }
+            ps.close();
+
+        } catch (SQLException ex) {
+            throw new IllegalStateException("Error en MySQL: " + ex.getMessage(), ex);
+        }
+    }
+
+    // MODIFICAR NUMERO DE HABITACION
+    public void modificarNumeroHabitacion(String idReserva, int nuevoNumeroHabitacion) {
+        String sql = "UPDATE Reserva SET idHabitacion = ? WHERE idReserva = ?";
+
+        try {
+            PreparedStatement ps = conn.prepareStatement(sql);
+
+            ps.setInt(1, nuevoNumeroHabitacion);
+            ps.setString(2, idReserva);
+
+            if (ps.executeUpdate() != 1) {
+                throw new IllegalStateException("MySQL no encontró el registro para actualizar: " + "modificarNumeroHabitacion");
+            }
+            ps.close();
+
+        } catch (SQLException ex) {
+            throw new IllegalStateException("Error en MySQL: " + ex.getMessage(), ex);
+        }
+    }
+
+    // MODIFICAR CANTIDAD DE PERSONAS
+    public void modificarCantidadPersonas(String idReserva, int nuevaCantidadPersonas) {
+        String sql = "UPDATE Reserva SET cantidadPasajeros = ? WHERE idReserva = ?";
+
+        try {
+            PreparedStatement ps = conn.prepareStatement(sql);
+
+            ps.setInt(1, nuevaCantidadPersonas);
+            ps.setString(2, idReserva);
+
+            if (ps.executeUpdate() != 1) {
+                throw new IllegalStateException("MySQL no encontró el registro para actualizar: " + "modificarCantidadPersonas");
+            }
+            ps.close();
+
+        } catch (SQLException ex) {
+            throw new IllegalStateException("Error en MySQL: " + ex.getMessage(), ex);
+        }
+    }
     ///ELIMINAR
 
     // Cuando se termina una reparacion hay que sacarla de la tabla
@@ -507,11 +678,13 @@ public class Conexion {
 
             ps.setInt(1, h.getNumeroHabitacion());
 
-            ps.executeUpdate();
+            if (ps.executeUpdate() != 1) {
+                throw new IllegalStateException("MySQL no encontró el registro para actualizar: " + "eliminarReparacion");
+            }
             ps.close();
 
         } catch (SQLException ex) {
-            Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, ex);
+            throw new IllegalStateException("Error en MySQL: " + ex.getMessage(), ex);
         }
     }
 
@@ -550,7 +723,7 @@ public class Conexion {
             ps.close();
 
         } catch (SQLException ex) {
-            Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, ex);
+            throw new IllegalStateException("Error en MySQL: " + ex.getMessage(), ex);
         }
         return mapa;
     }
@@ -581,7 +754,7 @@ public class Conexion {
             ps.close();
 
         } catch (SQLException ex) {
-            Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, ex);
+            throw new IllegalStateException("Error en MySQL: " + ex.getMessage(), ex);
         }
         return mapa;
     }
@@ -613,7 +786,7 @@ public class Conexion {
             ps.close();
 
         } catch (SQLException ex) {
-            Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, ex);
+            throw new IllegalStateException("Error en MySQL: " + ex.getMessage(), ex);
         }
         return mapa;
     }
@@ -644,7 +817,7 @@ public class Conexion {
             ps.close();
 
         } catch (SQLException ex) {
-            Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, ex);
+            throw new IllegalStateException("Error en MySQL: " + ex.getMessage(), ex);
         }
         return mapa;
     }
@@ -675,7 +848,7 @@ public class Conexion {
             ps.close();
 
         } catch (SQLException ex) {
-            Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, ex);
+            throw new IllegalStateException("Error en MySQL: " + ex.getMessage(), ex);
         }
         return mapa;
     }
@@ -703,7 +876,7 @@ public class Conexion {
             ps.close();
 
         } catch (SQLException ex) {
-            Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, ex);
+            throw new IllegalStateException("Error en MySQL: " + ex.getMessage(), ex);
         }
         return mapa;
     }
@@ -740,7 +913,7 @@ public class Conexion {
             ps.close();
 
         } catch (SQLException ex) {
-            Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, ex);
+            throw new IllegalStateException("Error en MySQL: " + ex.getMessage(), ex);
         }
         return mapa;
     }
@@ -767,14 +940,14 @@ public class Conexion {
             ps.close();
 
         } catch (SQLException ex) {
-            Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, ex);
+            throw new IllegalStateException("Error en MySQL: " + ex.getMessage(), ex);
         }
         return mapa;
     }
 
     public Hotel listarHotel() {
         Hotel hotel = null;
-        String sql = "SELECT nombre, direccion, cantidad_habitaciones FROM Hotel LIMIT 1";
+        String sql = "SELECT nombre, direccion, cantidad_habitaciones, habitaciones_ocupadas FROM Hotel LIMIT 1";
 
         try {
             PreparedStatement ps = conn.prepareStatement(sql);
@@ -787,16 +960,152 @@ public class Conexion {
                         rs.getInt("cantidad_habitaciones")
 
                 );
-                hotel.setCantidadOcupadas(rs.getInt(4));
+                hotel.setCantidadOcupadas(rs.getInt("habitaciones_ocupadas"));
             }
 
             rs.close();
             ps.close();
 
         } catch (SQLException ex) {
-            Logger.getLogger(Conexion.class.getName()).log(Level.SEVERE, null, ex);
+            throw new IllegalStateException("Error en MySQL: " + ex.getMessage(), ex);
         }
         return hotel;
     }
 
+
+    // Métodos de compatibilidad para guardar en ambos lugares de forma segura.
+    /** Si la cuenta ya estaba registrada, no vuelve a crearla. */
+    private boolean existe(String sql, Object clave) {
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setObject(1, clave);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        } catch (SQLException e) {
+            throw new IllegalStateException("No se pudo comprobar un registro en MySQL", e);
+        }
+    }
+
+    /** Conserva la misma cuenta si ya existe; no intenta insertarla de nuevo. */
+    private void asegurarUsuario(Usuario usuario) {
+        if (!existe("SELECT 1 FROM Usuarios WHERE nombreUsuario=?", usuario.getNombreUsuario())) {
+            insertarUsuario(usuario);
+        }
+    }
+
+    public void asegurarHabitacion(Habitacion habitacion) {
+        if (!existe("SELECT 1 FROM Habitaciones WHERE numero_habitacion=?",
+                habitacion.getNumeroHabitacion())) {
+            insertarHabitacion(habitacion);
+        }
+    }
+
+    public void asegurarPasajero(Pasajero pasajero) {
+        asegurarUsuario(pasajero.getUsuario());
+        if (!existe("SELECT 1 FROM Pasajeros WHERE DNI=?", pasajero.getDNI())) {
+            insertarPasajero(pasajero);
+        }
+    }
+
+    /** Evita insertar registros de Main cuando la BD ya tiene datos reales. */
+    public boolean tieneRegistrosPersistidos() {
+        String sql = "SELECT (SELECT COUNT(*) FROM Usuarios) + "
+                + "(SELECT COUNT(*) FROM Pasajeros) + "
+                + "(SELECT COUNT(*) FROM Habitaciones) + "
+                + "(SELECT COUNT(*) FROM Reserva) + "
+                + "(SELECT COUNT(*) FROM Tecnicos) + "
+                + "(SELECT COUNT(*) FROM Conserjes) + "
+                + "(SELECT COUNT(*) FROM Administradores) + "
+                + "(SELECT COUNT(*) FROM Reparaciones) + "
+                + "(SELECT COUNT(*) FROM Hotel) AS total";
+        try (PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            return rs.next() && rs.getLong("total") > 0;
+        } catch (SQLException e) {
+            throw new IllegalStateException("No se pudo revisar el contenido de MySQL", e);
+        }
+    }
+
+    private void eliminarEstricto(String sql, Object clave) {
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setObject(1, clave);
+            if (ps.executeUpdate() != 1) {
+                throw new IllegalStateException("No se encontró el registro para eliminar en MySQL");
+            }
+        } catch (SQLException e) {
+            // Si existe una FK (ej. pasajero con reservas), NO se elimina del mapa.
+            throw new IllegalStateException("No se pudo eliminar en MySQL. Verificá los datos vinculados: "
+                    + e.getMessage(), e);
+        }
+    }
+
+    public void eliminarUsuarioPorNombre(String nombre) {
+        eliminarEstricto("DELETE FROM Usuarios WHERE nombreUsuario=?", nombre);
+    }
+
+    public void eliminarPasajeroPorDni(String dni) {
+        eliminarEstricto("DELETE FROM Pasajeros WHERE DNI=?", dni);
+    }
+
+    public void eliminarEmpleadoPorTipo(Interfaces.IEmpleado e) {
+        if (e instanceof Administrador) {
+            eliminarEstricto("DELETE FROM Administradores WHERE dni=?", ((Administrador)e).getDNI());
+        } else if (e instanceof Conserje) {
+            eliminarEstricto("DELETE FROM Conserjes WHERE dni=?", ((Conserje)e).getDNI());
+        } else {
+            throw new IllegalArgumentException("Tipo de empleado no soportado");
+        }
+    }
+
+    public void eliminarReservaPorId(String id) {
+        eliminarEstricto("DELETE FROM Reserva WHERE idReserva=?", id);
+    }
+
+
+    public void actualizarTecnico(Tecnico t) {
+        String sql = "UPDATE Tecnicos SET disponible=? WHERE DNI=?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setBoolean(1, t.isDisponible());
+            ps.setString(2, t.getDNI());
+            if (ps.executeUpdate() != 1) {
+                throw new IllegalStateException("El técnico no se pudo actualizar en MySQL");
+            }
+        } catch (SQLException e) {
+            throw new IllegalStateException("No se pudo actualizar el técnico", e);
+        }
+    }
+    /** Ejecuta varias inserciones como una sola operación en MySQL. */
+    public void ejecutarTransaccion(Runnable operacion) {
+        if (conn == null) {
+            throw new IllegalStateException("No existe una conexión activa con MySQL");
+        }
+        boolean autoCommitOriginal;
+        try {
+            autoCommitOriginal = conn.getAutoCommit();
+            conn.setAutoCommit(false);
+        } catch (SQLException e) {
+            throw new IllegalStateException("No se pudo iniciar la transacción", e);
+        }
+        try {
+            operacion.run();
+            conn.commit();
+        } catch (RuntimeException | Error e) {
+            try {
+                conn.rollback();
+            } catch (SQLException rollback) {
+                e.addSuppressed(rollback);
+            }
+            throw e;
+        } catch (SQLException e) {
+            try { conn.rollback(); } catch (SQLException rollback) { e.addSuppressed(rollback); }
+            throw new IllegalStateException("No se pudo confirmar la transacción", e);
+        } finally {
+            try {
+                conn.setAutoCommit(autoCommitOriginal);
+            } catch (SQLException e) {
+                throw new IllegalStateException("No se pudo restaurar la conexión", e);
+            }
+        }
+    }
 }
+

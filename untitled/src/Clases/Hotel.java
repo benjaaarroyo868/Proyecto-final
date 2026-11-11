@@ -15,6 +15,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 public class Hotel implements IValidarDatos {
 
@@ -951,6 +952,60 @@ public class Hotel implements IValidarDatos {
 
             throw new DatoInvalidoException(
                     "La cantidad de habitaciones ocupadas es inválida");
+        }
+    }
+
+    //Vacía los registros que están en memoria para volver a cargarlos con los datos de MySQL.
+    // No elimina los registros de la base de datos.
+
+    public void limpiarRegistrosParaRecarga() {
+        empleados = new RegistroGenericoMapas<>();
+        tecnicos = new RegistroGenericoMapas<>();
+        habitaciones = new RegistroGenericoMapas<>();
+        pasajeros = new RegistroGenericoMapas<>();
+        reservas = new RegistroGenericoMapas<>();
+        usuario = new RegistroGenericoMapas<>();
+        reparaciones = new RegistroGenericoMapas<>();
+    }
+
+    // Cuando se abre nuevamente el programa, recupera las reparaciones guardadas en MySQL,
+    // deja las habitaciones en reparación y marca a sus técnicos como no disponibles.
+
+    public void restaurarReparaciones(
+            Map<Habitacion, Tecnico> asignaciones) {
+
+        if (asignaciones == null) {
+            throw new IllegalArgumentException(
+                    "Las reparaciones no pueden ser nulas");
+        }
+
+        this.reparaciones = new RegistroGenericoMapas<>();
+
+        for (Map.Entry<Habitacion, Tecnico> entrada
+                : asignaciones.entrySet()) {
+
+            Habitacion habBd = entrada.getKey();
+            Tecnico tecBd = entrada.getValue();
+
+            if (habBd == null || tecBd == null) {
+                continue;
+            }
+
+            Habitacion habitacion = habitaciones.get(
+                    String.valueOf(habBd.getNumeroHabitacion()));
+
+            Tecnico tecnico = tecnicos.get(tecBd.getDNI());
+
+            if (habitacion == null || tecnico == null) {
+                continue;
+            }
+
+            reparaciones.put(habitacion, tecnico);
+
+            habitacion.setEstadoMantenimiento(
+                    EEstadoMantenimiento.EN_REPARACION);
+
+            tecnico.setDisponible(false);
         }
     }
 }
