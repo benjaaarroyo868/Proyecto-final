@@ -1,3 +1,4 @@
+
 package Conexion;
 
 import java.sql.Connection;
@@ -7,90 +8,120 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Unico lugar que sabe conectarse a MySQL y manejar transacciones.
- * Todas las clases ConexionX usan abrir() / cerrar().
+ * Clase que administra la conexion con MySQL
+ * y las transacciones de las clases ConexionX.
  */
 public class ConexionBD {
 
-
-
     private static final String URL =
-            "jdbc:mysql://localhost:3306/";
-    private static final String USUARIO = "root";
-    private static final String CONTRASENIA = "Scrfiat868877";
+            "jdbc:mysql://localhost:3306/HotelConte";
 
-    // Conexion compartida por todas las clases mientras dura una transaccion.
+    private static final String USUARIO = "root";
+    private static final String CONTRASENIA = "TU_CONTRASENA_MYSQL";
+
+    // Conexion compartida durante una transaccion.
     private static Connection connTransaccion = null;
 
-    /** Abre y devuelve una conexion NUEVA cada vez que se la llama. */
+    // Crea una nueva conexion con MySQL.
     public static Connection createConnection() {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            return DriverManager.getConnection(URL, USUARIO, CONTRASENIA);
+
+            return DriverManager.getConnection(
+                    URL, USUARIO, CONTRASENIA);
+
         } catch (ClassNotFoundException e) {
-            Logger.getLogger(ConexionBD.class.getName()).log(Level.SEVERE, null, e);
-            throw new IllegalStateException("No se encontró el driver de MySQL", e);
+            Logger.getLogger(ConexionBD.class.getName())
+                    .log(Level.SEVERE, null, e);
+
+            throw new IllegalStateException(
+                    "No se encontró el driver de MySQL", e);
+
         } catch (SQLException e) {
-            Logger.getLogger(ConexionBD.class.getName()).log(Level.SEVERE, null, e);
-            throw new IllegalStateException("Error al conectar con la base de datos: " + e.getMessage(), e);
+            Logger.getLogger(ConexionBD.class.getName())
+                    .log(Level.SEVERE, null, e);
+
+            throw new IllegalStateException(
+                    "Error al conectar con la base de datos: "
+                            + e.getMessage(), e);
         }
     }
 
-    /** Cierra la conexion que recibe (si no es null y sigue abierta). */
+    // Cierra una conexion.
     public static void closeConnection(Connection conn) {
         try {
             if (conn != null && !conn.isClosed()) {
                 conn.close();
             }
-        } catch (SQLException ex) {
-            throw new IllegalStateException("Error en MySQL: " + ex.getMessage(), ex);
+
+        } catch (SQLException e) {
+            throw new IllegalStateException(
+                    "Error en MySQL: " + e.getMessage(), e);
         }
     }
 
-    /** Usar al empezar cada metodo: dentro de una transaccion devuelve la conexion de la transaccion. */
+    // Abre una conexion o reutiliza la transaccion activa.
     public static Connection abrir() {
         if (connTransaccion != null) {
             return connTransaccion;
         }
+
         return createConnection();
     }
 
-    /** Usar en el finally de cada metodo: dentro de una transaccion NO cierra la conexion. */
+    // Cierra solamente las conexiones que no pertenecen
+    // a una transaccion activa.
     public static void cerrar(Connection c) {
         if (c != connTransaccion) {
             closeConnection(c);
         }
     }
 
-    /** Ejecuta varias operaciones (de cualquier clase ConexionX) como una sola operación en MySQL. */
+    // Ejecuta varias operaciones en una unica transaccion.
     public static void ejecutarTransaccion(Runnable operacion) {
+
         if (connTransaccion != null) {
-            throw new IllegalStateException("Ya hay una transacción en curso");
+            throw new IllegalStateException(
+                    "Ya hay una transacción en curso");
         }
 
         Connection conn = createConnection();
 
         try {
             conn.setAutoCommit(false);
+
         } catch (SQLException e) {
             closeConnection(conn);
-            throw new IllegalStateException("No se pudo iniciar la transacción", e);
+
+            throw new IllegalStateException(
+                    "No se pudo iniciar la transacción", e);
         }
 
         connTransaccion = conn;
+
         try {
             operacion.run();
             conn.commit();
+
         } catch (RuntimeException | Error e) {
             try {
                 conn.rollback();
             } catch (SQLException rollback) {
                 e.addSuppressed(rollback);
             }
+
             throw e;
+
         } catch (SQLException e) {
-            try { conn.rollback(); } catch (SQLException rollback) { e.addSuppressed(rollback); }
-            throw new IllegalStateException("No se pudo confirmar la transacción", e);
+            try {
+                conn.rollback();
+            } catch (SQLException rollback) {
+                e.addSuppressed(rollback);
+            }
+
+            throw new IllegalStateException(
+                    "No se pudo confirmar la transacción", e);
+
         } finally {
             connTransaccion = null;
             closeConnection(conn);

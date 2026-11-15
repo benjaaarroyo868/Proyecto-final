@@ -1,7 +1,8 @@
+
 package Menu;
 
 import Clases.*;
-import Conexion.Conexion;
+import Conexion.ConexionIntegrada;
 import Interfaces.IEmpleado;
 import java.util.HashMap;
 import java.util.Map;
@@ -11,13 +12,13 @@ import static Menu.ValidacionesMenu.*;
 
 /** Integra JDBC con el menú sin trasladar consultas SQL a las pantallas. */
 public class GestionBaseDatos {
-    private static Conexion conexion;
+    private static ConexionIntegrada conexion;
     private static boolean cargaInicial = false;
 
     private static boolean conectar() {
         if (conexion != null) return true;
         try {
-           Conexion nueva = new Conexion();
+            ConexionIntegrada nueva = new ConexionIntegrada();
             nueva.createConnection();
             nueva.crearBaseDatos("HotelConte");
             nueva.usarBaseDatos("HotelConte");
@@ -25,7 +26,8 @@ public class GestionBaseDatos {
             conexion = nueva;
             return true;
         } catch (RuntimeException e) {
-            throw new IllegalStateException("Base de datos no disponible: " + e.getMessage(), e);
+            throw new IllegalStateException(
+                    "Base de datos no disponible: " + e.getMessage(), e);
         }
     }
 
@@ -33,6 +35,7 @@ public class GestionBaseDatos {
     public static void iniciar(Hotel hotel) {
         if (cargaInicial) return;
         conectar();
+
         // Sembrar Main solamente si la base SQL está completamente vacía.
         if (!conexion.tieneRegistrosPersistidos()) {
             insertarTodos(hotel);
@@ -41,6 +44,7 @@ public class GestionBaseDatos {
             // Solo completa los datos generales del Hotel si todavía no existen.
             conexion.insertarHotel(hotel);
         }
+
         // MySQL es la fuente de verdad: sus instancias reemplazan las
         // precargadas con la misma clave y se recuperan las reparaciones.
         cargarDesdeBaseDatos(hotel);
@@ -63,7 +67,8 @@ public class GestionBaseDatos {
 
     public static void guardarPasajero(Pasajero p) {
         conectar();
-        conexion.ejecutarTransaccion(() -> conexion.insertarPasajero(p));
+        conexion.ejecutarTransaccion(() ->
+                conexion.insertarPasajero(p));
     }
 
     public static void guardarEmpleado(IEmpleado e) {
@@ -74,7 +79,8 @@ public class GestionBaseDatos {
             } else if (e instanceof Conserje) {
                 conexion.insertarConserje((Conserje) e);
             } else {
-                throw new IllegalArgumentException("Tipo de empleado no soportado por MySQL");
+                throw new IllegalArgumentException(
+                        "Tipo de empleado no soportado por MySQL");
             }
         });
     }
@@ -88,7 +94,8 @@ public class GestionBaseDatos {
     /** Para técnicos nuevos agregados por Java fuera del menú. */
     public static void guardarTecnico(Tecnico tecnico) {
         conectar();
-        conexion.ejecutarTransaccion(() -> conexion.insertarTecnico(tecnico));
+        conexion.ejecutarTransaccion(() ->
+                conexion.insertarTecnico(tecnico));
     }
 
     public static void guardarReserva(Reserva r) {
@@ -101,20 +108,23 @@ public class GestionBaseDatos {
         });
     }
 
-    // Las cinco modificaciones de reservas usan los métodos de la última Conexion.java.
-    // En el menú, si SQL falla, se restaura el valor anterior del objeto Java.
-    public static void modificarFechaIngreso(String id, java.time.LocalDate fecha) {
+    // Las modificaciones de reservas usan las clases JDBC originales.
+    public static void modificarFechaIngreso(
+            String id, java.time.LocalDate fecha) {
         conectar();
         conexion.modificarFechaIngreso(id, fecha);
     }
 
-    public static void modificarFechaSalida(String id, java.time.LocalDate fecha) {
+    public static void modificarFechaSalida(
+            String id, java.time.LocalDate fecha) {
         conectar();
         conexion.modificarFechaSalida(id, fecha);
     }
 
-    public static void modificarFechasReserva(String id,
-            java.time.LocalDate ingreso, java.time.LocalDate salida) {
+    public static void modificarFechasReserva(
+            String id,
+            java.time.LocalDate ingreso,
+            java.time.LocalDate salida) {
         conectar();
         conexion.modificarFechasReserva(id, ingreso, salida);
     }
@@ -124,16 +134,21 @@ public class GestionBaseDatos {
         conexion.modificarCantidadPersonas(id, cantidad);
     }
 
-    public static void modificarNumeroHabitacion(String id, int numeroHabitacion) {
+    public static void modificarNumeroHabitacion(
+            String id, int numeroHabitacion) {
         conectar();
         conexion.modificarNumeroHabitacion(id, numeroHabitacion);
     }
 
     /** Modifica una cuenta; el cambio de clave primaria se hace en una transacción. */
-    public static void modificarUsuario(String nombreActual, String nuevoNombre, String nuevaContrasenia) {
+    public static void modificarUsuario(
+            String nombreActual,
+            String nuevoNombre,
+            String nuevaContrasenia) {
         conectar();
         conexion.ejecutarTransaccion(() ->
-                conexion.modificarUsuario(nombreActual, nuevoNombre, nuevaContrasenia));
+                conexion.modificarUsuario(
+                        nombreActual, nuevoNombre, nuevaContrasenia));
     }
 
     public static void eliminarUsuario(String nombre) {
@@ -159,8 +174,10 @@ public class GestionBaseDatos {
     public static void guardarReparacion(Habitacion h, Tecnico t) {
         conectar();
         conexion.ejecutarTransaccion(() -> {
-            conexion.modificarEstadoHabitacion(h.getNumeroHabitacion(),
-                    h.isDisponible(), h.getEstadoMantenimiento());
+            conexion.modificarEstadoHabitacion(
+                    h.getNumeroHabitacion(),
+                    h.isDisponible(),
+                    h.getEstadoMantenimiento());
             conexion.actualizarTecnico(t);
             conexion.insertarReparacion(h, t);
         });
@@ -168,16 +185,20 @@ public class GestionBaseDatos {
 
     public static void guardarEstadoHabitacion(Habitacion h) {
         conectar();
-        conexion.modificarEstadoHabitacion(h.getNumeroHabitacion(),
-                h.isDisponible(), h.getEstadoMantenimiento());
+        conexion.modificarEstadoHabitacion(
+                h.getNumeroHabitacion(),
+                h.isDisponible(),
+                h.getEstadoMantenimiento());
     }
 
     public static void finalizarReparacion(Habitacion h, Tecnico t) {
         conectar();
         conexion.ejecutarTransaccion(() -> {
             conexion.eliminarReparacion(h);
-            conexion.modificarEstadoHabitacion(h.getNumeroHabitacion(),
-                    h.isDisponible(), h.getEstadoMantenimiento());
+            conexion.modificarEstadoHabitacion(
+                    h.getNumeroHabitacion(),
+                    h.isDisponible(),
+                    h.getEstadoMantenimiento());
             if (t != null) conexion.actualizarTecnico(t);
         });
     }
@@ -186,19 +207,33 @@ public class GestionBaseDatos {
     public static void insertarTodos(Hotel hotel) {
         conectar();
         conexion.ejecutarTransaccion(() -> {
-            for (Usuario u : hotel.mostrarUsuarios()) conexion.insertarUsuario(u);
-            for (Habitacion h : hotel.getHabitaciones().obtenerTodos()) conexion.insertarHabitacion(h);
-            for (Tecnico t : hotel.verTecnicos()) conexion.insertarTecnico(t);
+            for (Usuario u : hotel.mostrarUsuarios())
+                conexion.insertarUsuario(u);
+
+            for (Habitacion h : hotel.getHabitaciones().obtenerTodos())
+                conexion.insertarHabitacion(h);
+
+            for (Tecnico t : hotel.verTecnicos())
+                conexion.insertarTecnico(t);
+
             for (IEmpleado e : hotel.mostrarEmpleados()) {
-                if (e instanceof Administrador) conexion.insertarAdministrador((Administrador) e);
-                else if (e instanceof Conserje) conexion.insertarConserje((Conserje) e);
+                if (e instanceof Administrador)
+                    conexion.insertarAdministrador((Administrador) e);
+                else if (e instanceof Conserje)
+                    conexion.insertarConserje((Conserje) e);
             }
-            for (Pasajero p : hotel.mostrarPasajeros()) conexion.insertarPasajero(p);
-            for (Reserva r : hotel.mostrarReservas()) conexion.insertarReserva(r);
+
+            for (Pasajero p : hotel.mostrarPasajeros())
+                conexion.insertarPasajero(p);
+
+            for (Reserva r : hotel.mostrarReservas())
+                conexion.insertarReserva(r);
+
             for (Habitacion h : hotel.verHabitacionesEnReparacion()) {
                 Tecnico t = hotel.obtenerTecnicoAsignado(h);
                 if (t != null) conexion.insertarReparacion(h, t);
             }
+
             conexion.insertarHotel(hotel);
         });
     }
@@ -211,40 +246,65 @@ public class GestionBaseDatos {
      */
     public static void cargarDesdeBaseDatos(Hotel hotel) {
         conectar();
-        if (hotel == null) throw new IllegalArgumentException("El hotel no puede ser nulo");
 
-        HashMap<String, Usuario> usuarios = conexion.listarUsuarios();
-        HashMap<String, Habitacion> habitaciones = conexion.listarHabitaciones();
-        HashMap<String, Pasajero> pasajeros = conexion.listarPasajeros(usuarios);
-        HashMap<String, Tecnico> tecnicos = conexion.listarTecnicos(usuarios);
-        HashMap<String, Administrador> admins = conexion.listarAdministradores(usuarios);
-        HashMap<String, Conserje> conserjes = conexion.listarConserjes(usuarios);
-        HashMap<String, Reserva> reservas = conexion.listarReservas(pasajeros, habitaciones);
+        if (hotel == null)
+            throw new IllegalArgumentException("El hotel no puede ser nulo");
+
+        HashMap<String, Usuario> usuarios =
+                conexion.listarUsuarios();
+
+        HashMap<String, Habitacion> habitaciones =
+                conexion.listarHabitaciones();
+
+        HashMap<String, Pasajero> pasajeros =
+                conexion.listarPasajeros(usuarios);
+
+        HashMap<String, Tecnico> tecnicos =
+                conexion.listarTecnicos(usuarios);
+
+        HashMap<String, Administrador> admins =
+                conexion.listarAdministradores(usuarios);
+
+        HashMap<String, Conserje> conserjes =
+                conexion.listarConserjes(usuarios);
+
+        HashMap<String, Reserva> reservas =
+                conexion.listarReservas(pasajeros, habitaciones);
+
         HashMap<Habitacion, Tecnico> reparaciones =
                 conexion.listarReparaciones(habitaciones, tecnicos);
+
         Hotel hotelGuardado = conexion.listarHotel();
 
         // Evitar que se mezclen objetos temporales de Main con filas de MySQL.
         // Los mapas se reconstruyen únicamente después de completar los SELECT.
         hotel.limpiarRegistrosParaRecarga();
+
         for (Usuario u : usuarios.values()) {
             hotel.getUsuarios().put(u.getNombreUsuario(), u);
         }
+
         for (Habitacion h : habitaciones.values()) {
-            hotel.getHabitaciones().put(String.valueOf(h.getNumeroHabitacion()), h);
+            hotel.getHabitaciones().put(
+                    String.valueOf(h.getNumeroHabitacion()), h);
         }
+
         for (Pasajero p : pasajeros.values()) {
             hotel.getPasajeros().put(p.getDNI(), p);
         }
+
         for (Tecnico t : tecnicos.values()) {
             hotel.getTecnicos().put(t.getDNI(), t);
         }
+
         for (Administrador a : admins.values()) {
             hotel.getEmpleados().put(a.getLegajo(), a);
         }
+
         for (Conserje c : conserjes.values()) {
             hotel.getEmpleados().put(c.getLegajo(), c);
         }
+
         for (Reserva r : reservas.values()) {
             hotel.getReservas().put(r.getIdReserva(), r);
         }
@@ -256,8 +316,10 @@ public class GestionBaseDatos {
         if (hotelGuardado != null) {
             hotel.setNombre(hotelGuardado.getNombre());
             hotel.setDireccion(hotelGuardado.getDireccion());
-            hotel.setCantidadHabitaciones(hotelGuardado.getCantidadHabitaciones());
-            hotel.setCantidadOcupadas(hotelGuardado.getCantidadOcupadas());
+            hotel.setCantidadHabitaciones(
+                    hotelGuardado.getCantidadHabitaciones());
+            hotel.setCantidadOcupadas(
+                    hotelGuardado.getCantidadOcupadas());
         }
 
         System.out.println(VERDE + "Se recuperaron de MySQL: "
@@ -273,49 +335,100 @@ public class GestionBaseDatos {
     /** Lee realmente las tablas SQL; no se limita a mostrar las colecciones en memoria. */
     public static void listarDesdeBaseDatos() {
         if (!conectar()) return;
-        HashMap<String, Usuario> usuarios = conexion.listarUsuarios();
-        HashMap<String, Habitacion> habitaciones = conexion.listarHabitaciones();
-        HashMap<String, Pasajero> pasajeros = conexion.listarPasajeros(usuarios);
-        HashMap<String, Tecnico> tecnicos = conexion.listarTecnicos(usuarios);
-        HashMap<String, Administrador> admins = conexion.listarAdministradores(usuarios);
-        HashMap<String, Conserje> conserjes = conexion.listarConserjes(usuarios);
-        HashMap<String, Reserva> reservas = conexion.listarReservas(pasajeros, habitaciones);
-        HashMap<Habitacion, Tecnico> reparaciones = conexion.listarReparaciones(habitaciones, tecnicos);
+
+        HashMap<String, Usuario> usuarios =
+                conexion.listarUsuarios();
+
+        HashMap<String, Habitacion> habitaciones =
+                conexion.listarHabitaciones();
+
+        HashMap<String, Pasajero> pasajeros =
+                conexion.listarPasajeros(usuarios);
+
+        HashMap<String, Tecnico> tecnicos =
+                conexion.listarTecnicos(usuarios);
+
+        HashMap<String, Administrador> admins =
+                conexion.listarAdministradores(usuarios);
+
+        HashMap<String, Conserje> conserjes =
+                conexion.listarConserjes(usuarios);
+
+        HashMap<String, Reserva> reservas =
+                conexion.listarReservas(pasajeros, habitaciones);
+
+        HashMap<Habitacion, Tecnico> reparaciones =
+                conexion.listarReparaciones(habitaciones, tecnicos);
+
         Hotel hotelBD = conexion.listarHotel();
 
-        System.out.println(CYAN + "\n════════════ DATOS EN MYSQL ════════════" + RESET);
-        System.out.println(AZUL + "USUARIOS (" + usuarios.size() + ")" + RESET);
+        System.out.println(CYAN
+                + "\n════════════ DATOS EN MYSQL ════════════" + RESET);
+
+        System.out.println(AZUL + "USUARIOS ("
+                + usuarios.size() + ")" + RESET);
+
         for (Usuario u : usuarios.values())
-            System.out.println("  " + u.getNombreUsuario() + " | " + u.getTipoDeUsuario());
+            System.out.println("  " + u.getNombreUsuario()
+                    + " | " + u.getTipoDeUsuario());
 
-        System.out.println(AZUL + "PASAJEROS (" + pasajeros.size() + ")" + RESET);
+        System.out.println(AZUL + "PASAJEROS ("
+                + pasajeros.size() + ")" + RESET);
+
         for (Pasajero p : pasajeros.values())
-            System.out.println("  " + p.getDNI() + " | " + p.getNombre() + " " + p.getApellido());
+            System.out.println("  " + p.getDNI()
+                    + " | " + p.getNombre()
+                    + " " + p.getApellido());
 
-        System.out.println(AZUL + "EMPLEADOS (" + (admins.size() + conserjes.size()) + ")" + RESET);
-        for (Administrador a : admins.values()) System.out.println("  Admin: " + a.getLegajo() + " | " + a.getNombre());
-        for (Conserje c : conserjes.values()) System.out.println("  Conserje: " + c.getLegajo() + " | " + c.getNombre());
+        System.out.println(AZUL + "EMPLEADOS ("
+                + (admins.size() + conserjes.size()) + ")" + RESET);
 
-        System.out.println(AZUL + "TÉCNICOS (" + tecnicos.size() + ")" + RESET);
-        for (Tecnico t : tecnicos.values()) System.out.println("  " + t.getDNI() + " | " + t.getNombre());
+        for (Administrador a : admins.values())
+            System.out.println("  Admin: " + a.getLegajo()
+                    + " | " + a.getNombre());
 
-        System.out.println(AZUL + "HABITACIONES (" + habitaciones.size() + ")" + RESET);
+        for (Conserje c : conserjes.values())
+            System.out.println("  Conserje: " + c.getLegajo()
+                    + " | " + c.getNombre());
+
+        System.out.println(AZUL + "TÉCNICOS ("
+                + tecnicos.size() + ")" + RESET);
+
+        for (Tecnico t : tecnicos.values())
+            System.out.println("  " + t.getDNI()
+                    + " | " + t.getNombre());
+
+        System.out.println(AZUL + "HABITACIONES ("
+                + habitaciones.size() + ")" + RESET);
+
         for (Habitacion h : habitaciones.values())
-            System.out.println("  " + h.getNumeroHabitacion() + " | " + h.getEstadoMantenimiento());
+            System.out.println("  " + h.getNumeroHabitacion()
+                    + " | " + h.getEstadoMantenimiento());
 
-        System.out.println(AZUL + "RESERVAS (" + reservas.size() + ")" + RESET);
-        for (Reserva r : reservas.values()) System.out.println("  " + r.getIdReserva()
-                + " | Hab " + r.getHabitacion().getNumeroHabitacion()
-                + " | Pasajeros: " + r.getCantidadPasajeros()
-                + " | " + r.getFechaIngreso() + " a " + r.getFechaSalida());
+        System.out.println(AZUL + "RESERVAS ("
+                + reservas.size() + ")" + RESET);
 
-        System.out.println(AZUL + "REPARACIONES (" + reparaciones.size() + ")" + RESET);
+        for (Reserva r : reservas.values())
+            System.out.println("  " + r.getIdReserva()
+                    + " | Hab " + r.getHabitacion().getNumeroHabitacion()
+                    + " | Pasajeros: " + r.getCantidadPasajeros()
+                    + " | " + r.getFechaIngreso()
+                    + " a " + r.getFechaSalida());
+
+        System.out.println(AZUL + "REPARACIONES ("
+                + reparaciones.size() + ")" + RESET);
+
         for (Map.Entry<Habitacion, Tecnico> e : reparaciones.entrySet())
-            System.out.println("  Hab " + e.getKey().getNumeroHabitacion() + " | Técnico " + e.getValue().getNombre());
+            System.out.println("  Hab "
+                    + e.getKey().getNumeroHabitacion()
+                    + " | Técnico " + e.getValue().getNombre());
 
-        if (hotelBD != null) System.out.println(AZUL + "HOTEL: " + hotelBD.getNombre() + " | " + hotelBD.getDireccion() + RESET);
-        System.out.println(CYAN + "══════════════════════════════════════════" + RESET);
+        if (hotelBD != null)
+            System.out.println(AZUL + "HOTEL: "
+                    + hotelBD.getNombre()
+                    + " | " + hotelBD.getDireccion() + RESET);
+
+        System.out.println(CYAN
+                + "══════════════════════════════════════════" + RESET);
     }
-
-
 }
