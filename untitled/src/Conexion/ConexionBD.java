@@ -2,62 +2,18 @@
 package Conexion;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-/**
- * Clase que administra la conexion con MySQL
- * y las transacciones de las clases ConexionX.
- */
 public class ConexionBD {
-
-    private static final String URL =
-            "jdbc:mysql://localhost:3306/HotelConte";
-
-    private static final String USUARIO = "root";
-    private static final String CONTRASENIA = "TU_CONTRASENA_MYSQL";
 
     // Conexion compartida durante una transaccion.
     private static Connection connTransaccion = null;
 
-    // Crea una nueva conexion con MySQL.
+    // Reutiliza la conexion de la clase Conexion.
     public static Connection createConnection() {
-        try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-
-            return DriverManager.getConnection(
-                    URL, USUARIO, CONTRASENIA);
-
-        } catch (ClassNotFoundException e) {
-            Logger.getLogger(ConexionBD.class.getName())
-                    .log(Level.SEVERE, null, e);
-
-            throw new IllegalStateException(
-                    "No se encontró el driver de MySQL", e);
-
-        } catch (SQLException e) {
-            Logger.getLogger(ConexionBD.class.getName())
-                    .log(Level.SEVERE, null, e);
-
-            throw new IllegalStateException(
-                    "Error al conectar con la base de datos: "
-                            + e.getMessage(), e);
-        }
-    }
-
-    // Cierra una conexion.
-    public static void closeConnection(Connection conn) {
-        try {
-            if (conn != null && !conn.isClosed()) {
-                conn.close();
-            }
-
-        } catch (SQLException e) {
-            throw new IllegalStateException(
-                    "Error en MySQL: " + e.getMessage(), e);
-        }
+        Conexion conexion = new Conexion();
+        conexion.createConnection();
+        return conexion.getConnection();
     }
 
     // Abre una conexion o reutiliza la transaccion activa.
@@ -69,39 +25,46 @@ public class ConexionBD {
         return createConnection();
     }
 
-    // Cierra solamente las conexiones que no pertenecen
-    // a una transaccion activa.
-    public static void cerrar(Connection c) {
-        if (c != connTransaccion) {
-            closeConnection(c);
+
+    public static void cerrar(Connection conn) {
+        if (conn != null && conn != connTransaccion) {
+            try {
+                conn.close();
+            } catch (SQLException e) {
+                throw new IllegalStateException(
+                        "Error al cerrar la conexion", e);
+            }
         }
     }
 
-    // Ejecuta varias operaciones en una unica transaccion.
+
+    // Ejecuta operaciones en una sola transaccion.
     public static void ejecutarTransaccion(Runnable operacion) {
 
         if (connTransaccion != null) {
             throw new IllegalStateException(
-                    "Ya hay una transacción en curso");
+                    "Ya hay una transaccion en curso");
         }
 
-        Connection conn = createConnection();
+        Connection conn = abrir();
 
         try {
             conn.setAutoCommit(false);
+            connTransaccion = conn;
+
+            operacion.run();
+
+            conn.commit();
 
         } catch (SQLException e) {
-            closeConnection(conn);
+            try {
+                conn.rollback();
+            } catch (SQLException rollback) {
+                e.addSuppressed(rollback);
+            }
 
             throw new IllegalStateException(
-                    "No se pudo iniciar la transacción", e);
-        }
-
-        connTransaccion = conn;
-
-        try {
-            operacion.run();
-            conn.commit();
+                    "Error en la transaccion", e);
 
         } catch (RuntimeException | Error e) {
             try {
@@ -112,19 +75,20 @@ public class ConexionBD {
 
             throw e;
 
-        } catch (SQLException e) {
-            try {
-                conn.rollback();
-            } catch (SQLException rollback) {
-                e.addSuppressed(rollback);
-            }
-
-            throw new IllegalStateException(
-                    "No se pudo confirmar la transacción", e);
-
         } finally {
             connTransaccion = null;
-            closeConnection(conn);
+            cerrar(conn);
+        }
+    }
+
+    public static void closeConnection(Connection conexion) {
+        try {
+            if (conexion != null && !conexion.isClosed()) {
+                conexion.close();
+            }
+        } catch (SQLException e) {
+            throw new IllegalStateException(
+                    "Error al cerrar la conexion", e);
         }
     }
 }
