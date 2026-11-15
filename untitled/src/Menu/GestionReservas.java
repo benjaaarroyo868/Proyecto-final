@@ -7,6 +7,7 @@ import Exepciones.DatoInvalidoException;
 import Generico.RegistroGenericoMapas;
 import Interfaces.IEmpleado;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -730,7 +731,7 @@ public class GestionReservas {
                 "║                                           ║" + RESET);
 
         // FECHA DE INGRESO
-        java.time.LocalDate fechaIngreso;
+       LocalDate fechaIngreso;
 
         while (true) {
 
@@ -751,11 +752,11 @@ public class GestionReservas {
 
             try {
 
-                fechaIngreso = java.time.LocalDate.parse(
+                fechaIngreso = LocalDate.parse(
                         entrada, FORMATO_FECHA);
 
                 if (fechaIngreso.isBefore(
-                        java.time.LocalDate.now())) {
+                        LocalDate.now())) {
 
                     System.out.println(ROJO +
                             "║  ERROR: No puede ser anterior a hoy" + RESET);
@@ -853,7 +854,7 @@ public class GestionReservas {
         if (!hotel.habitacionDisponible(
                 habitacion, fechaIngreso, fechaSalida)) {
 
-            java.time.LocalDate proximaFecha =
+            LocalDate proximaFecha =
                     hotel.proximaFechaDisponible(
                             habitacion, fechaIngreso, fechaSalida);
 
@@ -1188,7 +1189,7 @@ public class GestionReservas {
 
                 case 1: {
 
-                    java.time.LocalDate nuevaEntrada;
+                    LocalDate nuevaEntrada;
 
                     while (true) {
 
@@ -1208,7 +1209,7 @@ public class GestionReservas {
                         try {
 
                             nuevaEntrada =
-                                    java.time.LocalDate.parse(texto, formato);
+                                   LocalDate.parse(texto, formato);
 
                             if (nuevaEntrada.isBefore(
                                     reserva.getFechaIngreso())) {
@@ -1219,7 +1220,7 @@ public class GestionReservas {
                             }
 
                             if (nuevaEntrada.isBefore(
-                                    java.time.LocalDate.now())) {
+                                   LocalDate.now())) {
 
                                 System.out.println(ROJO +
                                         "║  La fecha no puede ser anterior a hoy"
@@ -1279,7 +1280,7 @@ public class GestionReservas {
 
                             if (confirmarEliminacion()) {
 
-                                java.time.LocalDate anterior = reserva.getFechaIngreso();
+                                LocalDate anterior = reserva.getFechaIngreso();
                                 reserva.setFechaIngreso(nuevaEntrada);
                                 try {
                                     GestionBaseDatos.modificarFechaIngreso(reserva.getIdReserva(), nuevaEntrada);
@@ -1334,8 +1335,8 @@ public class GestionReservas {
 
                         try {
 
-                            java.time.LocalDate nuevaSalida =
-                                    java.time.LocalDate.parse(texto, formato);
+                            LocalDate nuevaSalida =
+                                   LocalDate.parse(texto, formato);
 
                             if (nuevaSalida.isBefore(
                                     reserva.getFechaSalida())) {
@@ -1396,7 +1397,7 @@ public class GestionReservas {
 
                             if (confirmarEliminacion()) {
 
-                                java.time.LocalDate anterior = reserva.getFechaSalida();
+                               LocalDate anterior = reserva.getFechaSalida();
                                 reserva.setFechaSalida(nuevaSalida);
                                 try {
                                     GestionBaseDatos.modificarFechaSalida(reserva.getIdReserva(), nuevaSalida);
@@ -1435,8 +1436,8 @@ public class GestionReservas {
 
                 case 3: {
 
-                    java.time.LocalDate nuevaEntrada = null;
-                    java.time.LocalDate nuevaSalida = null;
+                    LocalDate nuevaEntrada = null;
+                    LocalDate nuevaSalida = null;
 
                     while (true) {
 
@@ -1453,12 +1454,12 @@ public class GestionReservas {
                         try {
 
                             nuevaEntrada =
-                                    java.time.LocalDate.parse(texto, formato);
+                                    LocalDate.parse(texto, formato);
 
                             if (nuevaEntrada.isBefore(
                                     reserva.getFechaIngreso())
                                     || nuevaEntrada.isBefore(
-                                    java.time.LocalDate.now())) {
+                                    LocalDate.now())) {
 
                                 System.out.println(ROJO +
                                         "║  La fecha de entrada no puede retroceder"
@@ -1494,7 +1495,7 @@ public class GestionReservas {
                         try {
 
                             nuevaSalida =
-                                    java.time.LocalDate.parse(texto, formato);
+                                   LocalDate.parse(texto, formato);
 
                             if (nuevaSalida.isBefore(
                                     reserva.getFechaSalida())) {
@@ -1574,8 +1575,8 @@ public class GestionReservas {
 
                     if (confirmarEliminacion()) {
 
-                        java.time.LocalDate entradaAnterior = reserva.getFechaIngreso();
-                        java.time.LocalDate salidaAnterior = reserva.getFechaSalida();
+                        LocalDate entradaAnterior = reserva.getFechaIngreso();
+                        LocalDate salidaAnterior = reserva.getFechaSalida();
                         reserva.setFechaIngreso(nuevaEntrada);
                         reserva.setFechaSalida(nuevaSalida);
                         try {

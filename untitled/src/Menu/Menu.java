@@ -21,7 +21,7 @@ import static Menu.ValidacionesMenu.*;
 
 /**
  * MENÚS, INICIO DE SESIÓN Y PANTALLAS GENERALES
- * Extraído del Menu.java original. No se alteraron los cuerpos de los métodos.
+
  */
 public class Menu {
 

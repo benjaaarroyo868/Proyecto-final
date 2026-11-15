@@ -16,7 +16,6 @@ import static Menu.ValidacionesMenu.*;
 
 /**
  * EMPLEADOS
- * Extraído del Menu.java original. No se alteraron los cuerpos de los métodos.
  */
 public class GestionEmpleados {
 
