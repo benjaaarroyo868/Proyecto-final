@@ -14,7 +14,7 @@ public class Conexion {
             conn = DriverManager.getConnection(
                     "jdbc:mysql://localhost:3306/",
                     "root",
-                    "TU_CONTRASENA_MYSQL"
+                    "Scrfiat868877"
             );
 
             System.out.println("Conexion establecida con exito");
