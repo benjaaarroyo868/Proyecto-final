@@ -289,6 +289,7 @@ public class Hotel implements IValidarDatos {
             return true;
 
         } catch (AgenciaHotelException e) {
+            System.out.println("ERROR en agregarReserva: " + e.getMessage());
             return false;
         }
     }
@@ -485,6 +486,7 @@ public class Hotel implements IValidarDatos {
             throw new DatoInvalidoException(
                     "El legajo no puede estar vacío");
         }
+
 
         legajo = legajo.trim();
 
@@ -887,8 +889,6 @@ public class Hotel implements IValidarDatos {
 
             habitaciones.put(numero, habitacion);
 
-            System.out.println(
-                    "Habitación agregada correctamente");
 
             return true;
 

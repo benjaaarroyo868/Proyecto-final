@@ -13,6 +13,7 @@ public class ConexionBD {
     public static Connection createConnection() {
         Conexion conexion = new Conexion();
         conexion.createConnection();
+        conexion.usarBaseDatos("HotelConte");
         return conexion.getConnection();
     }
 
