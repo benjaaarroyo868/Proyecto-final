@@ -103,7 +103,7 @@ public class GestionHabitaciones {
 
         // OBTENER HABITACIONES
 
-        java.util.Collection<Habitacion> habitaciones =
+        Collection<Habitacion> habitaciones =
                 hotel.getHabitaciones().obtenerTodos();
 
         if (habitaciones.isEmpty()) {
@@ -370,7 +370,7 @@ public class GestionHabitaciones {
 
             // OBTENER TÉCNICOS DISPONIBLES
 
-            java.util.List<Tecnico> tecnicos =
+            List<Tecnico> tecnicos =
                     new java.util.ArrayList<>();
 
             for (Tecnico t : hotel.verTecnicos()) {

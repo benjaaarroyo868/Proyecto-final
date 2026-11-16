@@ -2,7 +2,10 @@
 import Clases.*;
 import Enums.*;
 import Exepciones.AgenciaHotelException;
-import Menu.Menu;
+import Menu.*;
+
+import static Menu.ConsolaHotel.CYAN;
+import static Menu.ConsolaHotel.RESET;
 
 public class Main {
 
@@ -145,6 +148,24 @@ public class Main {
             h1.agregarHabitacion(habitacion4);
             h1.agregarHabitacion(habitacion5);
             h1.agregarHabitacion(habitacion6);
+
+            System.out.println(CYAN +
+                    "╔═══════════════════════════════════════════╗");
+            System.out.println("║                  USUARIOS                 ║");
+            System.out.println("╠═══════════════════════════════════════════╣");
+            System.out.println("║   ADMINISTRADOR                           ║");
+            System.out.println("║   Nombre Usuario -> adminBenja            ║");
+            System.out.println("║   Contraseña -> Admin1234                 ║");
+            System.out.println("║                                           ║");
+            System.out.println("║   CONSERJE                                ║");
+            System.out.println("║   Nombre Usuario -> MartinZalez1234       ║");
+            System.out.println("║   Contraseña -> Martin1234@               ║");
+            System.out.println("║                                           ║");
+            System.out.println("║   PASAJERO                                ║");
+            System.out.println("║   Nombre Usuario -> juanPerez             ║");
+            System.out.println("║   Contraseña -> Juan1234                  ║");
+            System.out.println("╚═══════════════════════════════════════════╝"
+                    + RESET);
 
         } catch (AgenciaHotelException e) {
 

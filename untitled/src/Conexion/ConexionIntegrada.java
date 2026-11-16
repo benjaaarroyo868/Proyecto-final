@@ -24,7 +24,7 @@ public final class ConexionIntegrada {
     private final ConexionTablas tablas = new ConexionTablas();
 
     public void createConnection() {
-        Conexion inicial = new Conexion();
+        ConexionBD inicial = new ConexionBD();
         try {
             inicial.createConnection();
             inicial.crearBaseDatos("HotelConte");
