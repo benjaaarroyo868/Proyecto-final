@@ -1,10 +1,14 @@
 
 package Conexion;
 
+import com.sun.tools.javac.Main;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Conexion {
 
@@ -14,17 +18,12 @@ public class Conexion {
     public void createConnection() {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-
-            conn = DriverManager.getConnection(
-                    "jdbc:mysql://localhost:3306/",
-                    "root",
-                    System.getenv("Scrfiat868877")
-            );
-
-        } catch (ClassNotFoundException | SQLException e) {
-            throw new IllegalStateException(
-                    "Error al conectar con MySQL: "
-                            + e.getMessage(), e);
+            conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/", "root", "Scrfiat868877");
+        } catch (ClassNotFoundException e) {
+            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, e);
+        } catch (SQLException e) {
+            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, e);
+            System.out.println("Error al conectar con la base de datos");
         }
     }
 
