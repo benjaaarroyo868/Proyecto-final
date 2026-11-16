@@ -6,18 +6,26 @@ import java.sql.SQLException;
 
 public class ConexionBD {
 
-    // Conexion compartida durante una transaccion.
+    // CONEXION COMPARTIDA DURANTE UNA TRANSACCION
     private static Connection connTransaccion = null;
 
-    // Reutiliza la conexion de la clase Conexion.
+    // OBTENER CONEXION DESDE CONEXION.JAVA
     public static Connection createConnection() {
         Conexion conexion = new Conexion();
+
         conexion.createConnection();
-        conexion.usarBaseDatos("HotelConte");
-        return conexion.getConnection();
+
+        try {
+            conexion.usarBaseDatos("HotelConte");
+            return conexion.getConnection();
+
+        } catch (RuntimeException e) {
+            conexion.closeConnection();
+            throw e;
+        }
     }
 
-    // Abre una conexion o reutiliza la transaccion activa.
+    // ABRIR O REUTILIZAR CONEXION
     public static Connection abrir() {
         if (connTransaccion != null) {
             return connTransaccion;
@@ -26,20 +34,14 @@ public class ConexionBD {
         return createConnection();
     }
 
-
+    // CERRAR UTILIZANDO LA CLASE CONEXION
     public static void cerrar(Connection conn) {
         if (conn != null && conn != connTransaccion) {
-            try {
-                conn.close();
-            } catch (SQLException e) {
-                throw new IllegalStateException(
-                        "Error al cerrar la conexion", e);
-            }
+            Conexion.cerrar(conn);
         }
     }
 
-
-    // Ejecuta operaciones en una sola transaccion.
+    // EJECUTAR OPERACIONES EN UNA TRANSACCION
     public static void ejecutarTransaccion(Runnable operacion) {
 
         if (connTransaccion != null) {
@@ -51,13 +53,16 @@ public class ConexionBD {
 
         try {
             conn.setAutoCommit(false);
+
             connTransaccion = conn;
 
             operacion.run();
 
+            // SI TODO SALE BIEN, GUARDAR
             conn.commit();
 
         } catch (SQLException e) {
+
             try {
                 conn.rollback();
             } catch (SQLException rollback) {
@@ -68,6 +73,7 @@ public class ConexionBD {
                     "Error en la transaccion", e);
 
         } catch (RuntimeException | Error e) {
+
             try {
                 conn.rollback();
             } catch (SQLException rollback) {
@@ -77,19 +83,10 @@ public class ConexionBD {
             throw e;
 
         } finally {
-            connTransaccion = null;
-            cerrar(conn);
-        }
-    }
 
-    public static void closeConnection(Connection conexion) {
-        try {
-            if (conexion != null && !conexion.isClosed()) {
-                conexion.close();
-            }
-        } catch (SQLException e) {
-            throw new IllegalStateException(
-                    "Error al cerrar la conexion", e);
+            connTransaccion = null;
+
+            cerrar(conn);
         }
     }
 }

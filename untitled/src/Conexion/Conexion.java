@@ -1,14 +1,10 @@
 
 package Conexion;
 
-import com.sun.tools.javac.Main;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class Conexion {
 
@@ -18,35 +14,45 @@ public class Conexion {
     public void createConnection() {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/", "root", "Scrfiat868877");
-        } catch (ClassNotFoundException e) {
-            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, e);
-        } catch (SQLException e) {
-            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, e);
-            System.out.println("Error al conectar con la base de datos");
+
+            conn = DriverManager.getConnection(
+                    "jdbc:mysql://localhost:3306/",
+                    "root",
+                    System.getenv("Scrfiat868877")
+            );
+
+        } catch (ClassNotFoundException | SQLException e) {
+            throw new IllegalStateException(
+                    "Error al conectar con MySQL: "
+                            + e.getMessage(), e);
         }
     }
 
-    // OBTENER LA CONEXION
+    // OBTENER CONEXION
     public Connection getConnection() {
         return conn;
     }
 
-
+    // CERRAR LA CONEXION ORIGINAL
     public void closeConnection() {
+        cerrar(conn);
+        conn = null;
+    }
+
+    // UNICA LOGICA PARA CERRAR CONEXIONES
+    public static void cerrar(Connection conexion) {
         try {
-            if (conn != null && !conn.isClosed()) {
-                conn.close();
-                conn = null;
+            if (conexion != null && !conexion.isClosed()) {
+                conexion.close();
             }
         } catch (SQLException e) {
             throw new IllegalStateException(
-                    "Error al cerrar la conexion: " + e.getMessage(), e);
+                    "Error al cerrar la conexion: "
+                            + e.getMessage(), e);
         }
     }
 
-
-    // VALIDAR NOMBRE DE LA BASE DE DATOS
+    // VALIDAR NOMBRE BASE DE DATOS
     private static void validarNombreBaseDatos(String nombre) {
         if (nombre == null ||
                 !nombre.matches("[A-Za-z][A-Za-z0-9_]*")) {
@@ -59,9 +65,12 @@ public class Conexion {
     public void crearBaseDatos(String nombre) {
         validarNombreBaseDatos(nombre);
 
-        String sql = "CREATE DATABASE IF NOT EXISTS `" + nombre + "`";
+        String sql = "CREATE DATABASE IF NOT EXISTS `"
+                + nombre + "`";
 
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (PreparedStatement ps =
+                     conn.prepareStatement(sql)) {
+
             ps.executeUpdate();
 
         } catch (SQLException e) {
